@@ -1,0 +1,35 @@
+import { Memory } from "@/types";
+import { create } from "zustand";
+
+export type Interpreters = "sos" | "ds";
+
+export type ProgramStorage = {
+  activeInterpreter: Interpreters;
+  setActiveInterpreter: (a: Interpreters) => void;
+  programText?: string;
+  setProgramText: (v?: string) => void;
+  variables: Memory;
+  setVariables: (m: Memory) => void;
+  programId: number;
+  setProgramId: (id: number) => void;
+};
+
+export const useProgramStorage = create<ProgramStorage>((set) => ({
+  activeInterpreter: "sos",
+  setActiveInterpreter(a) {
+    set((state) => ({ ...state, activeInterpreter: a }));
+  },
+  setProgramText(v) {
+    set((state) => ({ ...state, programText: v }));
+  },
+  variables: {
+    x: 2
+  },
+  setVariables(m) {
+    set((state) => ({ ...state, variables: m }));
+  },
+  programId: 0,
+  setProgramId(id) {
+    set((state) => ({ ...state, programId: id }));
+  },
+}));
