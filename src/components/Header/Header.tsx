@@ -1,9 +1,9 @@
-import { Info, Moon, Play, Sun } from "lucide-react";
-import { DefaultHeaderButton } from "./DefaultHeaderButton";
-import { InterpreterSelector } from "./InterpreterSelector";
 import { useProgramStorage } from "@/lib/storage/programStorage";
+import { Moon, Play, Sun } from "lucide-react";
 import { useContext } from "react";
 import ThemeContext from "../ThemeContext";
+import { DefaultHeaderButton } from "./DefaultHeaderButton";
+import { InterpreterSelector } from "./InterpreterSelector";
 
 export function Header() {
   const theme = useContext(ThemeContext) ?? {};

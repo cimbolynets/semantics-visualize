@@ -22,9 +22,7 @@ export const useProgramStorage = create<ProgramStorage>((set) => ({
   setProgramText(v) {
     set((state) => ({ ...state, programText: v }));
   },
-  variables: {
-    x: 2
-  },
+  variables: {},
   setVariables(m) {
     set((state) => ({ ...state, variables: m }));
   },

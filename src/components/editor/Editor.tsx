@@ -1,10 +1,9 @@
 import { useProgramStorage } from "@/lib/storage/programStorage";
+import { cn } from "@/lib/utils";
 import { HTMLAttributes, useContext } from "react";
 import ThemeContext from "../ThemeContext";
 import { CodeEditor } from "./CodeEditor";
 import VariablesList from "./VariablesList";
-import clsx from "clsx";
-import { cn } from "@/lib/utils";
 
 export default function Editor(props: HTMLAttributes<HTMLDivElement>) {
   const theme = useContext(ThemeContext);
