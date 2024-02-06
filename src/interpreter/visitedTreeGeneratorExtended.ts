@@ -1,15 +1,19 @@
-import { JaneLexer } from "@/grammar/jane/JaneLexer";
-import { JaneParser } from "@/grammar/jane/JaneParser";
+import { JaneExtendedLexer } from "@/grammar/jane-extended/JaneExtendedLexer";
+import { JaneExtendedParser } from "@/grammar/jane-extended/JaneExtendedParser";
+import { EditorError } from "@/types";
 import { CharStreams, CommonTokenStream } from "antlr4ts";
 import Visitor, { VisitorResult } from "./Visitor";
-import { EditorError } from "@/types";
+import VisitorExtended from "./VisitorExtended";
 
-export default function generateVisitedTree(input: string, variables: Record<string, number>): [VisitorResult, Visitor] {
+export default function generateVisitedTreeExtended(
+  input: string,
+  variables: Record<string, number>
+): [VisitorResult, Visitor] {
   const errors: EditorError[] = [];
 
   const chars = CharStreams.fromString(input);
 
-  const lexer = new JaneLexer(chars);
+  const lexer = new JaneExtendedLexer(chars);
   lexer.removeErrorListeners();
   lexer.addErrorListener({
     syntaxError: (_, __, line, column, msg) => {
@@ -24,7 +28,7 @@ export default function generateVisitedTree(input: string, variables: Record<str
   });
   const tokens = new CommonTokenStream(lexer);
 
-  const parser = new JaneParser(tokens);
+  const parser = new JaneExtendedParser(tokens);
   parser.removeErrorListeners();
   parser.addErrorListener({
     syntaxError: (_, __, line, column, msg) => {
@@ -40,7 +44,7 @@ export default function generateVisitedTree(input: string, variables: Record<str
   parser.buildParseTree = true;
 
   const tree = parser.program();
-  const visitor = new Visitor(errors, variables);
+  const visitor = new VisitorExtended(errors, variables);
   const visited = tree.accept(visitor) as VisitorResult;
   if (!visited) {
     throw new Error("Parsing failed");

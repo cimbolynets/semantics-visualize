@@ -11,8 +11,8 @@ import {
   StatContext,
   StatsContext,
   TermContext,
-} from "@/grammar/JaneParser";
-import { JaneVisitor } from "@/grammar/JaneVisitor";
+} from "@/grammar/jane/JaneParser";
+import { JaneVisitor } from "@/grammar/jane/JaneVisitor";
 import { notEmpty } from "@/lib/utils/notEmpty";
 import { EditorError, Memory } from "@/types";
 import { TerminalNode } from "antlr4ts/tree/TerminalNode";

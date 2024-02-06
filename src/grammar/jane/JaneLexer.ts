@@ -1,4 +1,4 @@
-// Generated from ./src/grammar/Jane.g4 by ANTLR 4.9.0-SNAPSHOT
+// Generated from ./src/grammar/jane/Jane.g4 by ANTLR 4.9.0-SNAPSHOT
 
 import { CharStream } from "antlr4ts/CharStream";
 import { Lexer } from "antlr4ts/Lexer";

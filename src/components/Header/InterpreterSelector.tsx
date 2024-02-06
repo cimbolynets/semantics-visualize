@@ -23,8 +23,8 @@ export const InterpreterSelector: FC = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem onClick={() => setActive("sos")}>SOS</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setActive("ds")}>DS</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setActive("ns")}>NS</DropdownMenuItem>
+        {/* <DropdownMenuItem onClick={() => setActive("ds")}>DS</DropdownMenuItem> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );

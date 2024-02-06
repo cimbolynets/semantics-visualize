@@ -18,7 +18,7 @@ export function Header() {
           <InterpreterSelector />
         </div>
         <DefaultHeaderButton onClick={incrementProgramId}>
-          <Play size="1rem" />
+          <Play className="!w-[1.375rem] !h-[1.375rem] stroke-primary fill-primary hover:brightness-50 transition-all" />
         </DefaultHeaderButton>
       </div>
       <div>

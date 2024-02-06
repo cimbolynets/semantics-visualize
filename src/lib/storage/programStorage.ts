@@ -1,7 +1,7 @@
 import { Memory } from "@/types";
 import { create } from "zustand";
 
-export type Interpreters = "sos" | "ds";
+export type Interpreters = "ns" | "sos" | "ds";
 
 export type ProgramStorage = {
   activeInterpreter: Interpreters;
@@ -15,7 +15,7 @@ export type ProgramStorage = {
 };
 
 export const useProgramStorage = create<ProgramStorage>((set) => ({
-  activeInterpreter: "sos",
+  activeInterpreter: "ns",
   setActiveInterpreter(a) {
     set((state) => ({ ...state, activeInterpreter: a }));
   },
