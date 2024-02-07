@@ -44,6 +44,7 @@ export default function generateVisitedTreeExtended(
   parser.buildParseTree = true;
 
   const tree = parser.program();
+  console.log("Tree:", tree);
   const visitor = new VisitorExtended(errors, variables);
   const visited = tree.accept(visitor) as VisitorResult;
   if (!visited) {

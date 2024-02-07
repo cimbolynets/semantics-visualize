@@ -36,6 +36,10 @@ export default class Visitor implements JaneVisitor<object | undefined> {
     return this.memory;
   }
 
+  setMemory(m: Memory) {
+    this.memory = m;
+  }
+
   getErrors() {
     return this.errors;
   }
@@ -129,10 +133,8 @@ export default class Visitor implements JaneVisitor<object | undefined> {
           });
           break;
         }
-        
-        iters.push(
-          JSON.parse(JSON.stringify(this.visitInstructionSequence(instructionSequence)))
-        );
+
+        iters.push(JSON.parse(JSON.stringify(this.visitInstructionSequence(instructionSequence))));
         stats = this.visitStats(ctx.stats());
         i++;
       }
