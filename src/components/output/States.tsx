@@ -1,5 +1,3 @@
-import { MakeSequenceState } from "@/interpreter/types";
-import { formatMemory } from "@/lib/utils/formatMemory";
 import { BetweenHorizontalStart } from "lucide-react";
 import MathRenderer from "../MathRenderer";
 import { Button } from "../ui/button";
@@ -13,7 +11,7 @@ import {
 } from "../ui/sheet";
 
 interface StatesProps {
-  states: MakeSequenceState[];
+  states: string[];
 }
 
 export default function States({ states }: StatesProps) {
@@ -33,10 +31,8 @@ export default function States({ states }: StatesProps) {
           </SheetDescription>
         </SheetHeader>
         <div className="flex flex-col gap-2">
-          {states.map((state) => (
-            <MathRenderer key={state.id}>
-              {`${state.id} = ${formatMemory(state.memory)}`}
-            </MathRenderer>
+          {states.map((state, index) => (
+            <MathRenderer key={index}>{state}</MathRenderer>
           ))}
         </div>
       </SheetContent>

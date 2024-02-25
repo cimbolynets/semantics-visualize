@@ -1,4 +1,4 @@
-// Generated from ./src/grammar/jane/Jane.g4 by ANTLR 4.9.0-SNAPSHOT
+// Generated from ./src/grammar/Jane.g4 by ANTLR 4.9.0-SNAPSHOT
 
 
 import { ParseTreeVisitor } from "antlr4ts/tree/ParseTreeVisitor";
@@ -10,6 +10,8 @@ import { CycleContext } from "./JaneParser";
 import { BranchContext } from "./JaneParser";
 import { AssignContext } from "./JaneParser";
 import { SkipContext } from "./JaneParser";
+import { BlockContext } from "./JaneParser";
+import { DeclContext } from "./JaneParser";
 import { StatsContext } from "./JaneParser";
 import { StatContext } from "./JaneParser";
 import { ExprContext } from "./JaneParser";
@@ -73,6 +75,20 @@ export interface JaneVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitSkip?: (ctx: SkipContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `JaneParser.block`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitBlock?: (ctx: BlockContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `JaneParser.decl`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitDecl?: (ctx: DeclContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `JaneParser.stats`.

@@ -1,10 +1,13 @@
-import { JaneLexer } from "@/grammar/jane/JaneLexer";
-import { JaneParser } from "@/grammar/jane/JaneParser";
+import { JaneLexer } from "@/grammar/JaneLexer";
+import { JaneParser } from "@/grammar/JaneParser";
 import { CharStreams, CommonTokenStream } from "antlr4ts";
 import Visitor, { VisitorResult } from "./Visitor";
 import { EditorError } from "@/types";
 
-export default function generateVisitedTree(input: string, variables: Record<string, number>): [VisitorResult, Visitor] {
+export default function generateVisitedTree(
+  input: string,
+  variables: Record<string, number>
+): [VisitorResult, Visitor] {
   const errors: EditorError[] = [];
 
   const chars = CharStreams.fromString(input);

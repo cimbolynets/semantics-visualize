@@ -8,7 +8,9 @@ while !(x = 1) do (
 export const withBlock = `
 x := 1;
 y := 2;
-begin var x := 3;
-  x := 4
-end
+begin var x := 3, z := 3;
+  (x := 4;
+  y := x + 2)
+end;
+if x <= y then x := y else skip
 `;

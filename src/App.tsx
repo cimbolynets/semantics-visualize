@@ -10,11 +10,11 @@ export default function App() {
       <Header />
       <main className="my-6">
         <ResizablePanelGroup direction="horizontal">
-          <ResizablePanel defaultSize={50}>
+          <ResizablePanel defaultSize={0}>
             <Editor className="p-1" />
           </ResizablePanel>
           <ResizableHandle withHandle className="w-1" />
-          <ResizablePanel defaultSize={50}>
+          <ResizablePanel defaultSize={100}>
             <Output className="p-1" />
           </ResizablePanel>
         </ResizablePanelGroup>

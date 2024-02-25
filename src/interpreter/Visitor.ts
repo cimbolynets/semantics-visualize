@@ -1,18 +1,23 @@
+// need to import from here, otherwise instance of won't work
+
 import {
-  AssignContext,
-  BranchContext,
-  CycleContext,
-  ExprContext,
-  InstructionContext,
-  InstructionSequenceContext,
-  MulContext,
   ProgramContext,
+  InstructionSequenceContext,
+  InstructionContext,
+  CycleContext,
+  BranchContext,
+  AssignContext,
   SkipContext,
-  StatContext,
+  BlockContext,
+  DeclContext,
   StatsContext,
+  StatContext,
+  ExprContext,
+  MulContext,
   TermContext,
-} from "@/grammar/jane/JaneParser";
-import { JaneVisitor } from "@/grammar/jane/JaneVisitor";
+} from "@/grammar/JaneParser";
+import { JaneVisitor } from "@/grammar/JaneVisitor";
+import { mergeMemory } from "@/lib/utils/mergeMemory";
 import { notEmpty } from "@/lib/utils/notEmpty";
 import { EditorError, Memory } from "@/types";
 import { TerminalNode } from "antlr4ts/tree/TerminalNode";
@@ -26,19 +31,21 @@ export type VisitStatsResult = { value: boolean; text: string };
 export default class Visitor implements JaneVisitor<object | undefined> {
   private errors: EditorError[];
   private memory: Memory;
+  private blockStack: Memory[];
 
   constructor(errors: EditorError[], variables: Memory) {
     this.memory = { ...variables } ?? {};
     this.errors = errors ?? [];
+    this.blockStack = [];
   }
 
-  getMemory() {
+  getMemory = () => {
     return this.memory;
-  }
+  };
 
-  setMemory(m: Memory) {
+  setMemory = (m: Memory) => {
     this.memory = m;
-  }
+  };
 
   getErrors() {
     return this.errors;
@@ -77,13 +84,13 @@ export default class Visitor implements JaneVisitor<object | undefined> {
         type: "instruction";
       }
     | undefined {
-    const state = JSON.parse(JSON.stringify(this.memory));
-    ctx.branch;
+    const state = structuredClone(this.memory);
     let instr: ReturnType<
       | typeof this.visitBranch
       | typeof this.visitCycle
       | typeof this.visitAssign
       | typeof this.visitSkip
+      | typeof this.visitBlock
     >;
     if (ctx.branch()) {
       instr = this.visitBranch(ctx.branch()!, noEval);
@@ -91,6 +98,8 @@ export default class Visitor implements JaneVisitor<object | undefined> {
       instr = this.visitCycle(ctx.cycle()!, noEval);
     } else if (ctx.assign()) {
       instr = this.visitAssign(ctx.assign()!, noEval);
+    } else if (ctx.block()) {
+      instr = this.visitBlock(ctx.block()!, noEval);
     } else {
       instr = this.visitSkip(ctx.skip()!);
     }
@@ -233,7 +242,10 @@ export default class Visitor implements JaneVisitor<object | undefined> {
 
     return {
       text: id + " := " + expr.text,
+      id,
+      value: expr.text,
       type: "assign",
+      state: structuredClone(this.memory),
     };
   }
 
@@ -241,6 +253,56 @@ export default class Visitor implements JaneVisitor<object | undefined> {
     return {
       text: ctx.Skip().text,
       type: "skip",
+    };
+  }
+
+  visitBlock(ctx: BlockContext, noEval?: boolean) {
+    if (noEval) {
+      return {
+        type: "block",
+        text: `begin ${ctx.decl().text}; ${
+          ctx.instructionSequence()
+            ? this.visitInstructionSequence(ctx.instructionSequence()!, true)
+            : this.visitInstruction(ctx.instruction()!, true)
+        } end`,
+      };
+    }
+
+    this.blockStack.push(structuredClone(this.getMemory()));
+
+    const memoryBefore = structuredClone(this.getMemory());
+    const decl = this.visitDecl(ctx.decl());
+    const body = ctx.instructionSequence()
+      ? this.visitInstructionSequence(ctx.instructionSequence()!)
+      : this.visitInstruction(ctx.instruction()!);
+
+    if (!body) return undefined;
+    
+    const memoryAfter = mergeMemory(
+      this.blockStack.pop()!,
+      this.getMemory(),
+      decl.assignments.map((a) => a.id)
+    );
+    
+    this.setMemory(structuredClone(memoryAfter));
+
+    return {
+      type: "block",
+      text: `begin var ${decl.text}; ${body.text} end`,
+      decl,
+      body,
+      memoryBefore,
+      memoryAfter,
+    };
+  }
+
+  visitDecl(ctx: DeclContext, noEval?: boolean) {
+    const assignments = ctx.assign().map((assignCtx) => this.visitAssign(assignCtx, noEval));
+
+    return {
+      text: assignments.map((a) => a.text).join(", "),
+      assignments,
+      type: "decl",
     };
   }
 
@@ -315,7 +377,7 @@ export default class Visitor implements JaneVisitor<object | undefined> {
         op = c.text;
         return {
           value: acc.value,
-          text: acc.text + " " + op + " ",
+          text: acc.text + op,
         };
       },
       { value: 0, text: "" }

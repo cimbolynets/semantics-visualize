@@ -1,5 +1,4 @@
 import { MakeSequenceNS } from "@/interpreter/MakeSequenceNS";
-import { MakeSequenceState } from "@/interpreter/types";
 import { useProgramStorage } from "@/lib/storage/programStorage";
 import { cn } from "@/lib/utils";
 import { HTMLAttributes, useEffect, useState } from "react";
@@ -14,7 +13,7 @@ export default function Output(props: OutputProps) {
   const programId = useProgramStorage((state) => state.programId);
 
   const [currentProgramText, setCurrentProgramText] = useState<string | undefined>();
-  const [states, setStates] = useState<MakeSequenceState[]>([]);
+  const [states, setStates] = useState<string[]>([]);
 
   useEffect(() => {
     if (!programText) return;

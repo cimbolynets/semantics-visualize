@@ -17,8 +17,12 @@ Not=16
 Leq=17
 Eq=18
 Semicolon=19
-Id=20
-Value=21
+Begin=20
+End=21
+Var=22
+Colon=23
+Id=24
+Value=25
 'skip'=3
 '('=4
 ')'=5
@@ -36,3 +40,7 @@ Value=21
 '<='=17
 '='=18
 ';'=19
+'begin'=20
+'end'=21
+'var'=22
+','=23

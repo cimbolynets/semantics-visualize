@@ -4,7 +4,7 @@ program: instructionSequence EOF;
 
 instructionSequence: instruction (Semicolon instruction)*;
 
-instruction: assign | cycle | branch | skip;
+instruction: assign | cycle | branch | skip | block;
 
 cycle: While stats Do (Lpar instructionSequence Rpar | instruction);
 branch: 
@@ -13,6 +13,8 @@ branch:
     ;
 assign: Id AssignSymbol expr;
 skip: Skip;
+block: Begin decl Semicolon (Lpar instructionSequence Rpar | instruction) End;
+decl: Var assign (Colon assign)*;
 
 stats: stat (And stat)*;
 stat: expr (Leq expr | Eq expr) | Not? Lpar stats Rpar;
@@ -40,5 +42,10 @@ Not: '!';
 Leq: '<=';
 Eq: '=';
 Semicolon: ';';
+Begin: 'begin';
+End: 'end';
+Var: 'var';
+Colon: ',';
+
 Id: [A-Za-z][A-Za-z0-9]*;
 Value: [1-9][0-9]* | [0-9];

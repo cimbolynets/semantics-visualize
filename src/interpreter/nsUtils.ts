@@ -1,3 +1,5 @@
+import { formatMemory } from "@/lib/utils/formatMemory";
+import { Memory } from "@/types";
 import { CycleInstruction, TreeNode } from "./types";
 
 export const assignPattern = /(.+) +:= +(.+)/;
@@ -9,39 +11,25 @@ export function isSkipOrEmptyCycle(instr: TreeNode) {
   );
 }
 
-export function parseState(stateNumber: number) {
-  return String.raw`s_${stateNumber}`;
+export function parseState(stateNumber: number, memory: Memory, startStateNumber?: number) {
+  if (!startStateNumber) return `s_${stateNumber} = ${formatMemory(memory)}`;
+  return String.raw`s_${stateNumber} = s_${
+    stateNumber - 1
+  }[DV(D) \mapsto s_${startStateNumber}] = ${formatMemory(memory)}`;
 }
 
 export function getCurrentInstructions(text: string, stateNumber: number, sameState = false) {
-  return String.raw`\langle ${text},\ ${parseState(stateNumber)} \rangle\ \rightarrow\ ${parseState(
+  return String.raw`\langle ${text},\ s_${stateNumber} \rangle\ \rightarrow\ s_${
     stateNumber + (!sameState ? 1 : 0)
-  )}`;
+  }`;
 }
 
 export function formatCondition(text: string, isTrue: boolean, stateNumber: number) {
-  return String.raw`\mathscr{B}[\![ ${text} ]\!]${parseState(stateNumber)} = \textbf{${
+  return String.raw`\mathscr{B}[\![ ${text} ]\!]s_${stateNumber} = \textbf{${
     isTrue ? "tt" : "ff"
   }}`;
 }
 
-// import { Config, State } from "./types";
-
-// export function parseState(state: State) {
-//   return String.raw`s${state.number > 0 || !state.primes ? `_${state.number}` : ""}${"'".repeat(
-//     state.primes ?? 0
-//   )}`;
-// }
-
-// export function getCurrentInstructions(text: string, config: Config) {
-//   const { state, rootState } = config;
-//   return String.raw`\langle ${text},\ ${parseState(state)} \rangle\ \rightarrow\ ${parseState(
-//     rootState
-//   )}`;
-// }
-
-// export function formatCondition(text: string, isTrue: boolean, state: State) {
-//   return String.raw`\mathscr{B}[\![ ${text} ]\!]${parseState(state)} = \textbf{${
-//     isTrue ? "tt" : "ff"
-//   }}`;
-// }
+export function frac(num: string, den: string, dividerThickness = 1) {
+  return String.raw`\genfrac{}{}{${dividerThickness}pt}{0}{${num}}{${den}}`;
+}

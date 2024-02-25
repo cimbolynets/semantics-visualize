@@ -1,5 +1,6 @@
 import { Memory } from "@/types";
 import { create } from "zustand";
+import { withBlock } from "../examples";
 
 export type Interpreters = "ns" | "sos" | "ds";
 
@@ -19,6 +20,7 @@ export const useProgramStorage = create<ProgramStorage>((set) => ({
   setActiveInterpreter(a) {
     set((state) => ({ ...state, activeInterpreter: a }));
   },
+  programText: withBlock,
   setProgramText(v) {
     set((state) => ({ ...state, programText: v }));
   },
