@@ -4,7 +4,7 @@ program: instructionSequence EOF;
 
 instructionSequence: instruction (Semicolon instruction)*;
 
-instruction: assign | cycle | branch | skip | block;
+instruction: assign | cycle | branch | skip | block | procDefinition | procCall;
 
 cycle: While stats Do (Lpar instructionSequence Rpar | instruction);
 branch: 
@@ -15,6 +15,8 @@ assign: Id AssignSymbol expr;
 skip: Skip;
 block: Begin decl Semicolon (Lpar instructionSequence Rpar | instruction) End;
 decl: Var assign (Colon assign)*;
+procDefinition: Proc Id Is (Lpar instructionSequence Rpar | instruction);
+procCall: Call Id;
 
 stats: stat (And stat)*;
 stat: expr (Leq expr | Eq expr) | Not? Lpar stats Rpar;
@@ -45,6 +47,9 @@ Semicolon: ';';
 Begin: 'begin';
 End: 'end';
 Var: 'var';
+Proc: 'proc';
+Is: 'is';
+Call: 'call';
 Colon: ',';
 
 Id: [A-Za-z][A-Za-z0-9]*;

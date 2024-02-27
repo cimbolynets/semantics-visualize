@@ -12,6 +12,8 @@ import { AssignContext } from "./JaneParser";
 import { SkipContext } from "./JaneParser";
 import { BlockContext } from "./JaneParser";
 import { DeclContext } from "./JaneParser";
+import { ProcDefinitionContext } from "./JaneParser";
+import { ProcCallContext } from "./JaneParser";
 import { StatsContext } from "./JaneParser";
 import { StatContext } from "./JaneParser";
 import { ExprContext } from "./JaneParser";
@@ -89,6 +91,20 @@ export interface JaneVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitDecl?: (ctx: DeclContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `JaneParser.procDefinition`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitProcDefinition?: (ctx: ProcDefinitionContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `JaneParser.procCall`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitProcCall?: (ctx: ProcCallContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `JaneParser.stats`.

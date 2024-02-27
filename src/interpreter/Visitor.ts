@@ -15,36 +15,85 @@ import {
   ExprContext,
   MulContext,
   TermContext,
+  ProcDefinitionContext,
+  ProcCallContext,
 } from "@/grammar/JaneParser";
 import { JaneVisitor } from "@/grammar/JaneVisitor";
 import { mergeMemory } from "@/lib/utils/mergeMemory";
 import { notEmpty } from "@/lib/utils/notEmpty";
 import { EditorError, Memory } from "@/types";
 import { TerminalNode } from "antlr4ts/tree/TerminalNode";
+import { createEditorError } from "./errorUtils";
+
+interface Procedure {
+  id: string;
+  body: InstructionContext | InstructionSequenceContext;
+}
+
+class Scope {
+  public memory: Memory;
+  public procedures: Procedure[];
+
+  constructor(memory?: Memory) {
+    this.memory = memory ?? {};
+    this.procedures = [];
+  }
+
+  public getVariable = (name: string) => {
+    return this.memory[name];
+  };
+
+  public getProcedure = (name: string) => {
+    return this.procedures.find((p) => p.id === name);
+  };
+
+  public setVariable = (name: string, value: number) => {
+    this.memory[name] = value;
+    return this;
+  };
+
+  public setProcedure = (procedure: Procedure) => {
+    const i = this.procedures.findIndex((p) => p.id === procedure.id);
+    if (i === -1) {
+      this.procedures.push(procedure);
+      return this;
+    }
+    this.procedures[i] = procedure;
+    return this;
+  };
+
+  public setMemory = (memory: Memory) => {
+    this.memory = memory;
+    return this;
+  };
+
+  public setProcedures = (procedures: Procedure[]) => {
+    this.procedures = procedures;
+    return this;
+  };
+
+  public clone = () => {
+    return new Scope(structuredClone(this.memory)).setProcedures([...this.procedures]);
+  };
+}
 
 export type VisitorResult = ReturnType<Visitor["visitInstructionSequence"]>;
-
 export type VisitorInstructionResult = ReturnType<Visitor["visitInstruction"]>;
-
 export type VisitStatsResult = { value: boolean; text: string };
 
 export default class Visitor implements JaneVisitor<object | undefined> {
   private errors: EditorError[];
-  private memory: Memory;
-  private blockStack: Memory[];
+  private scope: Scope;
+  private scopeStack: Scope[];
 
   constructor(errors: EditorError[], variables: Memory) {
-    this.memory = { ...variables } ?? {};
+    this.scope = new Scope({ ...variables });
     this.errors = errors ?? [];
-    this.blockStack = [];
+    this.scopeStack = [];
   }
 
   getMemory = () => {
-    return this.memory;
-  };
-
-  setMemory = (m: Memory) => {
-    this.memory = m;
+    return this.scope.memory;
   };
 
   getErrors() {
@@ -84,13 +133,15 @@ export default class Visitor implements JaneVisitor<object | undefined> {
         type: "instruction";
       }
     | undefined {
-    const state = structuredClone(this.memory);
+    const state = structuredClone(this.scope.memory);
     let instr: ReturnType<
       | typeof this.visitBranch
       | typeof this.visitCycle
       | typeof this.visitAssign
       | typeof this.visitSkip
       | typeof this.visitBlock
+      | typeof this.visitProcDefinition
+      | typeof this.visitProcCall
     >;
     if (ctx.branch()) {
       instr = this.visitBranch(ctx.branch()!, noEval);
@@ -100,6 +151,10 @@ export default class Visitor implements JaneVisitor<object | undefined> {
       instr = this.visitAssign(ctx.assign()!, noEval);
     } else if (ctx.block()) {
       instr = this.visitBlock(ctx.block()!, noEval);
+    } else if (ctx.procCall()) {
+      instr = this.visitProcCall(ctx.procCall()!, noEval);
+    } else if (ctx.procDefinition()) {
+      instr = this.visitProcDefinition(ctx.procDefinition()!, noEval);
     } else {
       instr = this.visitSkip(ctx.skip()!);
     }
@@ -129,17 +184,7 @@ export default class Visitor implements JaneVisitor<object | undefined> {
 
       while (stats.value && this.errors.length === 0 && !noEval) {
         if (i >= 100) {
-          this.errors.push({
-            message:
-              "Possible infinite loop at line " +
-              ctx.start.line +
-              ", column " +
-              ctx.start.charPositionInLine,
-            startLineNumber: ctx.start.line,
-            startColumn: ctx.start.charPositionInLine,
-            endLineNumber: ctx.stop?.line ?? ctx.start.line,
-            endColumn: ctx.stop?.charPositionInLine ?? ctx.start?.charPositionInLine,
-          });
+          this.errors.push(createEditorError(ctx, "Possible infinite loop"));
           break;
         }
 
@@ -238,14 +283,14 @@ export default class Visitor implements JaneVisitor<object | undefined> {
   visitAssign(ctx: AssignContext, noEval?: boolean) {
     const expr = this.visitExpr(ctx.expr(), noEval);
     const id = ctx.Id().text;
-    if (!noEval) this.memory[id] = expr.value;
+    if (!noEval) this.scope.setVariable(id, expr.value);
 
     return {
       text: id + " := " + expr.text,
       id,
       value: expr.text,
       type: "assign",
-      state: structuredClone(this.memory),
+      state: structuredClone(this.scope.memory),
     };
   }
 
@@ -268,23 +313,23 @@ export default class Visitor implements JaneVisitor<object | undefined> {
       };
     }
 
-    this.blockStack.push(structuredClone(this.getMemory()));
+    this.scopeStack.push(this.scope.clone());
 
-    const memoryBefore = structuredClone(this.getMemory());
+    const memoryBefore = this.scope.clone().memory;
     const decl = this.visitDecl(ctx.decl());
     const body = ctx.instructionSequence()
       ? this.visitInstructionSequence(ctx.instructionSequence()!)
       : this.visitInstruction(ctx.instruction()!);
 
     if (!body) return undefined;
-    
+
     const memoryAfter = mergeMemory(
-      this.blockStack.pop()!,
+      this.scopeStack.pop()!.memory,
       this.getMemory(),
       decl.assignments.map((a) => a.id)
     );
-    
-    this.setMemory(structuredClone(memoryAfter));
+
+    this.scope.setMemory(structuredClone(memoryAfter));
 
     return {
       type: "block",
@@ -295,6 +340,46 @@ export default class Visitor implements JaneVisitor<object | undefined> {
       memoryAfter,
     };
   }
+
+  visitProcDefinition = (ctx: ProcDefinitionContext, noEval?: boolean) => {
+    const body = ctx.instruction() ?? ctx.instructionSequence();
+    if (!body) return undefined;
+    const procId = ctx.Id().text;
+    if (!noEval) {
+      this.scope.setProcedure({
+        id: procId,
+        body,
+      });
+    }
+    const bodyText = (
+      body instanceof InstructionContext
+        ? this.visitInstruction(body, true)
+        : this.visitInstructionSequence(body, true)
+    )?.text;
+    return { text: `proc ${procId} is ${bodyText}` };
+  };
+
+  visitProcCall = (ctx: ProcCallContext, noEval?: boolean) => {
+    this.scopeStack.push(this.scope.clone());
+    const memoryBefore = this.scope.clone().memory;
+
+    const procId = ctx.Id().text;
+    const procedure = this.scope.getProcedure(procId);
+    if (!procedure) {
+      this.errors.push(createEditorError(ctx, `Procedure ${procId} is not defined`));
+      return undefined;
+    }
+
+    const body =
+      procedure.body instanceof InstructionContext
+        ? this.visitInstruction(procedure.body, noEval)
+        : this.visitInstructionSequence(procedure.body, noEval);
+
+    const memoryAfter = mergeMemory(this.scopeStack.pop()!.memory, this.getMemory());
+    this.scope.setMemory(structuredClone(memoryAfter));
+
+    return { text: `call ${procId}`, body, memoryBefore, memoryAfter };
+  };
 
   visitDecl(ctx: DeclContext, noEval?: boolean) {
     const assignments = ctx.assign().map((assignCtx) => this.visitAssign(assignCtx, noEval));
@@ -408,18 +493,16 @@ export default class Visitor implements JaneVisitor<object | undefined> {
         value: parseInt(ctx.text),
       };
     } else if (id) {
-      if (!noEval && (this.memory[ctx.text] === null || this.memory[ctx.text] === undefined)) {
-        this.errors.push({
-          message: `Variable ${ctx.text} on line ${ctx.start.line} column ${ctx.start.charPositionInLine} is not initialized`,
-          startLineNumber: ctx.start.line,
-          startColumn: ctx.start.charPositionInLine,
-          endLineNumber: ctx.stop?.line ?? ctx.start.line,
-          endColumn: ctx.stop?.charPositionInLine ?? ctx.start.charPositionInLine,
-        });
+      if (
+        !noEval &&
+        (this.scope.getVariable(ctx.text) === null ||
+          this.scope.getVariable(ctx.text) === undefined)
+      ) {
+        this.errors.push(createEditorError(ctx, `Variable ${ctx.text} is not initialized`));
       }
       return {
         text: ctx.text,
-        value: this.memory[ctx.text],
+        value: this.scope.getVariable(ctx.text),
       };
     }
     return {

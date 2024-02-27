@@ -48,5 +48,6 @@ export default function generateVisitedTree(
   if (!visited) {
     throw new Error("Parsing failed");
   }
+  console.log(visited, visitor)
   return [visited, visitor];
 }

@@ -4,6 +4,7 @@ import { useContext } from "react";
 import ThemeContext from "../ThemeContext";
 import { DefaultHeaderButton } from "./DefaultHeaderButton";
 import { InterpreterSelector } from "./InterpreterSelector";
+import { ExampleSelector } from "./ExampleSelect";
 
 export function Header() {
   const theme = useContext(ThemeContext) ?? {};
@@ -14,8 +15,9 @@ export function Header() {
   return (
     <header className="flex justify-between items-center bg-secondary rounded-xl">
       <div className="flex">
-        <div className="mr-4">
+        <div className="flex gap-2 mr-4">
           <InterpreterSelector />
+          <ExampleSelector />
         </div>
         <DefaultHeaderButton onClick={incrementProgramId}>
           <Play className="!w-[1.375rem] !h-[1.375rem] stroke-primary fill-primary hover:brightness-50 transition-all" />

@@ -122,7 +122,6 @@ export class MakeSequenceNS {
 
   parseInstructionSequence = (tree: TreeNode & { children: TreeNode[] }, last: boolean) => {
     if (tree.children.length === 0) return "";
-    const seqStartStateNumber = this.nextStateNumber - 1;
     const [first, ...rest] = tree.children;
     const firstAndRestText =
       `\\text{${first.text}}` +
@@ -134,9 +133,6 @@ export class MakeSequenceNS {
     let resultNominator: string | undefined;
     if (rest.length !== 0) {
       const formattedInstruction = this.chooseInstruction(first, false);
-      // if (first.value.type === "block") {
-      // this.changeState({ memory: first.value.memoryAfter, startStateNumber: seqStartStateNumber });
-      // }
       const formattedRestTree = this.traverse(
         {
           ...tree,
