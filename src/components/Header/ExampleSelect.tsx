@@ -8,21 +8,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import {
-  blocksAndProcedures,
-  skipWhileInnerIf,
-  withBlock,
-  withDynamicProcedureScope,
-} from "@/lib/examples";
-
-const examples = [
-  { name: "While&If", value: skipWhileInnerIf },
-  { name: "Block", value: withBlock },
-  { name: "Procedure", value: withDynamicProcedureScope },
-  { name: "Blocks and procedures", value: blocksAndProcedures },
-];
 
 export const ExampleSelector: FC = () => {
+  const examples = useProgramStorage((state) => state.getActiveExamples());
   const [active, setActive] = useProgramStorage((state) => [
     state.programText,
     state.setProgramText,

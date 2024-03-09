@@ -12,20 +12,20 @@ export function isSkipOrEmptyCycle(instr: TreeNode) {
 }
 
 export function parseState(stateNumber: number, memory: Memory, startStateNumber?: number) {
-  if (!startStateNumber) return `s_${stateNumber} = ${formatMemory(memory)}`;
-  return String.raw`s_${stateNumber} = s_${
+  if (!startStateNumber) return `s_{${stateNumber}} = ${formatMemory(memory)}`;
+  return String.raw`s_{${stateNumber}} = s_{${
     stateNumber - 1
-  }[DV(D) \mapsto s_${startStateNumber}] = ${formatMemory(memory)}`;
+  }}[DV(D) \mapsto s_{${startStateNumber}}] = ${formatMemory(memory)}`;
 }
 
 export function getCurrentInstructions(text: string, stateNumber: number, sameState = false) {
-  return String.raw`\langle ${text},\ s_${stateNumber} \rangle\ \rightarrow\ s_${
+  return String.raw`\langle ${text},\ s_{${stateNumber}} \rangle\ \rightarrow\ s_{${
     stateNumber + (!sameState ? 1 : 0)
-  }`;
+  }}`;
 }
 
 export function formatCondition(text: string, isTrue: boolean, stateNumber: number) {
-  return String.raw`\mathscr{B}[\![ ${text} ]\!]s_${stateNumber} = \textbf{${
+  return String.raw`\mathscr{B}[\![ ${text} ]\!]s_{${stateNumber}} = \textbf{${
     isTrue ? "tt" : "ff"
   }}`;
 }

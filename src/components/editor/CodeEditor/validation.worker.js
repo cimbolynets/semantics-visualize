@@ -1,5 +1,5 @@
-import generateVisitedTree from "@/interpreter/visitedTreeGenerator";
-import { replaceSpecialSymbols } from "@/lib/specialSymbols/replaceSymbols";
+// import generateVisitedTreeNS from "@/interpreter/visitedTreeGenerator";
+// import { replaceSpecialSymbols } from "@/lib/specialSymbols/replaceSymbols";
 
 const DEBOUNCE_DELAY = 700;
 
@@ -9,11 +9,12 @@ onmessage = (message) => {
   if (timerId) clearTimeout(timerId);
   timerId = setTimeout(() => {
     if (!message.data.value) return;
-    const [, visitor] = generateVisitedTree(
-      replaceSpecialSymbols(message.data.value),
-      message.data.variables
-    );
-    const errors = visitor.getErrors();
-    postMessage(errors);
+    // const [, visitor] = generateVisitedTreeNS(
+      // replaceSpecialSymbols(message.data.value),
+      // message.data.variables
+    // );
+    // const errors = visitor.getErrors();
+    // postMessage(errors);
+    postMessage([]);
   }, DEBOUNCE_DELAY);
 };

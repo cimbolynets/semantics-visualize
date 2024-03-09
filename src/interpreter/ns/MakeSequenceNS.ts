@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Memory } from "@/types";
+import { IMakeSequence } from "../IMakeSequence.types";
+import { generateVisitedTreeNS } from "./generateVisitedTree";
 import { formatCondition, frac, parseState } from "./nsUtils";
 import {
   AssignmentInstruction,
@@ -7,18 +9,20 @@ import {
   BranchInstruction,
   CycleInstruction,
   Declaration,
+  ProcCallInstruction,
   SkipInstruction,
   TreeNode,
 } from "./types";
-import generateVisitedTree from "./visitedTreeGenerator";
 
-export class MakeSequenceNS {
+export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   private states: string[];
   private nextStateNumber: number;
+  private envNumber: number;
 
   constructor() {
     this.states = [];
     this.nextStateNumber = 0;
+    this.envNumber = 0;
   }
 
   getStates = () => {
@@ -33,9 +37,9 @@ export class MakeSequenceNS {
   addAssign = (instr: AssignmentInstruction, last: boolean) => {
     let result = "";
     if (!last) {
-      result = String.raw`\langle \text{${instr.text}},\ s_${
+      result = String.raw`\langle \text{${instr.text}},\ s_{${
         this.nextStateNumber - 1
-      } \rangle\ \rightarrow\ s_${this.nextStateNumber}`;
+      }} \rangle\ \rightarrow\ s_${this.nextStateNumber}`;
     }
     this.changeState({ memory: instr.value.state });
     return result;
@@ -74,22 +78,22 @@ export class MakeSequenceNS {
   };
 
   addSkip = (instr: SkipInstruction) => {
-    return String.raw`\langle \text{${instr.text}},\ s_${
+    return String.raw`\langle \text{${instr.text}},\ s_{${
       this.nextStateNumber - 1
-    } \rangle\ \rightarrow\ s_${this.nextStateNumber - 1}`;
+    }} \rangle\ \rightarrow\ s_{${this.nextStateNumber - 1}}`;
   };
 
   addDecl = (decl: Declaration) => {
     const startStateNumber = this.nextStateNumber - 1;
     const lastMemoryState = decl.assignments.at(-1)?.state;
     if (!lastMemoryState) throw new Error("There aren't any declarations: " + decl.text);
-    const instr = String.raw`\langle \text{${decl.text}},\ s_${startStateNumber} \rangle\ \rightarrow_D\ s_${this.nextStateNumber}`;
+    const instr = String.raw`\langle \text{${decl.text}},\ s_{${startStateNumber}} \rangle\ \rightarrow_D\ s_{${this.nextStateNumber}}`;
     const varTransitions = decl.assignments.reduce((acc, assignment, index) => {
       return String.raw`${acc}${index > 0 ? ", " : ""}${assignment.id} \mapsto \mathscr{E}[\![${
         assignment.value
       }]\!]s`;
     }, "");
-    const transitions = String.raw`\langle s_${startStateNumber}[ ${varTransitions} ],\ s_${startStateNumber} \rangle\ \rightarrow_D\ s_${this.nextStateNumber}`;
+    const transitions = String.raw`\langle s_{${startStateNumber}}[ ${varTransitions} ],\ s_{${startStateNumber}} \rangle\ \rightarrow_D\ s_{${this.nextStateNumber}}`;
     this.changeState({ memory: lastMemoryState });
     return frac(transitions, instr);
   };
@@ -100,6 +104,10 @@ export class MakeSequenceNS {
     const block = this.traverse(instr.value.body);
     this.changeState({ memory: instr.value.memoryAfter, startStateNumber: seqStartStateNumber });
     return String.raw`${decl},\quad ${block}`;
+  };
+
+  addProcCall = (instr: ProcCallInstruction) => {
+    return String.raw`\text{${instr.text}}`;
   };
 
   chooseInstruction = (instr: any, last: boolean) => {
@@ -114,6 +122,8 @@ export class MakeSequenceNS {
         return this.addSkip(instr);
       case "block":
         return this.addBlock(instr);
+      case "procCall":
+        return this.addProcCall(instr);
       default:
         console.error("Not an instruction:", instr.text);
         return undefined;
@@ -126,9 +136,9 @@ export class MakeSequenceNS {
     const firstAndRestText =
       `\\text{${first.text}}` +
       rest.reduce((acc: string, node: { text: string }) => acc + "; \\text{" + node.text + "}", "");
-    const currentInstruction = String.raw`\langle ${firstAndRestText},\ s_${
+    const currentInstruction = String.raw`\langle ${firstAndRestText},\ s_{${
       this.nextStateNumber - 1
-    } \rangle`;
+    }} \rangle`;
 
     let resultNominator: string | undefined;
     if (rest.length !== 0) {
@@ -167,7 +177,7 @@ export class MakeSequenceNS {
   };
 
   getSequence(input: string, variables: Memory) {
-    const [tree] = generateVisitedTree(input, variables);
+    const [tree] = generateVisitedTreeNS(input, variables);
     this.changeState({ memory: variables });
     const res = this.traverse(tree);
     return res;

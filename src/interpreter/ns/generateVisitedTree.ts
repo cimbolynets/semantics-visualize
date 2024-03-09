@@ -1,10 +1,10 @@
-import { JaneLexer } from "@/grammar/JaneLexer";
-import { JaneParser } from "@/grammar/JaneParser";
+import { JaneLexer } from "@/grammar/jane/JaneLexer";
+import { JaneParser } from "@/grammar/jane/JaneParser";
+import { EditorError } from "@/types";
 import { CharStreams, CommonTokenStream } from "antlr4ts";
 import Visitor, { VisitorResult } from "./Visitor";
-import { EditorError } from "@/types";
 
-export default function generateVisitedTree(
+export function generateVisitedTreeNS(
   input: string,
   variables: Record<string, number>
 ): [VisitorResult, Visitor] {
@@ -48,6 +48,6 @@ export default function generateVisitedTree(
   if (!visited) {
     throw new Error("Parsing failed");
   }
-  console.log(visited, visitor)
+
   return [visited, visitor];
 }

@@ -17,13 +17,14 @@ import {
   TermContext,
   ProcDefinitionContext,
   ProcCallContext,
-} from "@/grammar/JaneParser";
-import { JaneVisitor } from "@/grammar/JaneVisitor";
+  ProcsContext,
+} from "@/grammar/jane/JaneParser";
+import { JaneVisitor } from "@/grammar/jane/JaneVisitor";
 import { mergeMemory } from "@/lib/utils/mergeMemory";
 import { notEmpty } from "@/lib/utils/notEmpty";
 import { EditorError, Memory } from "@/types";
 import { TerminalNode } from "antlr4ts/tree/TerminalNode";
-import { createEditorError } from "./errorUtils";
+import { createEditorError } from "../errorUtils";
 
 interface Procedure {
   id: string;
@@ -79,6 +80,7 @@ class Scope {
 
 export type VisitorResult = ReturnType<Visitor["visitInstructionSequence"]>;
 export type VisitorInstructionResult = ReturnType<Visitor["visitInstruction"]>;
+export type VisitorProcedureCallResult = ReturnType<Visitor["visitProcCall"]>;
 export type VisitStatsResult = { value: boolean; text: string };
 
 export default class Visitor implements JaneVisitor<object | undefined> {
@@ -153,8 +155,6 @@ export default class Visitor implements JaneVisitor<object | undefined> {
       instr = this.visitBlock(ctx.block()!, noEval);
     } else if (ctx.procCall()) {
       instr = this.visitProcCall(ctx.procCall()!, noEval);
-    } else if (ctx.procDefinition()) {
-      instr = this.visitProcDefinition(ctx.procDefinition()!, noEval);
     } else {
       instr = this.visitSkip(ctx.skip()!);
     }
@@ -314,9 +314,11 @@ export default class Visitor implements JaneVisitor<object | undefined> {
     }
 
     this.scopeStack.push(this.scope.clone());
-
     const memoryBefore = this.scope.clone().memory;
-    const decl = this.visitDecl(ctx.decl());
+    const declCtx = ctx.decl();
+    const procsCtx = ctx.procs();
+    const decl = declCtx ? this.visitDecl(declCtx) : undefined;
+    const procs = procsCtx ? this.visitProcs(procsCtx) : undefined;
     const body = ctx.instructionSequence()
       ? this.visitInstructionSequence(ctx.instructionSequence()!)
       : this.visitInstruction(ctx.instruction()!);
@@ -326,20 +328,27 @@ export default class Visitor implements JaneVisitor<object | undefined> {
     const memoryAfter = mergeMemory(
       this.scopeStack.pop()!.memory,
       this.getMemory(),
-      decl.assignments.map((a) => a.id)
+      decl?.assignments.map((a) => a.id)
     );
 
     this.scope.setMemory(structuredClone(memoryAfter));
 
     return {
       type: "block",
-      text: `begin var ${decl.text}; ${body.text} end`,
+      text: `begin var${decl ? ` ${decl.text};` : ""}${
+        procs ? ` ${procs.map((p) => p?.text).join(",")};` : ""
+      } ${body.text} end`,
       decl,
       body,
+      procs,
       memoryBefore,
       memoryAfter,
     };
   }
+
+  visitProcs = (ctx: ProcsContext, noEval = false) => {
+    return ctx.procDefinition().map((proc) => this.visitProcDefinition(proc, noEval));
+  };
 
   visitProcDefinition = (ctx: ProcDefinitionContext, noEval?: boolean) => {
     const body = ctx.instruction() ?? ctx.instructionSequence();
@@ -356,7 +365,7 @@ export default class Visitor implements JaneVisitor<object | undefined> {
         ? this.visitInstruction(body, true)
         : this.visitInstructionSequence(body, true)
     )?.text;
-    return { text: `proc ${procId} is ${bodyText}` };
+    return { type: "procDefinition", text: `proc ${procId} is ${bodyText}` };
   };
 
   visitProcCall = (ctx: ProcCallContext, noEval?: boolean) => {
@@ -378,7 +387,7 @@ export default class Visitor implements JaneVisitor<object | undefined> {
     const memoryAfter = mergeMemory(this.scopeStack.pop()!.memory, this.getMemory());
     this.scope.setMemory(structuredClone(memoryAfter));
 
-    return { text: `call ${procId}`, body, memoryBefore, memoryAfter };
+    return { type: "procCall", text: `call ${procId}`, body, memoryBefore, memoryAfter };
   };
 
   visitDecl(ctx: DeclContext, noEval?: boolean) {

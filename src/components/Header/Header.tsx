@@ -3,8 +3,8 @@ import { Moon, Play, Sun } from "lucide-react";
 import { useContext } from "react";
 import ThemeContext from "../ThemeContext";
 import { DefaultHeaderButton } from "./DefaultHeaderButton";
-import { InterpreterSelector } from "./InterpreterSelector";
 import { ExampleSelector } from "./ExampleSelect";
+import { InterpreterSelector } from "./InterpreterSelector";
 
 export function Header() {
   const theme = useContext(ThemeContext) ?? {};

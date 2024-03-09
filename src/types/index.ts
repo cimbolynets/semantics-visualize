@@ -6,6 +6,8 @@ export interface EditorError {
   endColumn: number;
 }
 
+export type StackEntry = string | number | boolean;
+
 export type Memory = Record<string, number>;
 
 export type IfConfig = {
@@ -34,4 +36,4 @@ export type MSAssign = {
   value: {
     type: string;
   };
-}
+};

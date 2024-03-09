@@ -1,4 +1,4 @@
-import { useProgramStorage } from "@/lib/storage/programStorage";
+import { Interpreters, useProgramStorage } from "@/lib/storage/programStorage";
 import { ChevronDown } from "lucide-react";
 import { FC } from "react";
 import { Button } from "../ui/button";
@@ -8,6 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+
+const interpreters: Interpreters[] = ["ns", "sos", "as"];
 
 export const InterpreterSelector: FC = () => {
   const [active, setActive] = useProgramStorage((state) => [
@@ -23,8 +25,11 @@ export const InterpreterSelector: FC = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem onClick={() => setActive("ns")}>NS</DropdownMenuItem>
-        {/* <DropdownMenuItem onClick={() => setActive("ds")}>DS</DropdownMenuItem> */}
+        {interpreters.map((i) => (
+          <DropdownMenuItem key={i} onClick={() => setActive(i)}>
+            {i.toUpperCase()}
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );

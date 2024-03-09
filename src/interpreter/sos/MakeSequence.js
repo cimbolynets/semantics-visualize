@@ -1,7 +1,7 @@
 import parseJane from "./janeVisit";
 
 // the main function is getSequence, which is used to get lists of configs, states and errors
-export default class MakeSequence {
+export class MakeSequence {
     constructor() {
         this.configs = [];
         this.stateNumber = 0;

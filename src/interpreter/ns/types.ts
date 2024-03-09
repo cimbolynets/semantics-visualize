@@ -43,6 +43,16 @@ export interface AssignmentInstruction extends Instruction {
   };
 }
 
+export interface ProcCallInstruction extends Instruction {
+  value: {
+    type: "procCall";
+    text: string;
+    body: Instruction | Instruction[];
+    memoryBefore: Memory;
+    memoryAfter: Memory;
+  };
+}
+
 export interface CycleInstruction extends Instruction {
   value: {
     conditionText: string;

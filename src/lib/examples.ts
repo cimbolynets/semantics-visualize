@@ -16,9 +16,9 @@ if x <= y then x := y else skip
 `;
 
 export const withDynamicProcedureScope = `
-x := 1;
-proc addOne is x := x + 1;
-call addOne
+begin var x := 1; proc addOne is x := x + 1;
+  call addOne
+end
 `;
 
 export const blocksAndProcedures = `
@@ -31,3 +31,15 @@ begin var x := 0; (
     y := x 
   ) end
 ) end`;
+
+// export const abstractionMachineFactorial = `
+// PUSH-2:PUSH-10:SUB:STORE-y
+// `;
+
+// export const abstractionMachineFactorial = `
+// PUSH-10:STORE-y:PUSH-5:FETCH-y:SUB:STORE-x:FETCH-y:FETCH-x:LE:BRANCH(PUSH-3:FETCH-x:ADD:STORE-x:FETCH-x:FETCH-y:SUB:STORE-y,EMPTYOP)
+// `;
+
+export const abstractionMachineFactorial = `
+PUSH-1:STORE-x:PUSH-3:STORE-y:LOOP(FETCH-y:PUSH-1:EQ:NEG,FETCH-x:FETCH-y:MULT:STORE-x:PUSH-1:FETCH-y:SUB:STORE-y)
+`;

@@ -1,4 +1,4 @@
-// Generated from ./src/grammar/Jane.g4 by ANTLR 4.9.0-SNAPSHOT
+// Generated from ./src/grammar/jane/Jane.g4 by ANTLR 4.9.0-SNAPSHOT
 
 
 import { ParseTreeListener } from "antlr4ts/tree/ParseTreeListener";
@@ -11,6 +11,7 @@ import { BranchContext } from "./JaneParser";
 import { AssignContext } from "./JaneParser";
 import { SkipContext } from "./JaneParser";
 import { BlockContext } from "./JaneParser";
+import { ProcsContext } from "./JaneParser";
 import { DeclContext } from "./JaneParser";
 import { ProcDefinitionContext } from "./JaneParser";
 import { ProcCallContext } from "./JaneParser";
@@ -113,6 +114,17 @@ export interface JaneListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitBlock?: (ctx: BlockContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `JaneParser.procs`.
+	 * @param ctx the parse tree
+	 */
+	enterProcs?: (ctx: ProcsContext) => void;
+	/**
+	 * Exit a parse tree produced by `JaneParser.procs`.
+	 * @param ctx the parse tree
+	 */
+	exitProcs?: (ctx: ProcsContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `JaneParser.decl`.
