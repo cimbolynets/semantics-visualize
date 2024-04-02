@@ -1,19 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Memory } from "@/types";
+import { Procedure } from "./Scope";
 
 export interface Instruction {
   text: string;
   state: Memory;
 }
 
-export type InstructionType = "assign" | "cycle" | "branch" | "skip" | "block";
+export type InstructionType = "assign" | "cycle" | "branch" | "skip" | "block" | "procCall";
 
 export type TreeNode =
   | CycleInstruction
   | AssignmentInstruction
   | BlockInstruction
   | SkipInstruction
-  | BranchInstruction;
+  | BranchInstruction
+  | ProcCallInstruction;
 
 export interface SkipInstruction extends Instruction {
   value: {
@@ -43,6 +45,12 @@ export interface AssignmentInstruction extends Instruction {
   };
 }
 
+export interface ProcDefinitionInstruction extends Instruction {
+  value: {
+    type: "procDefinition";
+    text: string;
+  };
+}
 export interface ProcCallInstruction extends Instruction {
   value: {
     type: "procCall";
@@ -72,11 +80,12 @@ export type Declaration = {
 export interface BlockInstruction extends Instruction {
   value: {
     type: "block";
-    memoryBefore: Memory;
-    memoryAfter: Memory;
+    memoryBefore: Memory | undefined;
+    memoryAfter: Memory | undefined;
     text: string;
-    decl: Declaration;
-    body: any;
+    decl: Declaration | undefined;
+    procs: ProcDefinitionInstruction["value"][] | undefined;
+    body: any | undefined;
   };
 }
 

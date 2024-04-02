@@ -1,6 +1,7 @@
 import { formatMemory } from "@/lib/utils/formatMemory";
 import { Memory } from "@/types";
 import { CycleInstruction, TreeNode } from "./types";
+import { s } from "@/lib/utils/format";
 
 export const assignPattern = /(.+) +:= +(.+)/;
 
@@ -12,20 +13,20 @@ export function isSkipOrEmptyCycle(instr: TreeNode) {
 }
 
 export function parseState(stateNumber: number, memory: Memory, startStateNumber?: number) {
-  if (!startStateNumber) return `s_{${stateNumber}} = ${formatMemory(memory)}`;
-  return String.raw`s_{${stateNumber}} = s_{${
-    stateNumber - 1
-  }}[DV(D) \mapsto s_{${startStateNumber}}] = ${formatMemory(memory)}`;
+  if (typeof startStateNumber !== "number") return `${s(stateNumber)} = ${formatMemory(memory)}`;
+  return String.raw`${s(stateNumber)} = ${s(stateNumber - 1)}[DV(D) \mapsto ${s(
+    startStateNumber
+  )}] = ${formatMemory(memory)}`;
 }
 
 export function getCurrentInstructions(text: string, stateNumber: number, sameState = false) {
-  return String.raw`\langle ${text},\ s_{${stateNumber}} \rangle\ \rightarrow\ s_{${
+  return String.raw`\langle ${text},\ ${s(stateNumber)} \rangle\ \rightarrow\ ${s(
     stateNumber + (!sameState ? 1 : 0)
-  }}`;
+  )}`;
 }
 
 export function formatCondition(text: string, isTrue: boolean, stateNumber: number) {
-  return String.raw`\mathscr{B}[\![ ${text} ]\!]s_{${stateNumber}} = \textbf{${
+  return String.raw`\mathscr{B}[\![ ${text} ]\!]${s(stateNumber)} = \textbf{${
     isTrue ? "tt" : "ff"
   }}`;
 }

@@ -21,16 +21,19 @@ begin var x := 1; proc addOne is x := x + 1;
 end
 `;
 
-export const blocksAndProcedures = `
-begin var x := 0; (
-  proc p is x := x * 2; 
-  proc q is call p; 
-  begin var x := 3; (
-    proc p is x := x + 1;
-    call q; 
-    y := x 
-  ) end
-) end`;
+export const blocksAndProcedures = `begin var x := 0;
+  proc p is x := x * 2,
+  proc q is call p; (
+    begin var x := 3; proc p is x := x + 1; (
+      call q; 
+      y := x 
+    ) end;
+    y := 2
+  )
+end;
+x := 5;
+y := 6;
+if x <= y then x := y else y := x`;
 
 // export const abstractionMachineFactorial = `
 // PUSH-2:PUSH-10:SUB:STORE-y

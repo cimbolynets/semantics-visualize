@@ -462,6 +462,7 @@ export default class VisitorAS implements AbstractMachineVisitor<object | undefi
       iterations,
       type: "loop",
       body: ctx.instructionSequence(1).text,
+      resultStack: structuredClone(this.stack),
     };
   }
 }

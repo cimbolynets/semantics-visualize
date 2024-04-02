@@ -10,23 +10,35 @@ import {
   CycleInstruction,
   Declaration,
   ProcCallInstruction,
+  ProcDefinitionInstruction,
   SkipInstruction,
   TreeNode,
 } from "./types";
+import { s, envp, envpa } from "@/lib/utils/format";
 
 export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   private states: string[];
+  private envs: string[];
   private nextStateNumber: number;
-  private envNumber: number;
+  private nextEnvNumber: number;
+  private nextEnvNumbersStack: number[];
 
   constructor() {
     this.states = [];
+    this.envs = [];
     this.nextStateNumber = 0;
-    this.envNumber = 0;
+    this.nextEnvNumber = 0;
+    this.nextEnvNumbersStack = [];
+    this.changeEnv([]);
+    this.nextEnvNumbersStack.push(this.nextEnvNumber);
   }
 
   getStates = () => {
     return this.states;
+  };
+
+  getEnvs = () => {
+    return this.envs;
   };
 
   changeState = ({ memory, startStateNumber }: { memory: Memory; startStateNumber?: number }) => {
@@ -34,12 +46,24 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
     this.nextStateNumber++;
   };
 
+  changeEnv = (procs: ProcDefinitionInstruction["value"][]) => {
+    const formattedProcs = procs.length
+      ? String.raw`\\ ${procs.map((p) => String.raw`\quad \text{${p.text}}`).join(" \\\\ ")}\\`
+      : "";
+    this.envs.push(`${envp(this.getNextEnvNumber())} = [${formattedProcs}]`);
+    this.nextEnvNumber++;
+  };
+
+  getNextEnvNumber = () => {
+    return this.nextEnvNumbersStack.at(-1) ?? 0;
+  };
+
   addAssign = (instr: AssignmentInstruction, last: boolean) => {
     let result = "";
     if (!last) {
-      result = String.raw`\langle \text{${instr.text}},\ s_{${
+      result = String.raw`\langle \text{${instr.text}},\ ${s(
         this.nextStateNumber - 1
-      }} \rangle\ \rightarrow\ s_${this.nextStateNumber}`;
+      )} \rangle\ \rightarrow\ ${s(this.nextStateNumber)}`;
     }
     this.changeState({ memory: instr.value.state });
     return result;
@@ -64,7 +88,9 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
       ],
       type: "instructionSequence",
     });
-    return String.raw`${whileBody},\quad ${restWhile},\quad ${condition}`;
+    return String.raw`${envpa(
+      this.getNextEnvNumber() - 1
+    )}${whileBody},\quad ${restWhile},\quad ${condition}`;
   };
 
   addBranch = (instr: BranchInstruction): string => {
@@ -78,56 +104,90 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   };
 
   addSkip = (instr: SkipInstruction) => {
-    return String.raw`\langle \text{${instr.text}},\ s_{${
+    return String.raw`\langle \text{${instr.text}},\ ${s(
       this.nextStateNumber - 1
-    }} \rangle\ \rightarrow\ s_{${this.nextStateNumber - 1}}`;
+    )} \rangle\ \rightarrow\ ${s(this.nextStateNumber - 1)}`;
   };
 
   addDecl = (decl: Declaration) => {
     const startStateNumber = this.nextStateNumber - 1;
     const lastMemoryState = decl.assignments.at(-1)?.state;
     if (!lastMemoryState) throw new Error("There aren't any declarations: " + decl.text);
-    const instr = String.raw`\langle \text{${decl.text}},\ s_{${startStateNumber}} \rangle\ \rightarrow_D\ s_{${this.nextStateNumber}}`;
+    const instr = String.raw`\langle \text{${decl.text}},\ ${s(
+      startStateNumber
+    )} \rangle\ \rightarrow_D\ ${s(this.nextStateNumber)}`;
     const varTransitions = decl.assignments.reduce((acc, assignment, index) => {
       return String.raw`${acc}${index > 0 ? ", " : ""}${assignment.id} \mapsto \mathscr{E}[\![${
         assignment.value
       }]\!]s`;
     }, "");
-    const transitions = String.raw`\langle s_{${startStateNumber}}[ ${varTransitions} ],\ s_{${startStateNumber}} \rangle\ \rightarrow_D\ s_{${this.nextStateNumber}}`;
+    const transitions = String.raw`\langle ${s(startStateNumber)}[ ${varTransitions} ],\ ${s(
+      startStateNumber
+    )} \rangle\ \rightarrow_D\ ${s(this.nextStateNumber)}`;
     this.changeState({ memory: lastMemoryState });
     return frac(transitions, instr);
   };
 
+  addEnvUpdate = (procs: ProcDefinitionInstruction["value"][]) => {
+    const text = String.raw`${envp(this.getNextEnvNumber())} = update(D_p, ${envp(
+      this.getNextEnvNumber() - 1
+    )})`;
+    this.changeEnv(procs);
+    return text;
+  };
+
   addBlock = (instr: BlockInstruction) => {
+    if (!instr.value.memoryBefore || !instr.value.memoryAfter) {
+      return instr.text;
+    }
     const seqStartStateNumber = this.nextStateNumber - 1;
-    const decl = this.addDecl(instr.value.decl);
+    const decl = instr.value.decl ? String.raw`${this.addDecl(instr.value.decl)}, \quad ` : "";
+    const envUpdate = instr.value.procs
+      ? String.raw`${this.addEnvUpdate(instr.value.procs)}, \quad `
+      : "";
+    this.nextEnvNumbersStack.push(this.nextEnvNumber);
     const block = this.traverse(instr.value.body);
+    this.nextEnvNumbersStack.pop();
     this.changeState({ memory: instr.value.memoryAfter, startStateNumber: seqStartStateNumber });
-    return String.raw`${decl},\quad ${block}`;
+    return String.raw`${decl}${envUpdate}${block}`;
   };
 
   addProcCall = (instr: ProcCallInstruction) => {
-    return String.raw`\text{${instr.text}}`;
+    const parsedBody = this.traverse(instr.value.body);
+    if (!parsedBody) return undefined;
+    return frac(parsedBody, String.raw`\text{${instr.text}}`);
   };
 
   chooseInstruction = (instr: any, last: boolean) => {
+    let includeEnv = true;
+    let result: string | undefined;
     switch (instr.value?.type) {
       case "assign":
-        return this.addAssign(instr, last);
+        includeEnv = !last;
+        result = this.addAssign(instr, last);
+        break;
       case "cycle":
-        return this.addCycle(instr);
+        includeEnv = false;
+        result = this.addCycle(instr);
+        break;
       case "branch":
-        return this.addBranch(instr);
+        result = this.addBranch(instr);
+        break;
       case "skip":
-        return this.addSkip(instr);
+        result = this.addSkip(instr);
+        break;
       case "block":
-        return this.addBlock(instr);
+        includeEnv = false;
+        result = this.addBlock(instr);
+        break;
       case "procCall":
-        return this.addProcCall(instr);
+        result = this.addProcCall(instr);
+        break;
       default:
         console.error("Not an instruction:", instr.text);
-        return undefined;
+        result = undefined;
     }
+    return (includeEnv ? envpa(this.getNextEnvNumber() - 1) : "") + result;
   };
 
   parseInstructionSequence = (tree: TreeNode & { children: TreeNode[] }, last: boolean) => {
@@ -136,13 +196,13 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
     const firstAndRestText =
       `\\text{${first.text}}` +
       rest.reduce((acc: string, node: { text: string }) => acc + "; \\text{" + node.text + "}", "");
-    const currentInstruction = String.raw`\langle ${firstAndRestText},\ s_{${
-      this.nextStateNumber - 1
-    }} \rangle`;
+    const currentInstruction = String.raw`${envpa(
+      this.getNextEnvNumber() - 1
+    )} \langle ${firstAndRestText},\ ${s(this.nextStateNumber - 1)} \rangle`;
 
     let resultNominator: string | undefined;
     if (rest.length !== 0) {
-      const formattedInstruction = this.chooseInstruction(first, false);
+      const formattedInstruction = this.parseInstruction(first, false);
       const formattedRestTree = this.traverse(
         {
           ...tree,
@@ -152,10 +212,10 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
       );
       resultNominator = String.raw`${formattedInstruction},\quad ${formattedRestTree}`;
     } else {
-      resultNominator = this.chooseInstruction(first, true);
+      resultNominator = this.parseInstruction(first, true);
     }
 
-    const resultState = `s_${this.nextStateNumber - 1}`;
+    const resultState = s(this.nextStateNumber - 1);
 
     return frac(
       resultNominator ?? "",

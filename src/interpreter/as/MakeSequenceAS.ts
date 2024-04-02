@@ -20,6 +20,7 @@ import {
 } from "./types";
 import { generateVisitedTreeAS } from "./generateVisitedTree";
 import { parseRestProgram, parseStack, parseState } from "./asUtils";
+import { s } from "@/lib/utils/format";
 
 export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
   private states: string[];
@@ -48,11 +49,14 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
   };
 
   parseConfig = (text: string, stack: StackEntry[]) => {
-    return String.raw`\alpha_{${this.configNumber}} \ = \ \langle \text{${text}${
-      this.whileStack.length ? ":" + this.whileStack.at(-1)?.text : ""
-    }}, ${parseStack(stack)}, s_{${this.nextStateNumber - 1}} \rangle \ \Rightarrow \ \alpha_{${
-      this.configNumber + 1
-    }}`;
+    const cyclePart = this.whileStack.length
+      ? ":" + this.whileStack.map((entry) => entry.text).join(":")
+      : "";
+    return String.raw`\alpha_{${
+      this.configNumber
+    }} \ = \ \langle \text{${text}${cyclePart}}, ${parseStack(stack)}, ${s(
+      this.nextStateNumber - 1
+    )} \rangle \ \Rightarrow \ \alpha_{${this.configNumber + 1}}`;
   };
 
   parseTransition = (
@@ -143,11 +147,11 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
       result.push(...this.traverse(iteration.children));
       this.whileStack.pop();
     }
-    if (child.iterations.length === 0) {
-      result.push(this.parseTransition(child, stack, rest));
+    if (child.iterations.length !== 0) {
+      result.push(this.parseTransition(child, child.resultStack, rest));
       this.changeConfig();
     }
-    result.push(this.parseConfig(String.raw`EMPTYOP`, stack));
+    result.push(this.parseConfig(String.raw`EMPTYOP`, child.resultStack));
     return result;
   };
 

@@ -2,13 +2,14 @@ import { Memory } from "@/types";
 import MathRenderer from "../MathRenderer";
 import SetVariables from "./SetVariables";
 import { formatMemory } from "@/lib/utils/formatMemory";
+import { s } from "@/lib/utils/format";
 
 interface VariablesListListProps {
   variables: Memory;
 }
 
 export default function VariablesList({ variables }: VariablesListListProps) {
-  const variablesFormatted = "s_0 = " + formatMemory(variables);
+  const variablesFormatted = `${s(0)} = ` + formatMemory(variables);
 
   return (
     <div className="flex items-center gap-4">

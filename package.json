@@ -20,6 +20,7 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-toggle": "^1.0.3",
     "@radix-ui/react-toggle-group": "^1.0.4",
+    "@uidotdev/usehooks": "^2.4.1",
     "antlr4ts": "^0.5.0-alpha.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",

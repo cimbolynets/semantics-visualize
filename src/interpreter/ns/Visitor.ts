@@ -1,23 +1,23 @@
 // need to import from here, otherwise instance of won't work
 
 import {
-  ProgramContext,
-  InstructionSequenceContext,
-  InstructionContext,
-  CycleContext,
-  BranchContext,
   AssignContext,
-  SkipContext,
   BlockContext,
+  BranchContext,
+  CycleContext,
   DeclContext,
-  StatsContext,
-  StatContext,
   ExprContext,
+  InstructionContext,
+  InstructionSequenceContext,
   MulContext,
-  TermContext,
-  ProcDefinitionContext,
   ProcCallContext,
+  ProcDefinitionContext,
   ProcsContext,
+  ProgramContext,
+  SkipContext,
+  StatContext,
+  StatsContext,
+  TermContext,
 } from "@/grammar/jane/JaneParser";
 import { JaneVisitor } from "@/grammar/jane/JaneVisitor";
 import { mergeMemory } from "@/lib/utils/mergeMemory";
@@ -25,58 +25,13 @@ import { notEmpty } from "@/lib/utils/notEmpty";
 import { EditorError, Memory } from "@/types";
 import { TerminalNode } from "antlr4ts/tree/TerminalNode";
 import { createEditorError } from "../errorUtils";
-
-interface Procedure {
-  id: string;
-  body: InstructionContext | InstructionSequenceContext;
-}
-
-class Scope {
-  public memory: Memory;
-  public procedures: Procedure[];
-
-  constructor(memory?: Memory) {
-    this.memory = memory ?? {};
-    this.procedures = [];
-  }
-
-  public getVariable = (name: string) => {
-    return this.memory[name];
-  };
-
-  public getProcedure = (name: string) => {
-    return this.procedures.find((p) => p.id === name);
-  };
-
-  public setVariable = (name: string, value: number) => {
-    this.memory[name] = value;
-    return this;
-  };
-
-  public setProcedure = (procedure: Procedure) => {
-    const i = this.procedures.findIndex((p) => p.id === procedure.id);
-    if (i === -1) {
-      this.procedures.push(procedure);
-      return this;
-    }
-    this.procedures[i] = procedure;
-    return this;
-  };
-
-  public setMemory = (memory: Memory) => {
-    this.memory = memory;
-    return this;
-  };
-
-  public setProcedures = (procedures: Procedure[]) => {
-    this.procedures = procedures;
-    return this;
-  };
-
-  public clone = () => {
-    return new Scope(structuredClone(this.memory)).setProcedures([...this.procedures]);
-  };
-}
+import { Scope } from "./Scope";
+import {
+  AssignmentInstruction,
+  BlockInstruction,
+  Declaration,
+  ProcDefinitionInstruction,
+} from "./types";
 
 export type VisitorResult = ReturnType<Visitor["visitInstructionSequence"]>;
 export type VisitorInstructionResult = ReturnType<Visitor["visitInstruction"]>;
@@ -280,7 +235,7 @@ export default class Visitor implements JaneVisitor<object | undefined> {
   }
 
   // Visit a parse tree produced by JaneParser#assign.
-  visitAssign(ctx: AssignContext, noEval?: boolean) {
+  visitAssign(ctx: AssignContext, noEval?: boolean): AssignmentInstruction["value"] {
     const expr = this.visitExpr(ctx.expr(), noEval);
     const id = ctx.Id().text;
     if (!noEval) this.scope.setVariable(id, expr.value);
@@ -301,11 +256,13 @@ export default class Visitor implements JaneVisitor<object | undefined> {
     };
   }
 
-  visitBlock(ctx: BlockContext, noEval?: boolean) {
+  visitBlock(ctx: BlockContext, noEval?: boolean): BlockInstruction["value"] | undefined {
+    const declCtx = ctx.decl();
+    const procsCtx = ctx.procs();
     if (noEval) {
       return {
         type: "block",
-        text: `begin ${ctx.decl().text}; ${
+        text: `begin ${ctx ? ctx.text + "; " : ""} ${procsCtx ? procsCtx.text + "; " : ""} ${
           ctx.instructionSequence()
             ? this.visitInstructionSequence(ctx.instructionSequence()!, true)
             : this.visitInstruction(ctx.instruction()!, true)
@@ -315,8 +272,6 @@ export default class Visitor implements JaneVisitor<object | undefined> {
 
     this.scopeStack.push(this.scope.clone());
     const memoryBefore = this.scope.clone().memory;
-    const declCtx = ctx.decl();
-    const procsCtx = ctx.procs();
     const decl = declCtx ? this.visitDecl(declCtx) : undefined;
     const procs = procsCtx ? this.visitProcs(procsCtx) : undefined;
     const body = ctx.instructionSequence()
@@ -346,11 +301,17 @@ export default class Visitor implements JaneVisitor<object | undefined> {
     };
   }
 
-  visitProcs = (ctx: ProcsContext, noEval = false) => {
-    return ctx.procDefinition().map((proc) => this.visitProcDefinition(proc, noEval));
+  visitProcs = (ctx: ProcsContext, noEval = false): ProcDefinitionInstruction["value"][] => {
+    return ctx
+      .procDefinition()
+      .map((proc) => this.visitProcDefinition(proc, noEval))
+      .filter((p): p is Exclude<ReturnType<typeof this.visitProcDefinition>, undefined> => !!p);
   };
 
-  visitProcDefinition = (ctx: ProcDefinitionContext, noEval?: boolean) => {
+  visitProcDefinition = (
+    ctx: ProcDefinitionContext,
+    noEval?: boolean
+  ): ProcDefinitionInstruction["value"] | undefined => {
     const body = ctx.instruction() ?? ctx.instructionSequence();
     if (!body) return undefined;
     const procId = ctx.Id().text;
@@ -390,7 +351,7 @@ export default class Visitor implements JaneVisitor<object | undefined> {
     return { type: "procCall", text: `call ${procId}`, body, memoryBefore, memoryAfter };
   };
 
-  visitDecl(ctx: DeclContext, noEval?: boolean) {
+  visitDecl(ctx: DeclContext, noEval?: boolean): Declaration {
     const assignments = ctx.assign().map((assignCtx) => this.visitAssign(assignCtx, noEval));
 
     return {

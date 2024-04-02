@@ -1,4 +1,4 @@
-import { Dispatch, PropsWithChildren, createContext, useEffect, useReducer } from "react";
+import { Dispatch, PropsWithChildren, createContext, useEffect, useReducer, useState } from "react";
 
 export type Theme = {
   name: string;
@@ -64,13 +64,14 @@ const ThemeContext = createContext<{ state: Theme; dispatch?: Dispatch<{ type: s
 
 function ThemeProvider({ children }: PropsWithChildren) {
   const [state, dispatch] = useReducer(themeReducer, themes.light);
+  const [initialRender, setInitialRender] = useState(true);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (state.name !== savedTheme) dispatch({ type: savedTheme ?? "light" });
-  }, []);
-
-  useEffect(() => {
+    if (initialRender) {
+      const savedTheme = localStorage.getItem("theme");
+      if (state.name !== savedTheme) dispatch({ type: savedTheme ?? "light" });
+      setInitialRender(false);
+    }
     if (state.name === "light") {
       document.documentElement.classList.remove("dark");
       document.documentElement.classList.add("light");
@@ -79,7 +80,7 @@ function ThemeProvider({ children }: PropsWithChildren) {
       document.documentElement.classList.add("dark");
     }
     localStorage.setItem("theme", state.name);
-  }, [state.name]);
+  }, [initialRender, state.name]);
 
   return <ThemeContext.Provider value={{ state, dispatch }}>{children}</ThemeContext.Provider>;
 }

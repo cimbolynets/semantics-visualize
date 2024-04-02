@@ -110,4 +110,5 @@ export type LoopReturnType = {
   body: string;
   iterations: InstructionSequenceReturnType[];
   type: "loop";
+  resultStack: StackEntry[];
 };

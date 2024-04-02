@@ -59,7 +59,7 @@
 }
 
 #root {
-  padding: theme(padding.4);
+  padding: theme(padding.4) theme(padding.4) 0;
 }
 
 .code-editor {

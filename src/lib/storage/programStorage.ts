@@ -1,11 +1,11 @@
 import { Memory } from "@/types";
 import { create } from "zustand";
 import {
+  abstractionMachineFactorial,
+  blocksAndProcedures,
   skipWhileInnerIf,
   withBlock,
   withDynamicProcedureScope,
-  blocksAndProcedures,
-  abstractionMachineFactorial,
 } from "../examples";
 
 const janeExamples = [
@@ -45,10 +45,10 @@ export const useProgramStorage = create<ProgramStorage>((set) => ({
         return [];
     }
   },
-  activeInterpreter: "as",
-  programText: abstractionMachineFactorial,
+  activeInterpreter: "ns",
+  programText: "",
   setActiveInterpreter(a) {
-    set((state) => ({ ...state, activeInterpreter: a }));
+    set((state) => ({ ...state, programText: "", activeInterpreter: a }));
   },
   setProgramText(v) {
     set((state) => ({ ...state, programText: v }));
