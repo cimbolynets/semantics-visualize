@@ -1,9 +1,18 @@
-export const skipWhileInnerIf = `skip; i := 1;
+export const skipWhileInnerIf = `skip; i := 1; x := 3;
 while !(x = 1) do (
     i := i*x;
     x := x-1;
-    if i <= 4 then i := i + 1 else skip
+    while i <= 4 do i := i + 1
 ); x := 4`;
+
+export const factorialProc = `n := 4;
+result := 1;
+begin proc factorial is 
+    if 1 <= n then (
+        result := result*n;
+        n := n - 1;
+        call factorial
+    ) else skip; call factorial end`
 
 export const withBlock = `
 x := 1;
@@ -44,5 +53,5 @@ if x <= y then x := y else y := x`;
 // `;
 
 export const abstractionMachineFactorial = `
-PUSH-1:STORE-x:PUSH-3:STORE-y:LOOP(FETCH-y:PUSH-1:EQ:NEG,FETCH-x:FETCH-y:MULT:STORE-x:PUSH-1:FETCH-y:SUB:STORE-y)
+PUSH-1:STORE-x:PUSH-3:STORE-y:LOOP(FETCH-y:PUSH-1:EQ:NEG,FETCH-x:FETCH-y:MULT:STORE-x:PUSH-1:FETCH-y:SUB:STORE-y):EMPTYOP
 `;

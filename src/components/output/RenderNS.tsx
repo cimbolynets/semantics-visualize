@@ -27,8 +27,10 @@ export const RenderNS: FC<RenderNSProps> = () => {
 
   return (
     <>
-      <Scopes states={states} envs={envs} />
-      <div className="overflow-x-auto overflow-y-hidden">
+      <div className="output-controls">
+        <Scopes states={states} envs={envs} />
+      </div>
+      <div className="output-sequence">
         <MathRenderer>{currentProgramText ?? ""}</MathRenderer>
       </div>
     </>

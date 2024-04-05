@@ -1,6 +1,6 @@
 import { formatMemory } from "@/lib/utils/formatMemory";
 import { Memory } from "@/types";
-import { CycleInstruction, TreeNode } from "./types";
+import { CycleInstruction, TreeNode } from "../jane/types";
 import { s } from "@/lib/utils/format";
 
 export const assignPattern = /(.+) +:= +(.+)/;
@@ -23,12 +23,6 @@ export function getCurrentInstructions(text: string, stateNumber: number, sameSt
   return String.raw`\langle ${text},\ ${s(stateNumber)} \rangle\ \rightarrow\ ${s(
     stateNumber + (!sameState ? 1 : 0)
   )}`;
-}
-
-export function formatCondition(text: string, isTrue: boolean, stateNumber: number) {
-  return String.raw`\mathscr{B}[\![ ${text} ]\!]${s(stateNumber)} = \textbf{${
-    isTrue ? "tt" : "ff"
-  }}`;
 }
 
 export function frac(num: string, den: string, dividerThickness = 1) {

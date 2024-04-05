@@ -50,13 +50,17 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
 
   parseConfig = (text: string, stack: StackEntry[]) => {
     const cyclePart = this.whileStack.length
-      ? ":" + this.whileStack.map((entry) => entry.text).join(":")
+      ? ":" +
+        this.whileStack
+          .toReversed()
+          .map((entry) => entry.text)
+          .join(":")
       : "";
     return String.raw`\alpha_{${
       this.configNumber
     }} \ = \ \langle \text{${text}${cyclePart}}, ${parseStack(stack)}, ${s(
       this.nextStateNumber - 1
-    )} \rangle \ \Rightarrow \ \alpha_{${this.configNumber + 1}}`;
+    )} \rangle \ = \! \gg \alpha_{${this.configNumber + 1}}`;
   };
 
   parseTransition = (

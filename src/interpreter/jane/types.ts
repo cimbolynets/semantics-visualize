@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Memory } from "@/types";
-import { Procedure } from "./Scope";
 
 export interface Instruction {
   text: string;

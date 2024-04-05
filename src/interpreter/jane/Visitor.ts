@@ -25,7 +25,7 @@ import { notEmpty } from "@/lib/utils/notEmpty";
 import { EditorError, Memory } from "@/types";
 import { TerminalNode } from "antlr4ts/tree/TerminalNode";
 import { createEditorError } from "../errorUtils";
-import { Scope } from "./Scope";
+import { Scope } from "../ns/Scope";
 import {
   AssignmentInstruction,
   BlockInstruction,
@@ -58,7 +58,7 @@ export default class Visitor implements JaneVisitor<object | undefined> {
   }
 
   visitProgram(ctx: ProgramContext) {
-    if (this.errors.length !== 0) return {};
+    if (this.errors.length !== 0) return undefined;
     return this.visitInstructionSequence(ctx.instructionSequence());
   }
 
@@ -100,6 +100,7 @@ export default class Visitor implements JaneVisitor<object | undefined> {
       | typeof this.visitProcDefinition
       | typeof this.visitProcCall
     >;
+    
     if (ctx.branch()) {
       instr = this.visitBranch(ctx.branch()!, noEval);
     } else if (ctx.cycle()) {
@@ -330,10 +331,14 @@ export default class Visitor implements JaneVisitor<object | undefined> {
   };
 
   visitProcCall = (ctx: ProcCallContext, noEval?: boolean) => {
+    const procId = ctx.Id().text;
+    if (noEval) {
+      return { type: "procCall", text: `call ${procId}` };
+    }
+    
     this.scopeStack.push(this.scope.clone());
     const memoryBefore = this.scope.clone().memory;
 
-    const procId = ctx.Id().text;
     const procedure = this.scope.getProcedure(procId);
     if (!procedure) {
       this.errors.push(createEditorError(ctx, `Procedure ${procId} is not defined`));

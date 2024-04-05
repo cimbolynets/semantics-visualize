@@ -13,7 +13,7 @@ export const EnvsInfo: FC<EnvsInfoProps> = ({ envs }) => {
         <SheetTitle>List of procedure environments</SheetTitle>
         <SheetDescription>Here you can see the list of procedure environments.</SheetDescription>
       </SheetHeader>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 overflow-x-auto">
         {envs.map((env, index) => {
           console.log("Env:", env);
           return <MathRenderer key={index}>{env}</MathRenderer>;

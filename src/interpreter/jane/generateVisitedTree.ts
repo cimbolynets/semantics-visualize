@@ -3,8 +3,9 @@ import { JaneParser } from "@/grammar/jane/JaneParser";
 import { EditorError } from "@/types";
 import { CharStreams, CommonTokenStream } from "antlr4ts";
 import Visitor, { VisitorResult } from "./Visitor";
+import { InstructionSequenceReturnType } from "../as/types";
 
-export function generateVisitedTreeNS(
+export function generateVisitedTreeJane(
   input: string,
   variables: Record<string, number>
 ): [VisitorResult, Visitor] {
@@ -44,7 +45,7 @@ export function generateVisitedTreeNS(
 
   const tree = parser.program();
   const visitor = new Visitor(errors, variables);
-  const visited = tree.accept(visitor) as VisitorResult;
+  const visited = tree.accept(visitor) as InstructionSequenceReturnType;
   if (!visited) {
     throw new Error("Parsing failed");
   }

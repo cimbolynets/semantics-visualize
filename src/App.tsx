@@ -11,7 +11,7 @@ export default function App() {
       <Header />
       <main>
         <OccupyRestWindowHeight className="pt-6">
-          <ResizablePanelGroup direction="horizontal" className="h-full">
+          <ResizablePanelGroup direction="horizontal" className="max-h-full h-full">
             <ResizablePanel defaultSize={40} className="p-1">
               <ResizablePanelGroup direction="vertical">
                 <ResizablePanel defaultSize={50}>

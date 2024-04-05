@@ -3,17 +3,23 @@ import { create } from "zustand";
 import {
   abstractionMachineFactorial,
   blocksAndProcedures,
+  factorialProc,
   skipWhileInnerIf,
   withBlock,
   withDynamicProcedureScope,
 } from "../examples";
 
-const janeExamples = [
-  { name: "While&If", value: skipWhileInnerIf },
+const janeBasicExamples = [{ name: "While&If", value: skipWhileInnerIf }];
+
+const nsExamples = [
+  ...janeBasicExamples,
+  { name: "Procedures factorial", value: factorialProc },
   { name: "Block", value: withBlock },
   { name: "Procedure", value: withDynamicProcedureScope },
   { name: "Blocks and procedures", value: blocksAndProcedures },
 ];
+
+const sosExamples = [...janeBasicExamples];
 
 const abstractMachineExamples = [
   { name: "Abstract machine factorial", value: abstractionMachineFactorial },
@@ -37,16 +43,17 @@ export const useProgramStorage = create<ProgramStorage>((set) => ({
   getActiveExamples() {
     switch (this.activeInterpreter) {
       case "ns":
+        return nsExamples;
       case "sos":
-        return janeExamples;
+        return sosExamples;
       case "as":
         return abstractMachineExamples;
       default:
         return [];
     }
   },
-  activeInterpreter: "ns",
-  programText: "",
+  activeInterpreter: "sos",
+  programText: skipWhileInnerIf,
   setActiveInterpreter(a) {
     set((state) => ({ ...state, programText: "", activeInterpreter: a }));
   },

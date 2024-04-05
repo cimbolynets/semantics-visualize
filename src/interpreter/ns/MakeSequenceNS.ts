@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Memory } from "@/types";
 import { IMakeSequence } from "../IMakeSequence.types";
-import { generateVisitedTreeNS } from "./generateVisitedTree";
-import { formatCondition, frac, parseState } from "./nsUtils";
+import { generateVisitedTreeJane } from "../jane/generateVisitedTree";
+import { frac, parseState } from "./nsUtils";
 import {
   AssignmentInstruction,
   BlockInstruction,
@@ -13,8 +13,8 @@ import {
   ProcDefinitionInstruction,
   SkipInstruction,
   TreeNode,
-} from "./types";
-import { s, envp, envpa } from "@/lib/utils/format";
+} from "../jane/types";
+import { s, envp, envpa, formatCondition } from "@/lib/utils/format";
 
 export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   private states: string[];
@@ -237,7 +237,7 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   };
 
   getSequence(input: string, variables: Memory) {
-    const [tree] = generateVisitedTreeNS(input, variables);
+    const [tree] = generateVisitedTreeJane(input, variables);
     this.changeState({ memory: variables });
     const res = this.traverse(tree);
     return res;

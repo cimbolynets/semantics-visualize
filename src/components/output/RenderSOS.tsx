@@ -4,10 +4,11 @@ import { pick } from "lodash";
 import { FC, useEffect, useState } from "react";
 import MathRenderer from "../MathRenderer";
 import States from "./States";
+import { MakeSequenceSOS } from "@/interpreter/sos/MakeSequenceSOS";
 
-interface RenderASProps {}
+interface RenderSOSProps {}
 
-export const RenderAS: FC<RenderASProps> = () => {
+export const RenderSOS: FC<RenderSOSProps> = () => {
   const { variables, programText, programId } = useProgramStorage((state) =>
     pick(state, "programText", "variables", "programId", "activeInterpreter")
   );
@@ -17,8 +18,9 @@ export const RenderAS: FC<RenderASProps> = () => {
 
   useEffect(() => {
     if (!programText) return;
-    const ms = new MakeSequenceAS();
+    const ms = new MakeSequenceSOS();
     const sequence = ms.getSequence(programText, variables);
+    console.log(sequence);
     setStates(ms.getStates());
     setInstructions(sequence);
   }, [programId]);
