@@ -9,7 +9,7 @@ export function parseStack(stack: StackEntry[]) {
       ? stack
           .toReversed()
           .map((entry) => String.raw`\textbf{${entry}}`)
-          .join(":") + ":"
+          .join("\\nobreak:\\nobreak") + "\\nobreak:\\nobreak"
       : "") + String.raw`\mathscr{e}`
   );
 }
@@ -19,6 +19,6 @@ export function parseState(stateNumber: number, memory: Memory) {
 }
 
 export function parseRestProgram(rest: InstructionReturnType[] | undefined) {
-  if (!rest?.length) return "c";
+  if (!rest?.length) return "";
   return rest.map((entry) => entry.text).join(":");
 }

@@ -1,11 +1,13 @@
 import { transformToSpecialSymbols } from "@/lib/specialSymbols/replaceSymbols";
 import specialSymbols from "@/lib/specialSymbols/specialSymbols";
-import { EditorError, Memory } from "@/types";
+import { IEditorError, Memory } from "@/types";
 import { Editor, EditorProps, Monaco } from "@monaco-editor/react";
 import { IPosition, editor } from "monaco-editor";
 import { useEffect, useRef } from "react";
 import { config, language } from "./jane-mode";
 import ValidationWorker from "./validation.worker?worker";
+import { useProgramStorage } from "@/lib/storage/programStorage";
+import { CODE_CHANGED, INTERPRETER_CHANGED } from "./constants";
 
 // creating a worker, that will be doing code validation and then sending an array of errors to the main thread, so we
 // can display them in the editor by using standard error display mechanism of monaco editor
@@ -80,6 +82,14 @@ export default function CodeEditor({
   ...props
 }: CodeEditorProps) {
   const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
+  const activeInterpreter = useProgramStorage((state) => state.activeInterpreter);
+
+  useEffect(() => {
+    validation?.postMessage({
+      type: INTERPRETER_CHANGED,
+      activeInterpreter,
+    });
+  }, [activeInterpreter]);
 
   useEffect(() => {
     validation = new ValidationWorker();
@@ -92,6 +102,7 @@ export default function CodeEditor({
     variables = variablesProp;
     if (editorRef?.current) {
       validation.postMessage({
+        type: CODE_CHANGED,
         value: editorRef.current.getModel()?.getValue(),
         variables,
       });
@@ -110,19 +121,25 @@ export default function CodeEditor({
     // monaco.editor.setTheme(theme);
     // sending initial code for validation
     validation.postMessage({
+      type: CODE_CHANGED,
       value: editor.getModel()?.getValue(),
       variables,
+    });
+    validation?.postMessage({
+      type: INTERPRETER_CHANGED,
+      activeInterpreter,
     });
     // setting up an event listener for sending code to the worker every time the editor value changes
     editor.getModel()?.onDidChangeContent((e) => {
       transformIfPasted(e, editor);
       validation.postMessage({
+        type: CODE_CHANGED,
         value: editor.getModel()?.getValue(),
         variables,
       });
     });
     // an event listener, that will be called, when the worker will send an array of errors to the main thread
-    validation.onmessage = (message: { data: EditorError[] }) => {
+    validation.onmessage = (message: { data: IEditorError[] }) => {
       const model = editor.getModel();
       if (!message || !model) return;
       if (message) {

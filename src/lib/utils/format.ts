@@ -24,3 +24,7 @@ export function formatCondition(text: string, isTrue: boolean, stateNumber: numb
     isTrue ? "tt" : "ff"
   }}`;
 }
+
+export const text = (text: string) => {
+  return String.raw`\text{${text}}`;
+};

@@ -1,6 +1,8 @@
+import { a, s, text } from "@/lib/utils/format";
 import { Memory, StackEntry } from "@/types";
-import { VisitorASResult } from "./VisitorAS";
 import { IMakeSequence } from "../IMakeSequence.types";
+import { parseRestProgram, parseStack, parseState } from "./asUtils";
+import { generateVisitedTreeAS } from "./generateVisitedTree";
 import {
   AddReturnType,
   AndReturnType,
@@ -18,21 +20,18 @@ import {
   StoreReturnType,
   SubReturnType,
 } from "./types";
-import { generateVisitedTreeAS } from "./generateVisitedTree";
-import { parseRestProgram, parseStack, parseState } from "./asUtils";
-import { s } from "@/lib/utils/format";
 
 export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
   private states: string[];
   private nextStateNumber: number;
   private configNumber: number;
-  private whileStack: LoopReturnType[];
+  private remainingInstructions: string[];
 
   constructor() {
     this.states = [];
     this.nextStateNumber = 0;
     this.configNumber = 1;
-    this.whileStack = [];
+    this.remainingInstructions = [];
   }
 
   getStates = () => {
@@ -48,81 +47,80 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
     this.configNumber++;
   };
 
-  parseConfig = (text: string, stack: StackEntry[]) => {
-    const cyclePart = this.whileStack.length
+  parseConfig = (configText: string, stack: StackEntry[]) => {
+    const cyclePart = this.remainingInstructions.length
       ? ":" +
-        this.whileStack
+        this.remainingInstructions
           .toReversed()
-          .map((entry) => entry.text)
+          .map((entry) => entry)
           .join(":")
       : "";
-    return String.raw`\alpha_{${
-      this.configNumber
-    }} \ = \ \langle \text{${text}${cyclePart}}, ${parseStack(stack)}, ${s(
+    return String.raw`${a(this.configNumber)} \ = \nobreak \ \langle ${text(
+      configText + cyclePart
+    )},\nobreak ${parseStack(stack)},\nobreak ${s(
       this.nextStateNumber - 1
-    )} \rangle \ = \! \gg \alpha_{${this.configNumber + 1}}`;
+    )} \rangle \ =\nobreak \! \gg \nobreak ${a(this.configNumber + 1)}`;
   };
 
   parseTransition = (
-    child: { text: string } | undefined,
+    text: string | undefined,
     stack: StackEntry[],
     rest: InstructionReturnType[]
   ) => {
     const restText = parseRestProgram(rest);
-    return this.parseConfig(
-      (child ? String.raw`\text{${child.text}:}` : "") + String.raw`\text{${restText}}`,
-      stack
-    );
+    const result = this.parseConfig(text + String.raw`${rest.length ? ":" + restText : ""}`, stack);
+    this.changeConfig();
+    return result;
   };
 
   addPush = (child: PushReturnType, stack: StackEntry[], rest: InstructionReturnType[]) => {
-    return this.parseTransition(child, stack, rest);
+    return this.parseTransition(child.text, stack, rest);
   };
 
   addAdd = (child: AddReturnType, stack: StackEntry[], rest: InstructionReturnType[]) => {
-    return this.parseTransition(child, stack, rest);
+    return this.parseTransition(child.text, stack, rest);
   };
 
   addSub = (child: SubReturnType, stack: StackEntry[], rest: InstructionReturnType[]) => {
-    return this.parseTransition(child, stack, rest);
+    return this.parseTransition(child.text, stack, rest);
   };
 
   addMult = (child: MultReturnType, stack: StackEntry[], rest: InstructionReturnType[]) => {
-    return this.parseTransition(child, stack, rest);
+    return this.parseTransition(child.text, stack, rest);
   };
 
   addBoolean = (child: BooleanReturnType, stack: StackEntry[], rest: InstructionReturnType[]) => {
-    return this.parseTransition(child, stack, rest);
+    return this.parseTransition(child.text, stack, rest);
   };
 
   addEq = (child: EqReturnType, stack: StackEntry[], rest: InstructionReturnType[]) => {
-    return this.parseTransition(child, stack, rest);
+    return this.parseTransition(child.text, stack, rest);
   };
 
   addLe = (child: LeReturnType, stack: StackEntry[], rest: InstructionReturnType[]) => {
-    return this.parseTransition(child, stack, rest);
+    return this.parseTransition(child.text, stack, rest);
   };
 
   addAnd = (child: AndReturnType, stack: StackEntry[], rest: InstructionReturnType[]) => {
-    return this.parseTransition(child, stack, rest);
+    return this.parseTransition(child.text, stack, rest);
   };
 
   addNeg = (child: NegReturnType, stack: StackEntry[], rest: InstructionReturnType[]) => {
-    return this.parseTransition(child, stack, rest);
+    return this.parseTransition(child.text, stack, rest);
   };
 
   addFetch = (child: FetchReturnType, stack: StackEntry[], rest: InstructionReturnType[]) => {
-    return this.parseTransition(child, stack, rest);
+    return this.parseTransition(child.text, stack, rest);
   };
 
   addStore = (child: StoreReturnType, stack: StackEntry[], rest: InstructionReturnType[]) => {
-    const result = this.parseTransition(child, stack, rest);
+    const result = this.parseTransition(child.text, stack, rest);
     if (child.state) this.changeState(child.state);
     return result;
   };
 
   addEmptyOp = (child: EmptyopReturnType, stack: StackEntry[], rest: InstructionReturnType[]) => {
-    return this.parseTransition(child, stack, rest);
+    return this.parseTransition(child.text, stack, rest);
   };
 
   addBranch = (
@@ -131,35 +129,60 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
     rest: InstructionReturnType[]
   ): string[] => {
     const executeBranch = child.isTrue ? child.ifBranch : child.elBranch;
-    return [this.parseTransition(child, stack, rest), ...this.traverse(executeBranch.children)];
+    const branch = this.parseTransition(child.text, stack, rest);
+    this.remainingInstructions.push(parseRestProgram(rest));
+    const body = this.traverse(executeBranch.children);
+    this.remainingInstructions.pop();
+    return [branch, ...body];
   };
 
-  transformToBranch = (child: LoopReturnType, stack: StackEntry[]) => {
-    return this.parseConfig(
-      String.raw`${child.condition}:BRANCH(${child.body}:${child.text},EMPTYOP)`,
-      stack
-    );
+  transformToBranch = (
+    loop: LoopReturnType,
+    instructions: InstructionReturnType[],
+    conditionResultStack: StackEntry[],
+    rest: InstructionReturnType[]
+  ) => {
+    const parsedBranch = String.raw`BRANCH(${loop.body}:${loop.text},EMPTYOP)`;
+    this.remainingInstructions.push(parsedBranch + (rest.length ? ":" + parseRestProgram(rest) : ""));
+    const condition = this.traverse(instructions);
+    this.remainingInstructions.pop();
+    return [...condition, this.parseTransition(parsedBranch, conditionResultStack, rest)];
   };
 
-  addLoop = (child: LoopReturnType, stack: StackEntry[], rest: InstructionReturnType[]) => {
-    const result = [this.parseTransition(child, stack, rest)];
-    this.changeConfig();
+  addLoop = (child: LoopReturnType, _: StackEntry[], rest: InstructionReturnType[]): string[] => {
+    const result: string[] = [];
     for (const iteration of child.iterations) {
-      result.push(this.transformToBranch(child, iteration.children[0].stack));
-      this.changeConfig();
-      this.whileStack.push(child);
-      result.push(...this.traverse(iteration.children));
-      this.whileStack.pop();
+      if (iteration.condition) {
+        result.push(this.parseTransition(child.text, iteration.sequence.children[0].stack, rest));
+        result.push(
+          ...this.transformToBranch(
+            child,
+            iteration.conditionSequence.children,
+            iteration.conditionResultStack,
+            rest
+          )
+        );
+        this.remainingInstructions.push(child.text + (rest.length ? ":" + parseRestProgram(rest) : ""));
+        result.push(...this.traverse(iteration.sequence.children));
+        this.remainingInstructions.pop();
+      } else {
+        result.push(this.parseTransition(child.text, child.resultStack, rest));
+        result.push(
+          ...this.transformToBranch(
+            child,
+            iteration.conditionSequence.children,
+            iteration.conditionResultStack,
+            rest
+          )
+        );
+        result.push(this.parseTransition(String.raw`EMPTYOP`, child.resultStack, rest));
+      }
     }
-    if (child.iterations.length !== 0) {
-      result.push(this.parseTransition(child, child.resultStack, rest));
-      this.changeConfig();
-    }
-    result.push(this.parseConfig(String.raw`EMPTYOP`, child.resultStack));
     return result;
   };
 
   traverse = (children?: InstructionReturnType[]) => {
+    // if(children.length === 4)debugger
     const result = children
       ?.map((child, index, initial) => {
         const value = child?.value;
@@ -211,7 +234,6 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
           default:
             result = undefined;
         }
-        this.changeConfig();
         return result;
       })
       .flat()
@@ -224,9 +246,6 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
     if (!result) return undefined;
     const [tree, visitor] = result;
     this.changeState(variables);
-    return [
-      ...this.traverse(tree?.children),
-      this.parseTransition(undefined, visitor.getStack(), []),
-    ];
+    return [...this.traverse(tree?.children), this.parseTransition("c", visitor.getStack(), [])];
   }
 }

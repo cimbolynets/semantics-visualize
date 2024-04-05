@@ -1,91 +1,85 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Memory } from "@/types";
 
-export interface Instruction {
+export interface InstructionSequence<Value extends InstructionValue = InstructionValue> {
+  children: Instruction<Value>[];
+  text: string;
+  type: "instructionSequence";
+}
+
+export interface Instruction<Value extends InstructionValue = InstructionValue> {
   text: string;
   state: Memory;
+  value: Value;
+  type: "instruction";
 }
 
 export type InstructionType = "assign" | "cycle" | "branch" | "skip" | "block" | "procCall";
 
-export type TreeNode =
-  | CycleInstruction
-  | AssignmentInstruction
-  | BlockInstruction
-  | SkipInstruction
-  | BranchInstruction
-  | ProcCallInstruction;
+export type InstructionValue =
+  | CycleValue
+  | AssignmentValue
+  | BlockValue
+  | SkipValue
+  | BranchValue
+  | ProcCallValue;
 
-export interface SkipInstruction extends Instruction {
-  value: {
-    type: "skip";
-    text: string;
-  };
-}
-
-export interface BranchInstruction extends Instruction {
-  value: {
-    type: "branch";
-    conditionText: string;
-    ifBranch: any;
-    elBranch: any;
-    isTrue: boolean;
-    text: string;
-  };
-}
-
-export interface AssignmentInstruction extends Instruction {
-  value: {
-    text: string;
-    id: string;
-    value: string;
-    type: "assign";
-    state: Memory;
-  };
-}
-
-export interface ProcDefinitionInstruction extends Instruction {
-  value: {
-    type: "procDefinition";
-    text: string;
-  };
-}
-export interface ProcCallInstruction extends Instruction {
-  value: {
-    type: "procCall";
-    text: string;
-    body: Instruction | Instruction[];
-    memoryBefore: Memory;
-    memoryAfter: Memory;
-  };
-}
-
-export interface CycleInstruction extends Instruction {
-  value: {
-    conditionText: string;
-    instrSeqText: string;
-    iters: any[];
-    text: string;
-    type: "cycle";
-  };
-}
-
-export type Declaration = {
+export interface SkipValue {
+  type: "skip";
   text: string;
-  assignments: Array<AssignmentInstruction["value"]>;
+}
+
+export interface BranchValue {
+  type: "branch";
+  conditionText: string;
+  ifBranch: any;
+  elBranch: any;
+  isTrue: boolean;
+  text: string;
+}
+
+export interface AssignmentValue {
+  text: string;
+  id: string;
+  value: string;
+  type: "assign";
+  state: Memory;
+}
+
+export interface ProcDefinitionValue {
+  type: "procDefinition";
+  text: string;
+}
+export interface ProcCallValue {
+  type: "procCall";
+  text: string;
+  body?: Instruction<InstructionValue> | InstructionSequence<InstructionValue>;
+  memoryBefore?: Memory;
+  memoryAfter?: Memory;
+}
+
+export interface CycleValue {
+  conditionText: string;
+  instrSeqText: string;
+  iters: Array<Instruction<InstructionValue> | InstructionSequence<InstructionValue>>;
+  text: string;
+  type: "cycle";
+}
+
+export type DeclarationValue = {
+  text: string;
+  assignments: Array<AssignmentValue>;
   type: "decl";
 };
 
-export interface BlockInstruction extends Instruction {
-  value: {
-    type: "block";
-    memoryBefore: Memory | undefined;
-    memoryAfter: Memory | undefined;
-    text: string;
-    decl: Declaration | undefined;
-    procs: ProcDefinitionInstruction["value"][] | undefined;
-    body: any | undefined;
-  };
+export interface BlockValue {
+  type: "block";
+  memoryBefore?: Memory;
+  memoryAfter?: Memory;
+  procs?: ProcDefinitionValue[];
+  decl?: DeclarationValue;
+  body?: any;
+  text: string;
 }
 
 export type MakeSequenceState = {

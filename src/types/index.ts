@@ -1,4 +1,4 @@
-export interface EditorError {
+export interface IEditorError {
   message: string;
   startLineNumber: number;
   startColumn: number;

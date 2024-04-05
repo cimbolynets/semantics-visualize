@@ -19,9 +19,10 @@ import {
 } from "@/grammar/as/AbstractMachineParser";
 import { AbstractMachineVisitor } from "@/grammar/as/AbstractMachineVisitor";
 import { notEmpty } from "@/lib/utils/notEmpty";
-import { EditorError, Memory, StackEntry } from "@/types";
+import { IEditorError, Memory, StackEntry } from "@/types";
 import { ParserRuleContext } from "antlr4ts";
-import { createEditorError } from "../errorUtils";
+import { InterpreterError } from "../InterpreterError";
+import { createIEditorError } from "../errorUtils";
 import {
   AddReturnType,
   AndReturnType,
@@ -33,6 +34,7 @@ import {
   InstructionReturnType,
   InstructionSequenceReturnType,
   LeReturnType,
+  LoopIteration,
   LoopReturnType,
   MultReturnType,
   NegReturnType,
@@ -44,36 +46,35 @@ import {
 
 export type VisitorASResult = ReturnType<VisitorAS["visitProgram"]>;
 
-export default class VisitorAS implements AbstractMachineVisitor<object | undefined> {
-  private errors: EditorError[];
+export default class VisitorAS implements AbstractMachineVisitor<object> {
+  private errors: IEditorError[];
   private memory: Memory;
   private stack: StackEntry[];
 
-  constructor(errors: EditorError[], variables: Memory) {
+  constructor(errors: IEditorError[], variables: Memory) {
     this.memory = { ...variables };
     this.errors = errors ?? [];
     this.stack = [];
   }
 
+  getErrors = () => this.errors;
+
   getStack = () => this.stack;
 
-  visit(): object | undefined {
+  visit(): object {
     throw new Error("Method not implemented.");
   }
-  visitChildren(): object | undefined {
+  visitChildren(): object {
     throw new Error("Method not implemented.");
   }
-  visitTerminal(): object | undefined {
+  visitTerminal(): object {
     throw new Error("Method not implemented.");
   }
-  visitErrorNode(): object | undefined {
+  visitErrorNode(): object {
     throw new Error("Method not implemented.");
   }
 
   visitProgram(ctx: ProgramContext): ProgramReturnType {
-    if (this.errors.length !== 0) {
-      throw new Error("There are errors in the code");
-    }
     return this.visitInstructionSequence(ctx.instructionSequence());
   }
 
@@ -149,8 +150,8 @@ export default class VisitorAS implements AbstractMachineVisitor<object | undefi
     }
 
     if (!instr) {
-      this.errors.push(createEditorError(ctx, "Unknown instruction"));
-      throw new Error("Unknown instruction");
+      this.errors.push(createIEditorError(ctx, "Unknown instruction"));
+      throw new InterpreterError("Unknown instruction", this.errors);
     }
 
     return {
@@ -183,18 +184,18 @@ export default class VisitorAS implements AbstractMachineVisitor<object | undefi
     numberOfValues = 2
   ) {
     if (this.stack.length - numberOfValues < 0) {
-      this.errors.push(
-        createEditorError(ctx, `Instruction requires ${numberOfValues} values on top of the stack`)
-      );
-      return undefined;
+      const errorText = `Instruction requires ${numberOfValues} values on top of the stack`;
+      this.errors.push(createIEditorError(ctx, errorText));
+      throw new InterpreterError(errorText, this.errors);
     }
 
     const startIndex = this.stack.length - numberOfValues;
     const values = this.stack.slice(startIndex).reverse();
     this.stack.length = startIndex;
     if (!values.every(valueGuard)) {
-      this.errors.push(createEditorError(ctx, "One of the values on stack has incorrect type"));
-      return undefined;
+      const errorText = "One of the values on stack has incorrect type";
+      this.errors.push(createIEditorError(ctx, errorText));
+      throw new InterpreterError(errorText, this.errors);
     }
     const result = reducer(...values);
     this.stack.push(result);
@@ -358,8 +359,9 @@ export default class VisitorAS implements AbstractMachineVisitor<object | undefi
 
     if (!noEval) {
       if (value === undefined) {
-        this.errors.push(createEditorError(ctx, `Variable ${variable} is not defined`));
-        throw new Error(`Variable ${variable} is not defined`);
+        const errorText = `Variable ${variable} is not defined`;
+        this.errors.push(createIEditorError(ctx, errorText));
+        throw new InterpreterError(errorText, this.errors);
       }
       this.stack.push(value);
     }
@@ -376,12 +378,14 @@ export default class VisitorAS implements AbstractMachineVisitor<object | undefi
     if (!noEval) {
       const value = this.stack.pop();
       if (value === undefined) {
-        this.errors.push(createEditorError(ctx, "Stack is empty"));
-        throw new Error("Stack is empty");
+        const errorText = "Stack is empty";
+        this.errors.push(createIEditorError(ctx, errorText));
+        throw new InterpreterError(errorText, this.errors);
       }
       if (typeof value !== "number") {
-        this.errors.push(createEditorError(ctx, "Value on stack is not a number"));
-        throw new Error("Value on stack is not a number");
+        const errorText = "Value on stack is not a number";
+        this.errors.push(createIEditorError(ctx, errorText));
+        throw new InterpreterError(errorText, this.errors);
       }
       this.memory[variable] = value;
 
@@ -411,12 +415,14 @@ export default class VisitorAS implements AbstractMachineVisitor<object | undefi
     if (!noEval) {
       const stackEntry = this.stack.pop();
       if (stackEntry === undefined) {
-        this.errors.push(createEditorError(ctx, "Stack is empty"));
-        throw new Error("Stack is empty");
+        const errorText = "Stack is empty";
+        this.errors.push(createIEditorError(ctx, errorText));
+        throw new InterpreterError(errorText, this.errors);
       }
       if (typeof stackEntry !== "boolean") {
-        this.errors.push(createEditorError(ctx, "Value on stack is not a boolean"));
-        throw new Error("Value on stack is not a boolean");
+        const errorText = "Value on stack is not a boolean";
+        this.errors.push(createIEditorError(ctx, errorText));
+        throw new InterpreterError(errorText, this.errors);
       }
       condition = stackEntry;
     }
@@ -439,26 +445,35 @@ export default class VisitorAS implements AbstractMachineVisitor<object | undefi
   visitLoop(ctx: LoopContext, noEval = false): LoopReturnType {
     const iterations = [];
     let condition = false;
+
     do {
-      this.visitInstructionSequence(ctx.instructionSequence(0), noEval);
+      const conditionResult = this.visitInstructionSequence(ctx.instructionSequence(0), noEval);
+      const conditionResultStack = structuredClone(this.stack);
       const resultCondition = this.stack.pop();
       if (resultCondition === undefined) {
-        this.errors.push(createEditorError(ctx, "Stack is empty"));
-        throw new Error("Stack is empty");
+        const errorText = "Stack is empty";
+        this.errors.push(createIEditorError(ctx, errorText));
+        throw new InterpreterError(errorText, this.errors);
       }
       if (typeof resultCondition !== "boolean") {
-        this.errors.push(createEditorError(ctx, "Value on stack is not a boolean"));
-        throw new Error("Value on stack is not a boolean");
+        const errorText = "Value on stack is not a boolean";
+        this.errors.push(createIEditorError(ctx, errorText));
+        throw new InterpreterError(errorText, this.errors);
       }
       condition = resultCondition;
-      if (condition) {
-        iterations.push(this.visitInstructionSequence(ctx.instructionSequence(1), noEval));
-      }
+      iterations.push({
+        condition,
+        conditionSequence: conditionResult,
+        conditionResultStack,
+        sequence: condition
+          ? this.visitInstructionSequence(ctx.instructionSequence(1), noEval)
+          : undefined,
+      } as LoopIteration);
     } while (condition);
 
     return {
       text: ctx.text,
-      condition: ctx.instructionSequence(0).text,
+      conditionText: ctx.instructionSequence(0).text,
       iterations,
       type: "loop",
       body: ctx.instructionSequence(1).text,

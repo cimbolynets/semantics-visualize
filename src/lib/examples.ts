@@ -1,6 +1,6 @@
 export const skipWhileInnerIf = `skip; i := 1; x := 3;
 while !(x = 1) do (
-    i := i*x;
+    i := i*x
     x := x-1;
     while i <= 4 do i := i + 1
 ); x := 4`;
@@ -53,5 +53,5 @@ if x <= y then x := y else y := x`;
 // `;
 
 export const abstractionMachineFactorial = `
-PUSH-1:STORE-x:PUSH-3:STORE-y:LOOP(FETCH-y:PUSH-1:EQ:NEG,FETCH-x:FETCH-y:MULT:STORE-x:PUSH-1:FETCH-y:SUB:STORE-y):EMPTYOP
+LOOP(FETCH-y:PUSH-1:EQ:NEG,FETCH-x:FETCH-y:MULT:STORE-x:PUSH-1:FETCH-y:SUB:STORE-y):TRUE:BRANCH(PUSH-1,PUSH-2):STORE-z
 `;

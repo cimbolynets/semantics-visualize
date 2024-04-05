@@ -1,14 +1,15 @@
 import { AbstractMachineLexer } from "@/grammar/as/AbstractMachineLexer";
 import { AbstractMachineParser } from "@/grammar/as/AbstractMachineParser";
-import { EditorError } from "@/types";
+import { IEditorError } from "@/types";
 import { CharStreams, CommonTokenStream } from "antlr4ts";
 import VisitorAS, { VisitorASResult } from "./VisitorAS";
+import { InterpreterError } from "../InterpreterError";
 
 export function generateVisitedTreeAS(
   input: string,
   variables: Record<string, number>
 ): [VisitorASResult, VisitorAS] | undefined {
-  const errors: EditorError[] = [];
+  const errors: IEditorError[] = [];
 
   const chars = CharStreams.fromString(input);
 
@@ -42,16 +43,12 @@ export function generateVisitedTreeAS(
   });
   parser.buildParseTree = true;
 
-  if(errors.length !== 0) {
-    return undefined
-  }
-
   const tree = parser.program();
+  if (errors.length) {
+    throw new InterpreterError("An error occurred during parsing", errors);
+  }
   const visitor = new VisitorAS(errors, variables);
   const visited = tree.accept(visitor);
-  if (!visited) {
-    throw new Error("Parsing failed");
-  }
 
   return [visited as VisitorASResult, visitor];
 }

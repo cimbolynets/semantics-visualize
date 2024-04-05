@@ -104,11 +104,25 @@ export type BranchReturnType = {
   isTrue: boolean | undefined;
 };
 
+export type LoopIteration =
+  | {
+      condition: true;
+      conditionSequence: InstructionSequenceReturnType;
+      conditionResultStack: StackEntry[];
+      sequence: InstructionSequenceReturnType;
+    }
+  | {
+      condition: false;
+      conditionSequence: InstructionSequenceReturnType;
+      conditionResultStack: StackEntry[];
+      sequence: undefined;
+    };
+
 export type LoopReturnType = {
   text: string;
-  condition: string;
+  conditionText: string;
   body: string;
-  iterations: InstructionSequenceReturnType[];
+  iterations: Array<LoopIteration>;
   type: "loop";
   resultStack: StackEntry[];
 };

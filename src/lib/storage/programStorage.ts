@@ -52,7 +52,7 @@ export const useProgramStorage = create<ProgramStorage>((set) => ({
         return [];
     }
   },
-  activeInterpreter: "sos",
+  activeInterpreter: "ns",
   programText: skipWhileInnerIf,
   setActiveInterpreter(a) {
     set((state) => ({ ...state, programText: "", activeInterpreter: a }));
