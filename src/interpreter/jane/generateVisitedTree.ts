@@ -8,7 +8,8 @@ import { InstructionSequence } from "./types";
 
 export function generateVisitedTreeJane(
   input: string,
-  variables: Record<string, number>
+  variables: Record<string, number>,
+  withoutExtensions = false
 ): [VisitorResult, Visitor] {
   const errors: IEditorError[] = [];
 
@@ -50,7 +51,7 @@ export function generateVisitedTreeJane(
   if (errors.length) {
     throw new InterpreterError("An error occurred during parsing", errors);
   }
-  const visitor = new Visitor(errors, variables);
+  const visitor = new Visitor(errors, variables, withoutExtensions);
   const visited = tree.accept(visitor) as InstructionSequence;
 
   return [visited, visitor];

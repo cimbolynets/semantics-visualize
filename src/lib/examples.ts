@@ -1,6 +1,6 @@
 export const skipWhileInnerIf = `skip; i := 1; x := 3;
 while !(x = 1) do (
-    i := i*x
+    i := i*x;
     x := x-1;
     while i <= 4 do i := i + 1
 ); x := 4`;
