@@ -1,14 +1,14 @@
+import { s } from "@/lib/utils/format";
 import { formatMemory } from "@/lib/utils/formatMemory";
 import { Memory } from "@/types";
-import { CycleInstruction, TreeNode } from "../jane/types";
-import { s } from "@/lib/utils/format";
+import { CycleValue, Instruction } from "../jane/types";
 
 export const assignPattern = /(.+) +:= +(.+)/;
 
-export function isSkipOrEmptyCycle(instr: TreeNode) {
+export function isSkipOrEmptyCycle(instr: Instruction) {
   return (
     instr.value.type === "skip" ||
-    (instr.value.type === "cycle" && (instr.value as CycleInstruction["value"]).iters.length === 0)
+    (instr.value.type === "cycle" && (instr.value as CycleValue).iters.length === 0)
   );
 }
 

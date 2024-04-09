@@ -5,7 +5,7 @@ import { MakeSequenceSOS } from "@/interpreter/sos/MakeSequenceSOS";
 import { useProgramStorage } from "@/lib/storage/programStorage";
 import { cn } from "@/lib/utils";
 import { pick } from "lodash";
-import { HTMLAttributes, useEffect, useMemo, useState } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import { EditorError as EditorErrorComponent } from "../EditorError";
 import { RenderSequence } from "./RenderSequence";
 
