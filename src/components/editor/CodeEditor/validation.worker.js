@@ -12,7 +12,6 @@ let interpreter;
 let withoutExtensions = false;
 onmessage = (message) => {
   if (!message?.data?.type) return;
-  console.log("Message:", message.data);
   if (message.data.type === INTERPRETER_CHANGED) {
     const { activeInterpreter } = message.data;
     interpreter = activeInterpreter === "as" ? generateVisitedTreeAS : generateVisitedTreeJane;

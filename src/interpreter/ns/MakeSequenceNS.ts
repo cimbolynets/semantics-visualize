@@ -96,6 +96,7 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   addBranch = (instr: Instruction<BranchValue>): string => {
     const stateBeforeBranch = this.nextStateNumber - 1;
     const targetBranch = instr.value.isTrue ? instr.value.ifBranch : instr.value.elBranch;
+    debugger;
     return String.raw`${this.traverse(targetBranch)}, \quad ${formatCondition(
       instr.value.conditionText,
       instr.value.isTrue,
@@ -171,6 +172,7 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
         result = this.addCycle(instr as Instruction<CycleValue>);
         break;
       case "branch":
+        includeEnv = false;
         result = this.addBranch(instr as Instruction<BranchValue>);
         break;
       case "skip":
@@ -224,7 +226,8 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   };
 
   parseInstruction = (tree: Instruction<InstructionValue>, last: boolean) => {
-    return this.chooseInstruction(tree, last);
+    const result = this.chooseInstruction(tree, last);
+    return result;
   };
 
   traverse = (

@@ -1,15 +1,28 @@
+import { Copy } from "lucide-react";
 import { FC } from "react";
+import { Button } from "../ui/button";
+import { useToast } from "../ui/use-toast";
 
 interface ExportLatexProps {
   sequence: string[];
 }
 
 export const ExportLatex: FC<ExportLatexProps> = ({ sequence }) => {
+  const { toast } = useToast();
+
   return (
-    <div className="mx-auto flex flex-col gap-2 bg-background rounded-xl p-6">
-      {sequence.map((item) => (
-        <span key={item}>{item}</span>
-      ))}
-    </div>
+    <Button
+      variant="secondary"
+      onClick={() => {
+        toast({
+          title: "Text's being copied to clipboard.",
+          duration: 2000,
+        });
+        navigator.clipboard.writeText(sequence.length > 1 ? sequence.join(" \\\\ ") : sequence[0]);
+      }}
+      className="gap-2"
+    >
+      Copy <Copy />
+    </Button>
   );
 };

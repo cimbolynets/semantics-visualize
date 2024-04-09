@@ -18,8 +18,8 @@ export default function States({ states }: StatesProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size="sm" variant="secondary" className="gap-2 self-start">
-          <BetweenHorizontalStart /> Show states
+        <Button variant="secondary" className="gap-2 self-start">
+          Show states <BetweenHorizontalStart /> 
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="transition-all">

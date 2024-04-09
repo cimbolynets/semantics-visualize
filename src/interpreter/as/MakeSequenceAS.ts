@@ -254,6 +254,6 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
       ...this.traverse(tree?.children),
       this.parseTransition("c", visitor.getStack(), []),
     ];
-    return finalSequence.map((item) => String.raw`\begin{flalign*}&${item}&\end{flalign*}`);
+    return finalSequence;
   }
 }

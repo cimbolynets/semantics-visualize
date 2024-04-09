@@ -1,6 +1,7 @@
 import { useProgramStorage } from "@/lib/storage/programStorage";
 import { FC, useMemo } from "react";
-import { Export } from "../export/Export";
+import { ExportImage } from "../export/ExportImage";
+import { ExportLatex } from "../export/ExportLatex";
 import Scopes from "./Scopes";
 import { SequenceBody } from "./SequenceBody";
 import States from "./States";
@@ -27,7 +28,8 @@ export const RenderSequence: FC<RenderSequenceProps> = ({ sequence, states, envs
         ) : (
           <States states={states} />
         )}
-        <Export sequence={sequenceArr} />
+        <ExportImage sequence={sequenceArr} />
+        <ExportLatex sequence={sequenceArr} />
       </div>
       <SequenceBody sequence={sequenceArr} />
     </>

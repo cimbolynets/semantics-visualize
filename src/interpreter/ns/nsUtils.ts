@@ -25,6 +25,20 @@ export function getCurrentInstructions(text: string, stateNumber: number, sameSt
   )}`;
 }
 
+export function frac0(num: string, den: string) {
+  return String.raw`\genfrac{}{}{0pt}{0}{${num}}{${den}}`;
+}
+
+const fracPattern = /\\genfrac/g;
+
+export function balanceTrees(tree1: string, tree2: string) {
+  const numHeight = [...tree1.matchAll(fracPattern)].length;
+  const denHeight = [...tree2.matchAll(fracPattern)].length;
+  tree1 = numHeight < denHeight ? frac0("", tree1) : tree1;
+  tree2 = numHeight > denHeight ? frac0("", tree2) : tree2;
+  return [tree1, tree2];
+}
+
 export function frac(num: string, den: string, dividerThickness = 1) {
   return String.raw`\genfrac{}{}{${dividerThickness}pt}{0}{${num}}{${den}}`;
 }
