@@ -1,8 +1,9 @@
-import { FC } from "react";
-import MathRenderer from "../MathRenderer";
-import Scopes from "./Scopes";
-import States from "./States";
 import { useProgramStorage } from "@/lib/storage/programStorage";
+import { FC, useMemo } from "react";
+import { Export } from "../export/Export";
+import Scopes from "./Scopes";
+import { SequenceBody } from "./SequenceBody";
+import States from "./States";
 
 interface RenderSequenceProps {
   sequence: string | string[] | undefined;
@@ -11,11 +12,11 @@ interface RenderSequenceProps {
 }
 
 export const RenderSequence: FC<RenderSequenceProps> = ({ sequence, states, envs }) => {
-  const sequenceArr = sequence
-    ? !Array.isArray(sequence)
-      ? [sequence]
-      : sequence
-    : ["No sequence"];
+  const strSequence = Array.isArray(sequence) ? sequence.join("") : sequence;
+  const sequenceArr = useMemo(
+    () => (sequence ? (!Array.isArray(sequence) ? [sequence] : sequence) : ["No sequence"]),
+    [strSequence]
+  );
   const activeInterpreter = useProgramStorage((state) => state.activeInterpreter);
 
   return (
@@ -26,12 +27,9 @@ export const RenderSequence: FC<RenderSequenceProps> = ({ sequence, states, envs
         ) : (
           <States states={states} />
         )}
+        <Export sequence={sequenceArr} />
       </div>
-      <div className="output-sequence">
-        {sequenceArr.map((chunk) => (
-          <MathRenderer key={chunk}>{chunk}</MathRenderer>
-        ))}
-      </div>
+      <SequenceBody sequence={sequenceArr} />
     </>
   );
 };

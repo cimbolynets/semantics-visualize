@@ -1,14 +1,13 @@
+import { InterpreterError } from "@/interpreter/InterpreterError";
 import { MakeSequenceAS } from "@/interpreter/as/MakeSequenceAS";
 import { MakeSequenceNS } from "@/interpreter/ns/MakeSequenceNS";
 import { MakeSequenceSOS } from "@/interpreter/sos/MakeSequenceSOS";
 import { useProgramStorage } from "@/lib/storage/programStorage";
 import { cn } from "@/lib/utils";
 import { pick } from "lodash";
-import { HTMLAttributes, useEffect, useState } from "react";
-import { RenderSequence } from "./RenderSequence";
-import { InterpreterError } from "@/interpreter/InterpreterError";
+import { HTMLAttributes, useEffect, useMemo, useState } from "react";
 import { EditorError as EditorErrorComponent } from "../EditorError";
-import { EditorError } from "@/interpreter/errorUtils";
+import { RenderSequence } from "./RenderSequence";
 
 interface OutputProps extends HTMLAttributes<HTMLDivElement> {}
 

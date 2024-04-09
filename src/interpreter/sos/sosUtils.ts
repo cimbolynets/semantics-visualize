@@ -1,7 +1,6 @@
-import { text } from "@/lib/utils/format";
-import { TreeNode } from "../jane/types";
+import { Instruction } from "../jane/types";
 
-export function parseRestProgram(rest: TreeNode[] | undefined) {
+export function parseRestProgram(rest: Instruction[] | undefined) {
   if (!rest?.length) return "";
-  return rest.map((entry) => text(entry.text)).join("; ");
+  return rest.map((entry) => entry.text).join("; ");
 }

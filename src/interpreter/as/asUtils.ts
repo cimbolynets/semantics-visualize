@@ -9,7 +9,7 @@ export function parseStack(stack: StackEntry[]) {
       ? stack
           .toReversed()
           .map((entry) => String.raw`\textbf{${entry}}`)
-          .join("\\nobreak:\\nobreak") + "\\nobreak:\\nobreak"
+          .join(":") + ":"
       : "") + String.raw`\mathscr{e}`
   );
 }

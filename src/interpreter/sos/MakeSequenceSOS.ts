@@ -1,14 +1,8 @@
-import { a, formatCondition, s } from "@/lib/utils/format";
+import { a, formatCondition, s, text } from "@/lib/utils/format";
 import { Memory } from "@/types";
 import { IMakeSequence } from "../IMakeSequence.types";
 import { generateVisitedTreeJane } from "../jane/generateVisitedTree";
-import {
-  AssignmentInstruction,
-  BranchInstruction,
-  CycleInstruction,
-  SkipInstruction,
-  TreeNode,
-} from "../jane/types";
+import { AssignmentValue, BranchValue, CycleValue, Instruction, SkipValue } from "../jane/types";
 import { parseState } from "../ns/nsUtils";
 import { parseRestProgram } from "./sosUtils";
 
@@ -39,7 +33,7 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
     this.configNumber++;
   };
 
-  parseConfig = (text: string, last: boolean, conditionText?: string) => {
+  parseConfig = (instrText: string, last: boolean, conditionText?: string) => {
     if (last) return String.raw`${a(this.configNumber)} \ = \ ${s(this.nextStateNumber - 1)}`;
     const cyclePart = this.whileStack.length
       ? "; " +
@@ -49,18 +43,22 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
           .join("; ")
       : "";
     return (
-      String.raw`${a(this.configNumber)} \ = \ \langle \text{${text}${cyclePart}}, ${s(
+      String.raw`${a(this.configNumber)} \ = \ \langle ${text(instrText + cyclePart)}, ${s(
         this.nextStateNumber - 1
       )} \rangle \Rightarrow \ ${a(this.configNumber + 1)}` +
       (conditionText ? ",\\;" + conditionText : "")
     );
   };
 
-  parseTransition = (text: string | undefined, rest: TreeNode[], conditionText?: string) => {
-    if (!text) return "";
+  parseTransition = (
+    instrText: string | undefined,
+    rest: Instruction[],
+    conditionText?: string
+  ) => {
+    if (!instrText) return "";
     const restText = parseRestProgram(rest);
     const result = this.parseConfig(
-      String.raw`\text{${text}}` + (rest.length ? "; " + restText : ""),
+      instrText + (rest.length ? "; " + restText : ""),
       false,
       conditionText
     );
@@ -69,13 +67,13 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
   };
 
   // add assign instruction to the configs
-  addAssign(instr: AssignmentInstruction, rest: TreeNode[]) {
+  addAssign(instr: Instruction<AssignmentValue>, rest: Instruction[]) {
     const result = this.parseTransition(instr.text, rest);
     this.changeState(instr.value.state);
     return result;
   }
 
-  transformToBranch = (cycle: CycleInstruction["value"], rest: TreeNode[], condition: boolean) => {
+  transformToBranch = (cycle: CycleValue, rest: Instruction[], condition: boolean) => {
     const stats = cycle.conditionText;
     const instructions = cycle.instrSeqText;
     return this.parseTransition(
@@ -85,7 +83,7 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
     );
   };
 
-  addCycle = ({ value }: CycleInstruction, rest: TreeNode[]) => {
+  addCycle = ({ value }: Instruction<CycleValue>, rest: Instruction[]) => {
     const result = [];
     for (const iteration of value.iters) {
       result.push(this.parseTransition(value.text, rest));
@@ -104,7 +102,7 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
     return result;
   };
 
-  addBranch(instr: BranchInstruction, rest: TreeNode[]): string[] {
+  addBranch(instr: Instruction<BranchValue>, rest: Instruction[]): string[] {
     const executeBranch = instr.value.isTrue ? instr.value.ifBranch : instr.value.elBranch;
     return [
       this.parseTransition(
@@ -118,27 +116,27 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
     ];
   }
 
-  addSkip(instr: SkipInstruction, rest: TreeNode[]) {
+  addSkip(instr: Instruction<SkipValue>, rest: Instruction[]) {
     return this.parseTransition(instr.text, rest);
   }
 
-  chooseInstruction(instr: TreeNode, rest: TreeNode[]): string | string[] | undefined {
+  chooseInstruction(instr: Instruction, rest: Instruction[]): string | string[] | undefined {
     switch (instr.value.type) {
       case "assign":
-        return this.addAssign(instr as AssignmentInstruction, rest);
+        return this.addAssign(instr as Instruction<AssignmentValue>, rest);
       case "cycle":
-        return this.addCycle(instr as CycleInstruction, rest);
+        return this.addCycle(instr as Instruction<CycleValue>, rest);
       case "branch":
-        return this.addBranch(instr as BranchInstruction, rest);
+        return this.addBranch(instr as Instruction<BranchValue>, rest);
       case "skip":
-        return this.addSkip(instr as SkipInstruction, rest);
+        return this.addSkip(instr as Instruction<SkipValue>, rest);
       default:
         console.error("Not an instruction");
         return undefined;
     }
   }
 
-  traverse = (children: TreeNode[] | undefined): string[] => {
+  traverse = (children: Instruction[] | undefined): string[] => {
     if (!children) return [];
     return children
       .map((c, index, initial) => this.chooseInstruction(c, initial.slice(index + 1)))
@@ -149,7 +147,7 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
   getSequence(input: string, variables: Memory) {
     const [tree] = generateVisitedTreeJane(input, variables, true);
     this.changeState(variables);
-    const res = this.traverse(tree.children as TreeNode[]);
+    const res = this.traverse(tree.children);
     res.push(this.parseConfig("", true));
     return res;
   }

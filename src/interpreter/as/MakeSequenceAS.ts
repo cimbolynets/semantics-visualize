@@ -55,11 +55,11 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
           .map((entry) => entry)
           .join(":")
       : "";
-    return String.raw`${a(this.configNumber)} \ = \nobreak \ \langle ${text(
+    return String.raw`${a(this.configNumber)} \ =  \ \langle ${text(
       configText + cyclePart
-    )},\nobreak ${parseStack(stack)},\nobreak ${s(
-      this.nextStateNumber - 1
-    )} \rangle \ =\nobreak \! \gg \nobreak ${a(this.configNumber + 1)}`;
+    )}, ${parseStack(stack)}, ${s(this.nextStateNumber - 1)} \rangle \ = \! \gg  ${a(
+      this.configNumber + 1
+    )}`;
   };
 
   parseTransition = (
@@ -143,7 +143,9 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
     rest: InstructionReturnType[]
   ) => {
     const parsedBranch = String.raw`BRANCH(${loop.body}:${loop.text},EMPTYOP)`;
-    this.remainingInstructions.push(parsedBranch + (rest.length ? ":" + parseRestProgram(rest) : ""));
+    this.remainingInstructions.push(
+      parsedBranch + (rest.length ? ":" + parseRestProgram(rest) : "")
+    );
     const condition = this.traverse(instructions);
     this.remainingInstructions.pop();
     return [...condition, this.parseTransition(parsedBranch, conditionResultStack, rest)];
@@ -162,7 +164,9 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
             rest
           )
         );
-        this.remainingInstructions.push(child.text + (rest.length ? ":" + parseRestProgram(rest) : ""));
+        this.remainingInstructions.push(
+          child.text + (rest.length ? ":" + parseRestProgram(rest) : "")
+        );
         result.push(...this.traverse(iteration.sequence.children));
         this.remainingInstructions.pop();
       } else {
@@ -246,6 +250,10 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
     if (!result) return undefined;
     const [tree, visitor] = result;
     this.changeState(variables);
-    return [...this.traverse(tree?.children), this.parseTransition("c", visitor.getStack(), [])];
+    const finalSequence = [
+      ...this.traverse(tree?.children),
+      this.parseTransition("c", visitor.getStack(), []),
+    ];
+    return finalSequence.map((item) => String.raw`\begin{flalign*}&${item}&\end{flalign*}`);
   }
 }

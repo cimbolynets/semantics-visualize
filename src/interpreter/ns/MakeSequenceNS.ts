@@ -90,9 +90,7 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
       type: "instructionSequence",
       text: "",
     });
-    return String.raw`${envpa(
-      this.getNextEnvNumber() - 1
-    )}${whileBody},\quad ${restWhile},\quad ${condition}`;
+    return String.raw`${whileBody},\quad ${restWhile},\quad ${condition}`;
   };
 
   addBranch = (instr: Instruction<BranchValue>): string => {

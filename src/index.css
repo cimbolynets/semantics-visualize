@@ -98,6 +98,8 @@ body {
 }
 
 .output-controls {
+  display: flex;
+  gap: theme(spacing.4);
 }
 
 .output-sequence {

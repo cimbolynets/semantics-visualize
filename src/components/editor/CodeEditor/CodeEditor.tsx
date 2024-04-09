@@ -11,7 +11,7 @@ import { CODE_CHANGED, INTERPRETER_CHANGED } from "./constants";
 
 // creating a worker, that will be doing code validation and then sending an array of errors to the main thread, so we
 // can display them in the editor by using standard error display mechanism of monaco editor
-let validation: Worker;
+let validation: Worker | undefined;
 // start line and end line mostly will be the same, but start column and end column will depend on latex notation text length;
 // cursor will tell us where to place the cursor after the text will be replaced
 function insertEditorText(
@@ -69,6 +69,7 @@ export type CodeEditorProps = {
   value?: string;
   setValue: (v?: string) => void;
   fontSize: number;
+  disableValidation?: boolean;
 } & EditorProps;
 
 // variables must be defined outside of the component scope, because they will be used in the worker
@@ -79,6 +80,7 @@ export default function CodeEditor({
   value,
   setValue,
   fontSize,
+  disableValidation = false,
   ...props
 }: CodeEditorProps) {
   const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
@@ -92,16 +94,17 @@ export default function CodeEditor({
   }, [activeInterpreter]);
 
   useEffect(() => {
+    if (disableValidation) return;
     validation = new ValidationWorker();
     return () => {
-      validation.terminate();
+      validation?.terminate();
     };
   }, []);
   // update errors when variables are changed
   useEffect(() => {
     variables = variablesProp;
     if (editorRef?.current) {
-      validation.postMessage({
+      validation?.postMessage({
         type: CODE_CHANGED,
         value: editorRef.current.getModel()?.getValue(),
         variables,
@@ -120,7 +123,7 @@ export default function CodeEditor({
     // monaco.editor.defineTheme("contrast", contrast as editor.IStandaloneThemeData);
     // monaco.editor.setTheme(theme);
     // sending initial code for validation
-    validation.postMessage({
+    validation?.postMessage({
       type: CODE_CHANGED,
       value: editor.getModel()?.getValue(),
       variables,
@@ -132,26 +135,28 @@ export default function CodeEditor({
     // setting up an event listener for sending code to the worker every time the editor value changes
     editor.getModel()?.onDidChangeContent((e) => {
       transformIfPasted(e, editor);
-      validation.postMessage({
+      validation?.postMessage({
         type: CODE_CHANGED,
         value: editor.getModel()?.getValue(),
         variables,
       });
     });
     // an event listener, that will be called, when the worker will send an array of errors to the main thread
-    validation.onmessage = (message: { data: IEditorError[] }) => {
-      const model = editor.getModel();
-      if (!message || !model) return;
-      if (message) {
-        monaco.editor.setModelMarkers(
-          model,
-          "owner",
-          // we're marking all the errors as monaco.MarkerSeverity.Error, but we can also distinguish it in monaco editor,
-          // for example for some problems we can use just warning as in case of possible infinite loop
-          message.data.map((err) => ({ ...err, severity: monaco.MarkerSeverity.Error }))
-        );
-      }
-    };
+    if (validation) {
+      validation.onmessage = (message: { data: IEditorError[] }) => {
+        const model = editor.getModel();
+        if (!message || !model) return;
+        if (message) {
+          monaco.editor.setModelMarkers(
+            model,
+            "owner",
+            // we're marking all the errors as monaco.MarkerSeverity.Error, but we can also distinguish it in monaco editor,
+            // for example for some problems we can use just warning as in case of possible infinite loop
+            message.data.map((err) => ({ ...err, severity: monaco.MarkerSeverity.Error }))
+          );
+        }
+      };
+    }
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
