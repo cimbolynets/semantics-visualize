@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils";
 import katex from "katex";
-import { HTMLAttributes, useEffect, useRef } from "react";
+import { HTMLAttributes, memo, useEffect, useRef } from "react";
 
 interface MathRendererProps extends HTMLAttributes<HTMLDivElement> {
   children: string;
 }
 
-export default function MathRenderer({ children, className, ...props }: MathRendererProps) {
+export default memo(function MathRenderer({ children, className, ...props }: MathRendererProps) {
   const elementRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export default function MathRenderer({ children, className, ...props }: MathRend
   }, [children]);
 
   return <div ref={elementRef} {...props} className={cn(className, "whitespace-nowrap p-1")}></div>;
-}
+});
 
 // import { cn } from "@/lib/utils";
 // import { MathJax } from "better-react-mathjax";

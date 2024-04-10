@@ -3,15 +3,14 @@ import specialSymbols from "@/lib/specialSymbols/specialSymbols";
 import { IEditorError, Memory } from "@/types";
 import { Editor, EditorProps, Monaco } from "@monaco-editor/react";
 import { IPosition, editor } from "monaco-editor";
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { config, language } from "./jane-mode";
 import ValidationWorker from "./validation.worker?worker";
 import { useProgramStorage } from "@/lib/storage/programStorage";
 import { CODE_CHANGED, INTERPRETER_CHANGED } from "./constants";
+import ThemeContext from "@/components/ThemeContext";
+import { cn } from "@/lib/utils";
 
-// creating a worker, that will be doing code validation and then sending an array of errors to the main thread, so we
-// can display them in the editor by using standard error display mechanism of monaco editor
-let validation: Worker | undefined;
 // start line and end line mostly will be the same, but start column and end column will depend on latex notation text length;
 // cursor will tell us where to place the cursor after the text will be replaced
 function insertEditorText(
@@ -65,7 +64,6 @@ function transformIfPasted(
 
 export type CodeEditorProps = {
   variables: Memory;
-  theme: string;
   value?: string;
   setValue: (v?: string) => void;
   fontSize: number;
@@ -76,35 +74,39 @@ export type CodeEditorProps = {
 let variables: Memory = {};
 export default function CodeEditor({
   variables: variablesProp,
-  theme,
   value,
   setValue,
   fontSize,
   disableValidation = false,
   ...props
 }: CodeEditorProps) {
+  // creating a worker, that will be doing code validation and then sending an array of errors to the main thread, so we
+  // can display them in the editor by using standard error display mechanism of monaco editor
+  const validation = useRef<Worker | undefined>(undefined);
   const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
   const activeInterpreter = useProgramStorage((state) => state.activeInterpreter);
+  const theme = useContext(ThemeContext).state.editorTheme;
 
   useEffect(() => {
-    validation?.postMessage({
+    if (disableValidation) return;
+    validation.current = new ValidationWorker();
+    return () => {
+      validation.current?.terminate();
+    };
+  }, []);
+
+  useEffect(() => {
+    validation.current?.postMessage({
       type: INTERPRETER_CHANGED,
       activeInterpreter,
     });
   }, [activeInterpreter]);
 
-  useEffect(() => {
-    if (disableValidation) return;
-    validation = new ValidationWorker();
-    return () => {
-      validation?.terminate();
-    };
-  }, []);
   // update errors when variables are changed
   useEffect(() => {
     variables = variablesProp;
     if (editorRef?.current) {
-      validation?.postMessage({
+      validation.current?.postMessage({
         type: CODE_CHANGED,
         value: editorRef.current.getModel()?.getValue(),
         variables,
@@ -122,28 +124,28 @@ export default function CodeEditor({
     // monaco.editor.defineTheme("light", light as editor.IStandaloneThemeData);
     // monaco.editor.defineTheme("contrast", contrast as editor.IStandaloneThemeData);
     // monaco.editor.setTheme(theme);
-    // sending initial code for validation
-    validation?.postMessage({
+    // sending initial code for validation.current
+    validation.current?.postMessage({
       type: CODE_CHANGED,
       value: editor.getModel()?.getValue(),
       variables,
     });
-    validation?.postMessage({
+    validation.current?.postMessage({
       type: INTERPRETER_CHANGED,
       activeInterpreter,
     });
     // setting up an event listener for sending code to the worker every time the editor value changes
     editor.getModel()?.onDidChangeContent((e) => {
       transformIfPasted(e, editor);
-      validation?.postMessage({
+      validation.current?.postMessage({
         type: CODE_CHANGED,
         value: editor.getModel()?.getValue(),
         variables,
       });
     });
     // an event listener, that will be called, when the worker will send an array of errors to the main thread
-    if (validation) {
-      validation.onmessage = (message: { data: IEditorError[] }) => {
+    if (validation.current) {
+      validation.current.onmessage = (message: { data: IEditorError[] }) => {
         const model = editor.getModel();
         if (!message || !model) return;
         if (message) {
@@ -200,13 +202,13 @@ export default function CodeEditor({
       value={value}
       theme={theme}
       options={{
-        fontSize: fontSize,
+        fontSize,
         minimap: { enabled: false },
       }}
       defaultLanguage="jane"
       onChange={setValue}
       onMount={initLanguageAndServices}
-      className="code-editor"
+      className={cn("code-editor", props.className)}
     />
   );
 }

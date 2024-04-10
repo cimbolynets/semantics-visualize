@@ -15,7 +15,6 @@ export const EnvsInfo: FC<EnvsInfoProps> = ({ envs }) => {
       </SheetHeader>
       <div className="flex flex-col gap-2 overflow-x-auto">
         {envs.map((env, index) => {
-          console.log("Env:", env);
           return <MathRenderer key={index}>{env}</MathRenderer>;
         })}
       </div>

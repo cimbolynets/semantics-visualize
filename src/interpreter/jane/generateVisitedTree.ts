@@ -1,17 +1,13 @@
 import { JaneLexer } from "@/grammar/jane/JaneLexer";
 import { JaneParser } from "@/grammar/jane/JaneParser";
+import { replaceSpecialSymbols } from "@/lib/specialSymbols/replaceSymbols";
 import { IEditorError } from "@/types";
 import { CharStreams, CommonTokenStream } from "antlr4ts";
 import { InterpreterError } from "../InterpreterError";
 import Visitor, { VisitorResult } from "./Visitor";
 import { InstructionSequence } from "./types";
-import { replaceSpecialSymbols } from "@/lib/specialSymbols/replaceSymbols";
 
-export function generateVisitedTreeJane(
-  input: string,
-  variables: Record<string, number>,
-  withoutExtensions = false
-): [VisitorResult, Visitor] {
+export function createParseTreeJane(input: string) {
   input = replaceSpecialSymbols(input) ?? input;
   const errors: IEditorError[] = [];
 
@@ -52,7 +48,18 @@ export function generateVisitedTreeJane(
   if (errors.length) {
     throw new InterpreterError("An error occurred during parsing", errors);
   }
-  const visitor = new Visitor(errors, variables, withoutExtensions);
+
+  return tree;
+}
+
+export function generateVisitedTreeJane(
+  input: string,
+  variables: Record<string, number>,
+  withoutExtensions = false
+): [VisitorResult, Visitor] {
+  const tree = createParseTreeJane(input);
+
+  const visitor = new Visitor([], variables, withoutExtensions);
   const visited = tree.accept(visitor) as InstructionSequence;
 
   return [visited, visitor];

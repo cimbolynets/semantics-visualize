@@ -8,6 +8,7 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { SequenceBody } from "../SequenceBody";
 import States from "../States";
 import { ConfigsPagination } from "./ConfigsPagination";
+import { GuessNextConfiguration } from "./GuessNextConfiguration";
 
 interface RenderInModeProps {
   sequence: string[];
@@ -15,9 +16,8 @@ interface RenderInModeProps {
 }
 
 export const RenderInMode: FC<RenderInModeProps> = ({ sequence, states }) => {
-  // const [tab, setTab] = useState
   return (
-    <Tabs defaultValue="single-instruction" className="flex flex-col gap-4 h-full">
+    <Tabs defaultValue="step-by-step" className="flex flex-col gap-4 h-full">
       <div className="output-controls justify-between items-center">
         <div className="flex gap-4">
           <States states={states} />
@@ -63,6 +63,7 @@ function StepByStep({ sequence }: RenderInModeProps) {
   const sequencePart = useMemo(() => {
     return sequence.slice(0, renderedLength);
   }, [sequence, renderedLength]);
+  const nextConfig = sequence[Math.min(renderedLength, sequence.length - 1)];
 
   const inc = () => {
     setRenderedLength((prev) => (prev < sequence.length ? prev + 1 : prev));
@@ -83,6 +84,7 @@ function StepByStep({ sequence }: RenderInModeProps) {
         <Button onClick={inc} size="sm" variant="secondary">
           Next
         </Button>
+        <GuessNextConfiguration nextConfig={nextConfig} />
       </div>
       <SequenceBody ref={seqRef} sequence={sequencePart} />
     </>
@@ -104,7 +106,6 @@ function SingleInstruction({ sequence, states }: RenderInModeProps) {
   const state = useMemo(() => {
     const targetStateNumber = extractStateNumber(config);
     if (targetStateNumber === undefined) return undefined;
-    console.log(states);
     return states.find((state) => state.includes(s(targetStateNumber)));
   }, [config, states]);
 
