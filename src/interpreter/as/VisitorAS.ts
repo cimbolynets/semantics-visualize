@@ -50,11 +50,13 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
   private errors: IEditorError[];
   private memory: Memory;
   private stack: StackEntry[];
+  private noEval: boolean;
 
-  constructor(errors: IEditorError[], variables: Memory) {
+  constructor(errors: IEditorError[], variables: Memory, noEval = false) {
     this.memory = { ...variables };
     this.errors = errors ?? [];
     this.stack = [];
+    this.noEval = noEval;
   }
 
   getErrors = () => this.errors;
@@ -74,14 +76,14 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
     throw new Error("Method not implemented.");
   }
 
-  visitProgram(ctx: ProgramContext): ProgramReturnType {
+  visitProgram = (ctx: ProgramContext): ProgramReturnType => {
     return this.visitInstructionSequence(ctx.instructionSequence());
-  }
+  };
 
-  visitInstructionSequence(
+  visitInstructionSequence = (
     ctx: InstructionSequenceContext,
-    noEval = false
-  ): InstructionSequenceReturnType {
+    noEval = this.noEval
+  ): InstructionSequenceReturnType => {
     const instrSeq = ctx
       .instruction()
       .map((i) => this.visitInstruction(i, noEval))
@@ -94,10 +96,10 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       ),
       type: "instructionSequence",
     };
-  }
+  };
 
   // Visit a parse tree produced by JaneParser#instruction.
-  visitInstruction(ctx: InstructionContext, noEval = false): InstructionReturnType {
+  visitInstruction = (ctx: InstructionContext, noEval = false): InstructionReturnType => {
     const state = structuredClone(this.memory);
     const stack = structuredClone(this.stack);
     let instr:
@@ -161,9 +163,9 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       text: instr.text,
       type: "instruction",
     };
-  }
+  };
 
-  visitPush(ctx: PushContext, noEval = false): PushReturnType {
+  visitPush = (ctx: PushContext, noEval = false): PushReturnType => {
     const value = parseInt(ctx.Value().text);
     if (!noEval) {
       this.stack.push(value);
@@ -175,14 +177,14 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       stack: structuredClone(this.stack),
       value,
     };
-  }
+  };
 
-  stackReducer<T extends StackEntry>(
+  stackReducer = <T extends StackEntry>(
     ctx: ParserRuleContext,
     reducer: (...args: T[]) => T,
     valueGuard: (val: StackEntry | undefined) => val is T,
     numberOfValues = 2
-  ) {
+  ) => {
     if (this.stack.length - numberOfValues < 0) {
       const errorText = `Instruction requires ${numberOfValues} values on top of the stack`;
       this.errors.push(createIEditorError(ctx, errorText));
@@ -199,9 +201,9 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
     }
     const result = reducer(...values);
     this.stack.push(result);
-  }
+  };
 
-  visitAdd(ctx: AddContext, noEval = false): AddReturnType {
+  visitAdd = (ctx: AddContext, noEval = false): AddReturnType => {
     if (noEval)
       return {
         type: "add",
@@ -218,9 +220,9 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       type: "add",
       text: ctx.text,
     };
-  }
+  };
 
-  visitMult(ctx: MultContext, noEval = false): MultReturnType {
+  visitMult = (ctx: MultContext, noEval = false): MultReturnType => {
     if (noEval)
       return {
         type: "mult",
@@ -237,9 +239,9 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       type: "mult",
       text: ctx.text,
     };
-  }
+  };
 
-  visitSub(ctx: SubContext, noEval = false): SubReturnType {
+  visitSub = (ctx: SubContext, noEval = false): SubReturnType => {
     if (noEval)
       return {
         type: "sub",
@@ -256,9 +258,9 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       type: "sub",
       text: ctx.text,
     };
-  }
+  };
 
-  visitBoolean(ctx: BooleanContext, noEval = false): BooleanReturnType {
+  visitBoolean = (ctx: BooleanContext, noEval = false): BooleanReturnType => {
     if (noEval)
       return {
         type: "boolean",
@@ -275,9 +277,9 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       value,
       text: ctx.text,
     };
-  }
+  };
 
-  visitEq(ctx: EqContext, noEval = false): EqReturnType {
+  visitEq = (ctx: EqContext, noEval = false): EqReturnType => {
     if (noEval)
       return {
         type: "eq",
@@ -294,9 +296,9 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       type: "eq",
       text: ctx.text,
     };
-  }
+  };
 
-  visitLe(ctx: LeContext, noEval = false): LeReturnType {
+  visitLe = (ctx: LeContext, noEval = false): LeReturnType => {
     if (noEval)
       return {
         type: "le",
@@ -313,9 +315,9 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       type: "le",
       text: ctx.text,
     };
-  }
+  };
 
-  visitAnd(ctx: AndContext, noEval = false): AndReturnType {
+  visitAnd = (ctx: AndContext, noEval = false): AndReturnType => {
     if (noEval)
       return {
         type: "and",
@@ -332,9 +334,9 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       type: "and",
       text: ctx.text,
     };
-  }
+  };
 
-  visitNeg(ctx: NegContext, noEval = false): NegReturnType {
+  visitNeg = (ctx: NegContext, noEval = false): NegReturnType => {
     if (noEval)
       return {
         text: ctx.text,
@@ -352,8 +354,8 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       text: ctx.text,
       type: "neg",
     };
-  }
-  visitFetch(ctx: FetchContext, noEval = false): FetchReturnType {
+  };
+  visitFetch = (ctx: FetchContext, noEval = false): FetchReturnType => {
     const variable = ctx.Id().text;
     const value = this.memory[variable];
 
@@ -371,8 +373,8 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       value,
       type: "fetch",
     };
-  }
-  visitStore(ctx: StoreContext, noEval = false): StoreReturnType {
+  };
+  visitStore = (ctx: StoreContext, noEval = false): StoreReturnType => {
     const variable = ctx.Id().text;
 
     if (!noEval) {
@@ -401,16 +403,16 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       text: ctx.text,
       type: "store",
     };
-  }
+  };
 
-  visitEmptyop(ctx: EmptyopContext): EmptyopReturnType {
+  visitEmptyop = (ctx: EmptyopContext): EmptyopReturnType => {
     return {
       text: ctx.text,
       type: "emptyop",
     };
-  }
+  };
 
-  visitBranch(ctx: BranchContext, noEval = false): BranchReturnType {
+  visitBranch = (ctx: BranchContext, noEval = false): BranchReturnType => {
     let condition: boolean | undefined;
     if (!noEval) {
       const stackEntry = this.stack.pop();
@@ -440,36 +442,38 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       type: "branch",
       isTrue: condition,
     };
-  }
+  };
 
-  visitLoop(ctx: LoopContext, noEval = false): LoopReturnType {
+  visitLoop = (ctx: LoopContext, noEval = false): LoopReturnType => {
     const iterations = [];
     let condition = false;
 
-    do {
-      const conditionResult = this.visitInstructionSequence(ctx.instructionSequence(0), noEval);
-      const conditionResultStack = structuredClone(this.stack);
-      const resultCondition = this.stack.pop();
-      if (resultCondition === undefined) {
-        const errorText = "Stack is empty";
-        this.errors.push(createIEditorError(ctx, errorText));
-        throw new InterpreterError(errorText, this.errors);
-      }
-      if (typeof resultCondition !== "boolean") {
-        const errorText = "Value on stack is not a boolean";
-        this.errors.push(createIEditorError(ctx, errorText));
-        throw new InterpreterError(errorText, this.errors);
-      }
-      condition = resultCondition;
-      iterations.push({
-        condition,
-        conditionSequence: conditionResult,
-        conditionResultStack,
-        sequence: condition
-          ? this.visitInstructionSequence(ctx.instructionSequence(1), noEval)
-          : undefined,
-      } as LoopIteration);
-    } while (condition);
+    if (!noEval) {
+      do {
+        const conditionResult = this.visitInstructionSequence(ctx.instructionSequence(0), noEval);
+        const conditionResultStack = structuredClone(this.stack);
+        const resultCondition = this.stack.pop();
+        if (resultCondition === undefined) {
+          const errorText = "Stack is empty";
+          this.errors.push(createIEditorError(ctx, errorText));
+          throw new InterpreterError(errorText, this.errors);
+        }
+        if (typeof resultCondition !== "boolean") {
+          const errorText = "Value on stack is not a boolean";
+          this.errors.push(createIEditorError(ctx, errorText));
+          throw new InterpreterError(errorText, this.errors);
+        }
+        condition = resultCondition;
+        iterations.push({
+          condition,
+          conditionSequence: conditionResult,
+          conditionResultStack,
+          sequence: condition
+            ? this.visitInstructionSequence(ctx.instructionSequence(1), noEval)
+            : undefined,
+        } as LoopIteration);
+      } while (condition);
+    }
 
     return {
       text: ctx.text,
@@ -479,5 +483,5 @@ export default class VisitorAS implements AbstractMachineVisitor<object> {
       body: ctx.instructionSequence(1).text,
       resultStack: structuredClone(this.stack),
     };
-  }
+  };
 }

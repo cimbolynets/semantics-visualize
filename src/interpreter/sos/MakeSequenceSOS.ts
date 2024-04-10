@@ -144,8 +144,8 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
       .flat();
   };
 
-  getSequence(input: string, variables: Memory) {
-    const [tree] = generateVisitedTreeJane(input, variables, true);
+  getSequence(input: string, variables: Memory, noEval = false) {
+    const [tree] = generateVisitedTreeJane(input, variables, true, noEval);
     this.changeState(variables);
     const res = this.traverse(tree.children);
     res.push(this.parseConfig("", true));

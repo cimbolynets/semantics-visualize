@@ -7,7 +7,8 @@ import { InterpreterError } from "../InterpreterError";
 
 export function generateVisitedTreeAS(
   input: string,
-  variables: Record<string, number>
+  variables: Record<string, number>,
+  noEval = false
 ): [VisitorASResult, VisitorAS] | undefined {
   const errors: IEditorError[] = [];
 
@@ -47,7 +48,7 @@ export function generateVisitedTreeAS(
   if (errors.length) {
     throw new InterpreterError("An error occurred during parsing", errors);
   }
-  const visitor = new VisitorAS(errors, variables);
+  const visitor = new VisitorAS(errors, variables, noEval);
   const visited = tree.accept(visitor);
 
   return [visited as VisitorASResult, visitor];

@@ -271,8 +271,8 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
     return result ?? [];
   };
 
-  getSequence(input: string, variables: Memory) {
-    const result = generateVisitedTreeAS(input, variables);
+  getSequence(input: string, variables: Memory, noEval = false) {
+    const result = generateVisitedTreeAS(input, variables, noEval);
     if (!result) return undefined;
     const [tree, visitor] = result;
     this.changeState(variables);

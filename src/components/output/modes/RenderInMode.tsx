@@ -63,7 +63,7 @@ function StepByStep({ sequence }: RenderInModeProps) {
   const sequencePart = useMemo(() => {
     return sequence.slice(0, renderedLength);
   }, [sequence, renderedLength]);
-  const nextConfig = sequence[Math.min(renderedLength, sequence.length - 1)];
+  const nextConfig = renderedLength < sequence.length - 1 ? sequence.at(renderedLength) : undefined;
 
   const inc = () => {
     setRenderedLength((prev) => (prev < sequence.length ? prev + 1 : prev));
@@ -84,7 +84,7 @@ function StepByStep({ sequence }: RenderInModeProps) {
         <Button onClick={inc} size="sm" variant="secondary">
           Next
         </Button>
-        <GuessNextConfiguration nextConfig={nextConfig} />
+        {nextConfig ? <GuessNextConfiguration nextConfig={nextConfig} revealNext={inc} /> : null}
       </div>
       <SequenceBody ref={seqRef} sequence={sequencePart} />
     </>
