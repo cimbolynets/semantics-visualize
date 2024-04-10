@@ -505,7 +505,9 @@ export default class Visitor implements JaneVisitor<object> {
         (this.scope.getVariable(ctx.text) === null ||
           this.scope.getVariable(ctx.text) === undefined)
       ) {
-        this.errors.push(createIEditorError(ctx, `Variable ${ctx.text} is not initialized`));
+        const errorText = `Variable ${ctx.text} is not initialized`;
+        this.errors.push(createIEditorError(ctx, errorText));
+        throw new InterpreterError(errorText, this.errors);
       }
       return {
         text: ctx.text,
