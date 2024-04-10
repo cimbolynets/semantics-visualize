@@ -1,12 +1,12 @@
-export const s = (n: number) => {
+export const s = (n: number | string) => {
   return `s_{${n}}`;
 };
 
-export const a = (n: number) => {
+export const a = (n: number | string) => {
   return `a_{${n}}`;
 };
 
-export const envp = (n: number) => {
+export const envp = (n: number | string) => {
   return String.raw`envp_{${n}}`;
 };
 
@@ -15,7 +15,7 @@ export const envp = (n: number) => {
  * @param n
  * @returns
  */
-export const envpa = (n: number) => {
+export const envpa = (n: number | string) => {
   return String.raw`${envp(n)} \vdash `;
 };
 

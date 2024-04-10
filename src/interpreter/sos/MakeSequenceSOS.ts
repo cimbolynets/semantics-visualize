@@ -42,6 +42,7 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
           .map((entry) => entry)
           .join("; ")
       : "";
+
     return (
       String.raw`${a(this.configNumber)} \ = \ \langle ${text(instrText + cyclePart)}, ${s(
         this.nextStateNumber - 1

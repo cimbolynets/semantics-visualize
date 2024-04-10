@@ -1,3 +1,4 @@
+import MathRenderer from "@/components/MathRenderer";
 import { CodeEditor } from "@/components/editor/CodeEditor";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -6,6 +7,7 @@ import { MakeSequenceAS } from "@/interpreter/as/MakeSequenceAS";
 import { MakeSequenceSOS } from "@/interpreter/sos/MakeSequenceSOS";
 import { useProgramStorage } from "@/lib/storage/programStorage";
 import { extractSequence } from "@/lib/utils/extract";
+import { a, s } from "@/lib/utils/format";
 import { InfoIcon } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 
@@ -51,12 +53,39 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
     setGuessedConfig("");
   };
 
+  const inputExample =
+    activeInterpreter === "sos" ? (
+      <>
+        <MathRenderer className="!p-0">{String.raw`${a("i")} = \langle `}</MathRenderer>
+        <span className="bg-blue-400">...</span>
+        <MathRenderer className="!p-0">{String.raw`, ${s("j")}\rangle \Rightarrow ${a(
+          "i+1"
+        )}`}</MathRenderer>
+      </>
+    ) : activeInterpreter === "as" ? (
+      <>
+        <MathRenderer className="!p-0">{String.raw`${a("i")} = \langle `}</MathRenderer>
+        <span className="bg-blue-400">...</span>
+        <MathRenderer className="!p-0">{String.raw`, \mathscr{e}, ${s("j")}\rangle = \! \gg ${a(
+          "i+1"
+        )}`}</MathRenderer>
+      </>
+    ) : null;
+
   return (
     <Popover open={open} onOpenChange={(v) => setOpen(v)}>
       <PopoverTrigger asChild>
-        <Button size="sm" variant="secondary">Guess next</Button>
+        <Button size="sm" variant="secondary">
+          Guess next
+        </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[40rem] max-w-full">
+      <PopoverContent className="w-[40rem] max-w-full flex flex-col gap-2">
+        {inputExample ? (
+          <div className="flex flex-wrap">
+            <span className="mr-2">Enter only highlighted instruction part: </span>
+            {inputExample}
+          </div>
+        ) : null}
         <CodeEditor
           value={guessedConfig}
           setValue={setGuessedConfig}
@@ -66,7 +95,7 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
           disableValidation
           className="!min-h-[100px]"
         />
-        <div className="flex items-center gap-2 mt-2">
+        <div className="flex items-center gap-2">
           <Button onClick={guess} size="sm" variant="secondary">
             Go
           </Button>
