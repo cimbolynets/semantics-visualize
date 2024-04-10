@@ -4,6 +4,7 @@ import { FC, useRef, useState } from "react";
 import { SequenceBody } from "../output/SequenceBody";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import "./export.css";
 
 interface ExportImageProps {
   sequence: string[];
@@ -16,9 +17,7 @@ export const ExportImage: FC<ExportImageProps> = ({ sequence }) => {
     const sequence = sequenceRef.current;
     if (!sequence) return;
     setOpen(true);
-    html2canvas(sequence, {
-      backgroundColor: "#fff",
-    }).then((canvas) => {
+    html2canvas(sequence).then((canvas) => {
       canvas.style.display = "none";
       const image = canvas.toDataURL("png");
       const a = document.createElement("a");
@@ -47,7 +46,7 @@ export const ExportImage: FC<ExportImageProps> = ({ sequence }) => {
         ref={sequenceRef}
         className="z-50 bg-background p-4 rounded-xl top-0 left-[10000%] absolute overflow-initial"
       >
-        <SequenceBody sequence={sequence} className="!overflow-hidden pb-6" />
+        <SequenceBody sequence={sequence} className="export-math-renderer" />
       </div>
     </>
   );

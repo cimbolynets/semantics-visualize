@@ -1,0 +1,14 @@
+.export-math-renderer {
+  overflow: hidden; 
+  padding-bottom: theme(spacing.6);
+}
+
+.export-math-renderer .frac-line {
+  position: relative;
+  translate: 0 10px;
+}
+
+.export-math-renderer .mtight {
+  font-size: 11px;
+  translate: 0 5px;
+}
