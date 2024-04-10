@@ -1,21 +1,18 @@
 import { Memory } from "@/types";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import {
   abstractionMachineFactorial,
   blocksAndProcedures,
+  factorialJane,
   factorialProc,
-  skipWhileInnerIf,
-  withBlock,
-  withDynamicProcedureScope,
 } from "../examples";
 
-const janeBasicExamples = [{ name: "While&If", value: skipWhileInnerIf }];
+const janeBasicExamples = [{ name: "Factorial", value: factorialJane }];
 
 const nsExamples = [
   ...janeBasicExamples,
   { name: "Procedures factorial", value: factorialProc },
-  { name: "Block", value: withBlock },
-  { name: "Procedure", value: withDynamicProcedureScope },
   { name: "Blocks and procedures", value: blocksAndProcedures },
 ];
 
@@ -43,33 +40,40 @@ export type ProgramStorage = {
   setProgramId: (id: number) => void;
 };
 
-export const useProgramStorage = create<ProgramStorage>((set) => ({
-  getActiveExamples() {
-    switch (this.activeInterpreter) {
-      case "ns":
-        return nsExamples;
-      case "sos":
-        return sosExamples;
-      case "as":
-        return abstractMachineExamples;
-      default:
-        return [];
+export const useProgramStorage = create<ProgramStorage>()(
+  persist<ProgramStorage>(
+    (set) => ({
+      getActiveExamples() {
+        switch (this.activeInterpreter) {
+          case "ns":
+            return nsExamples;
+          case "sos":
+            return sosExamples;
+          case "as":
+            return abstractMachineExamples;
+          default:
+            return [];
+        }
+      },
+      activeInterpreter: "ns",
+      programText: "",
+      variables: {},
+      setActiveInterpreter(a) {
+        set((state) => ({ ...state, programText: "", activeInterpreter: a }));
+      },
+      setProgramText(v) {
+        set((state) => ({ ...state, programText: v }));
+      },
+      setVariables(m) {
+        set((state) => ({ ...state, variables: m }));
+      },
+      programId: 0,
+      setProgramId(id) {
+        set((state) => ({ ...state, programId: id }));
+      },
+    }),
+    {
+      name: "program-storage",
     }
-  },
-  activeInterpreter: "sos",
-  programText: janeBasicExamples[0].value,
-  variables: {} ?? abstractMachineExamples[0].variables,
-  setActiveInterpreter(a) {
-    set((state) => ({ ...state, programText: "", activeInterpreter: a }));
-  },
-  setProgramText(v) {
-    set((state) => ({ ...state, programText: v }));
-  },
-  setVariables(m) {
-    set((state) => ({ ...state, variables: m }));
-  },
-  programId: 0,
-  setProgramId(id) {
-    set((state) => ({ ...state, programId: id }));
-  },
-}));
+  )
+);

@@ -54,7 +54,7 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
   return (
     <Popover open={open} onOpenChange={(v) => setOpen(v)}>
       <PopoverTrigger asChild>
-        <Button variant="secondary">Guess next</Button>
+        <Button size="sm" variant="secondary">Guess next</Button>
       </PopoverTrigger>
       <PopoverContent className="w-[40rem] max-w-full">
         <CodeEditor

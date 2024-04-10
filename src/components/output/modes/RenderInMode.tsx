@@ -1,9 +1,16 @@
 import MathRenderer from "@/components/MathRenderer";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useScrollDown } from "@/lib/hooks/useScrollDown";
 import { extractStateNumber } from "@/lib/utils/extract";
 import { s } from "@/lib/utils/format";
+import { ChevronDown } from "lucide-react";
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { SequenceBody } from "../SequenceBody";
 import States from "../States";
@@ -78,13 +85,32 @@ function StepByStep({ sequence }: RenderInModeProps) {
   return sequencePart.length ? (
     <>
       <div className="flex gap-2">
-        <Button onClick={dec} size="sm" variant="secondary">
+        <Button disabled={renderedLength <= 1} onClick={dec} size="sm" variant="secondary">
           Prev
         </Button>
-        <Button onClick={inc} size="sm" variant="secondary">
+        <Button
+          disabled={renderedLength === sequence.length}
+          onClick={inc}
+          size="sm"
+          variant="secondary"
+        >
           Next
         </Button>
         {nextConfig ? <GuessNextConfiguration nextConfig={nextConfig} revealNext={inc} /> : null}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild className="ml-auto">
+            <Button size="sm" variant="secondary" className="gap-2">
+              Goto <ChevronDown />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {new Array(sequence.length).fill(0).map((_, index) => (
+              <DropdownMenuItem key={index} onClick={() => setRenderedLength(index + 1)}>
+                {index + 1}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <SequenceBody ref={seqRef} sequence={sequencePart} />
     </>

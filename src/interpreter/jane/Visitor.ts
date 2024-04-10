@@ -424,7 +424,7 @@ export default class Visitor implements JaneVisitor<object> {
       const stats = this.visitStats(statsCtx);
       return {
         value: !stats.value,
-        text: "¬(" + stats.text + ")",
+        text: "!(" + stats.text + ")",
       };
     } else if (ctx.Lpar() && statsCtx) {
       const stats = this.visitStats(statsCtx);
@@ -443,7 +443,7 @@ export default class Visitor implements JaneVisitor<object> {
       } else if (ctx.Leq()) {
         return {
           value: leftOp.value <= rightOp.value,
-          text: leftOp.text + " ≤ " + rightOp.text,
+          text: leftOp.text + " <= " + rightOp.text,
         };
       }
     }
