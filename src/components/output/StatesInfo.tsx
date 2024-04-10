@@ -16,7 +16,7 @@ export const StatesInfo: FC<StatesInfoProps> = ({ states }) => {
           you see in a tree.
         </SheetDescription>
       </SheetHeader>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 overflow-x-auto">
         {states.map((state, index) => (
           <MathRenderer key={index}>{state}</MathRenderer>
         ))}

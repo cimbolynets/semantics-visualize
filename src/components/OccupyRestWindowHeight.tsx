@@ -1,4 +1,4 @@
-import { useRemainingHeight } from "@/lib/formatting/hooks/useRemainingHeight";
+import { useRemainingHeight } from "@/lib/hooks/useRemainingHeight";
 import { FC, ReactNode, useRef } from "react";
 
 interface OccupyRestWindowHeightProps {

@@ -23,6 +23,12 @@ export default function Output(props: OutputProps) {
   const [errors, setErrors] = useState<string[]>([]);
 
   useEffect(() => {
+    setSequence(undefined);
+    setStates([]);
+    setEnvs([]);
+  }, [activeInterpreter]);
+
+  useEffect(() => {
     if (!programText) return;
     setErrors([]);
     try {

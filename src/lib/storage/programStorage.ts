@@ -22,13 +22,17 @@ const nsExamples = [
 const sosExamples = [...janeBasicExamples];
 
 const abstractMachineExamples = [
-  { name: "Abstract machine factorial", value: abstractionMachineFactorial },
+  {
+    name: "Abstract machine factorial",
+    value: abstractionMachineFactorial,
+    variables: { x: 1, y: 3 },
+  },
 ];
 
 export type Interpreters = "ns" | "sos" | "as";
 
 export type ProgramStorage = {
-  getActiveExamples: () => Array<{ name: string; value: string }>;
+  getActiveExamples: () => Array<{ name: string; value: string; variables?: Memory }>;
   activeInterpreter: Interpreters;
   setActiveInterpreter: (a: Interpreters) => void;
   programText?: string;
@@ -52,15 +56,15 @@ export const useProgramStorage = create<ProgramStorage>((set) => ({
         return [];
     }
   },
-  activeInterpreter: "ns",
-  programText: withBlock,
+  activeInterpreter: "sos",
+  programText: janeBasicExamples[0].value,
+  variables: {} ?? abstractMachineExamples[0].variables,
   setActiveInterpreter(a) {
     set((state) => ({ ...state, programText: "", activeInterpreter: a }));
   },
   setProgramText(v) {
     set((state) => ({ ...state, programText: v }));
   },
-  variables: {},
   setVariables(m) {
     set((state) => ({ ...state, variables: m }));
   },

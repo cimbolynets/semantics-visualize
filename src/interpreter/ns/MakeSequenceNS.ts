@@ -96,7 +96,6 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   addBranch = (instr: Instruction<BranchValue>): string => {
     const stateBeforeBranch = this.nextStateNumber - 1;
     const targetBranch = instr.value.isTrue ? instr.value.ifBranch : instr.value.elBranch;
-    debugger;
     return String.raw`${this.traverse(targetBranch)}, \quad ${formatCondition(
       instr.value.conditionText,
       instr.value.isTrue,
@@ -156,7 +155,7 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   addProcCall = (instr: Instruction<ProcCallValue>) => {
     const parsedBody = instr.value.body ? this.traverse(instr.value.body) : undefined;
     if (!parsedBody) return undefined;
-    return frac(parsedBody, String.raw`\text{${instr.text}}`);
+    return parsedBody;
   };
 
   chooseInstruction = (instr: Instruction<InstructionValue>, last: boolean) => {
@@ -183,6 +182,7 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
         result = this.addBlock(instr as Instruction<BlockValue>);
         break;
       case "procCall":
+        includeEnv = false;
         result = this.addProcCall(instr as Instruction<ProcCallValue>);
         break;
       default:

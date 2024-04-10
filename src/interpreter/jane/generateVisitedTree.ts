@@ -5,12 +5,14 @@ import { CharStreams, CommonTokenStream } from "antlr4ts";
 import { InterpreterError } from "../InterpreterError";
 import Visitor, { VisitorResult } from "./Visitor";
 import { InstructionSequence } from "./types";
+import { replaceSpecialSymbols } from "@/lib/specialSymbols/replaceSymbols";
 
 export function generateVisitedTreeJane(
   input: string,
   variables: Record<string, number>,
   withoutExtensions = false
 ): [VisitorResult, Visitor] {
+  input = replaceSpecialSymbols(input) ?? input;
   const errors: IEditorError[] = [];
 
   const chars = CharStreams.fromString(input);
@@ -45,7 +47,6 @@ export function generateVisitedTreeJane(
   });
   parser.buildParseTree = true;
 
-  
   const tree = parser.program();
 
   if (errors.length) {

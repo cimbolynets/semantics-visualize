@@ -312,7 +312,7 @@ export default class Visitor implements JaneVisitor<object> {
 
     return {
       type: "block",
-      text: `begin var${decl ? ` ${decl.text};` : ""}${
+      text: `begin ${decl ? `var ${decl.text};` : ""}${
         procs ? ` ${procs.map((p) => p?.text).join(",")};` : ""
       } ${body.text} end`,
       decl,
@@ -347,7 +347,7 @@ export default class Visitor implements JaneVisitor<object> {
         ? this.visitInstruction(body, true)
         : this.visitInstructionSequence(body, true)
     )?.text;
-    return { type: "procDefinition", text: `proc ${procId} is ${bodyText}` };
+    return { type: "procDefinition", text: `proc ${procId} is ${body instanceof InstructionContext ? bodyText : "( " + bodyText + " )"}` };
   };
 
   visitProcCall = (ctx: ProcCallContext, noEval?: boolean): ProcCallValue => {

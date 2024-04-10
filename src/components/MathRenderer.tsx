@@ -14,7 +14,7 @@ export default function MathRenderer({ children, className, ...props }: MathRend
     katex.render(children, elementRef.current);
   }, [children]);
 
-  return <div ref={elementRef} {...props} className={cn(className, "whitespace-nowrap")}></div>;
+  return <div ref={elementRef} {...props} className={cn(className, "whitespace-nowrap p-1")}></div>;
 }
 
 // import { cn } from "@/lib/utils";

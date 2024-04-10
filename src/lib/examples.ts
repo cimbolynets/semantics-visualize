@@ -5,14 +5,20 @@ while !(x = 1) do (
     while i <= 4 do i := i + 1
 ); x := 4`;
 
-export const factorialProc = `n := 4;
+export const factorialProc = `n := 2;
 result := 1;
-begin proc factorial is 
+begin 
+  proc factorial is (
     if 1 <= n then (
         result := result*n;
         n := n - 1;
         call factorial
-    ) else skip; call factorial end`
+    ) else skip
+  ); 
+  (
+    call factorial
+  ) 
+end`
 
 export const withBlock = `
 x := 1;

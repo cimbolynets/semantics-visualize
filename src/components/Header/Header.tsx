@@ -5,8 +5,10 @@ import ThemeContext from "../ThemeContext";
 import { DefaultHeaderButton } from "./DefaultHeaderButton";
 import { ExampleSelector } from "./ExampleSelect";
 import { InterpreterSelector } from "./InterpreterSelector";
+import { useHeaderSlots } from "./headerSlots";
 
 export function Header() {
+  const slots = useHeaderSlots((state) => state.headerSlots);
   const theme = useContext(ThemeContext) ?? {};
   const incrementProgramId = useProgramStorage((state) => {
     return () => state.setProgramId(state.programId + 1);
@@ -23,7 +25,8 @@ export function Header() {
           <Play className="!w-[1.375rem] !h-[1.375rem] stroke-primary fill-primary hover:brightness-50 transition-all" />
         </DefaultHeaderButton>
       </div>
-      <div>
+      <div className="flex gap-2">
+        {slots}
         <DefaultHeaderButton
           onClick={() => {
             theme.dispatch?.({
