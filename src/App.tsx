@@ -55,10 +55,10 @@ export default function App() {
                   Output
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="editor" className="grow w-full p-1">
+              <TabsContent value="editor" className="h-full grow w-full p-1">
                 {editor}
               </TabsContent>
-              <TabsContent value="output" className="grow w-full p-1">
+              <TabsContent value="output" className="h-full grow w-full p-1">
                 {output}
               </TabsContent>
             </Tabs>

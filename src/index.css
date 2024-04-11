@@ -135,6 +135,8 @@ body {
 .output-sequence {
   overflow-y: auto;
   overflow-x: auto;
+  flex-grow: 1;
+  flex-basis: 0;
 }
 
 .instruction {
