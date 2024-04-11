@@ -21,7 +21,7 @@ export function Header() {
   );
 
   return (
-    <header className="flex justify-between items-center bg-secondary rounded-xl">
+    <header className="flex justify-between items-center bg-secondary rounded-xl pr-1">
       <div className="flex">
         <div className="flex items-center gap-2 mr-4">
           <InterpreterSelector />

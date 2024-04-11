@@ -71,10 +71,15 @@
 
   .code-block {
     padding: theme(spacing.4);
-    background: theme(colors.slate.100);
+    background: theme(colors.muted.DEFAULT);
     border-radius: theme(borderRadius.xl);
     overflow-x: auto;
     height: max-content;
+  }
+
+  .dark {
+    .code-block {
+    }
   }
 }
 
