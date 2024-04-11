@@ -37,7 +37,6 @@ export const GuideProvider: FC<{ children: ReactNode }> = ({ children }) => {
     instrEl.innerText = instr.text;
     instrEl.onclick = (e) => {
       e.stopPropagation();
-      console.log("clicked", el.children);
       el.removeChild(instrEl);
       setCurrentInstruction((prev) => (prev ?? 0) + 1);
     };
