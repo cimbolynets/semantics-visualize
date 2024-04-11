@@ -103,7 +103,7 @@ function StepByStep({ sequence }: RenderInModeProps) {
               Goto <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent className="!max-h-80 !overflow-y-auto">
             {new Array(sequence.length).fill(0).map((_, index) => (
               <DropdownMenuItem key={index} onClick={() => setRenderedLength(index + 1)}>
                 {index + 1}
