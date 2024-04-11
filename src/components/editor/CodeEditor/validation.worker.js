@@ -1,6 +1,6 @@
 // import generateVisitedTreeNS from "@/interpreter/visitedTreeGenerator";
 // import { replaceSpecialSymbols } from "@/lib/specialSymbols/replaceSymbols";
-import { generateVisitedTreeAS } from "@/interpreter/as/generateVisitedTree";
+import { generateVisitedTreeAM } from "@/interpreter/am/generateVisitedTree";
 import { generateVisitedTreeJane } from "@/interpreter/jane/generateVisitedTree";
 import { InterpreterError } from "@/interpreter/InterpreterError";
 import { CONFIG_CHANGED } from "./constants";
@@ -30,7 +30,7 @@ onmessage = (message) => {
   if (!message?.data?.type) return;
   if (message.data.type === CONFIG_CHANGED) {
     const { activeInterpreter, withExtensions } = message.data;
-    interpreter = activeInterpreter === "as" ? generateVisitedTreeAS : generateVisitedTreeJane;
+    interpreter = activeInterpreter === "as" ? generateVisitedTreeAM : generateVisitedTreeJane;
     withoutExtensions = activeInterpreter !== "ns" || !withExtensions;
     validate(
       lastMessageData?.value,

@@ -1,5 +1,5 @@
 import { InterpreterError } from "@/interpreter/InterpreterError";
-import { MakeSequenceAS } from "@/interpreter/as/MakeSequenceAS";
+import { MakeSequenceAM } from "@/interpreter/am/MakeSequenceAM";
 import { MakeSequenceNS } from "@/interpreter/ns/MakeSequenceNS";
 import { MakeSequenceSOS } from "@/interpreter/sos/MakeSequenceSOS";
 import { useProgramStorage } from "@/lib/storage/programStorage";
@@ -35,8 +35,8 @@ export default function Output(props: OutputProps) {
       const MakeSequence =
         activeInterpreter === "ns"
           ? MakeSequenceNS
-          : activeInterpreter === "as"
-          ? MakeSequenceAS
+          : activeInterpreter === "am"
+          ? MakeSequenceAM
           : activeInterpreter === "sos"
           ? MakeSequenceSOS
           : undefined;

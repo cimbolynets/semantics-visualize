@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-const interpreters: Interpreters[] = ["ns", "sos", "as"];
+const interpreters: Interpreters[] = ["ns", "sos", "am"];
 
 export const InterpreterSelector: FC = () => {
   const [active, setActive] = useProgramStorage((state) => [
@@ -20,7 +20,7 @@ export const InterpreterSelector: FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button color="primary" className="flex gap-2">
+        <Button data-runprogram-0="right" color="primary" className="flex gap-2">
           {active.toUpperCase()} <ChevronDown />
         </Button>
       </DropdownMenuTrigger>

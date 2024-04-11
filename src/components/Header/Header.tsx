@@ -8,6 +8,7 @@ import { DefaultHeaderButton } from "./DefaultHeaderButton";
 import { ExampleSelector } from "./ExampleSelect";
 import { InterpreterSelector } from "./InterpreterSelector";
 import { useHeaderSlots } from "./headerSlots";
+import { Help } from "../Help";
 
 export function Header() {
   const slots = useHeaderSlots((state) => state.headerSlots);
@@ -36,12 +37,13 @@ export function Header() {
           ) : null}
           <ExampleSelector />
         </div>
-        <DefaultHeaderButton onClick={incrementProgramId}>
+        <DefaultHeaderButton data-runprogram-3 onClick={incrementProgramId}>
           <Play className="!w-[1.375rem] !h-[1.375rem] stroke-primary fill-primary hover:brightness-50 transition-all" />
         </DefaultHeaderButton>
       </div>
       <div className="flex gap-2">
         {slots}
+        <Help />
         <DefaultHeaderButton
           onClick={() => {
             theme.dispatch?.({

@@ -58,6 +58,18 @@
   }
 }
 
+@layer components {
+  h1 {
+    font-size: theme(fontSize.5xl);
+  }
+  h2 {
+    font-size: theme(fontSize.4xl);
+  }
+  h3 {
+    font-size: theme(fontSize.3xl);
+  }
+}
+
 body {
   overflow: hidden;
 }
@@ -105,4 +117,51 @@ body {
 .output-sequence {
   overflow-y: auto;
   overflow-x: auto;
+}
+
+.instruction {
+  display: flex;
+  justify-content: space-between;
+  text-align: left;
+  gap: theme(spacing.2);
+  cursor: pointer;
+  padding: theme(spacing.4);
+  border-radius: theme(borderRadius.md);
+  position: absolute;
+  max-width: 240px;
+  width: 100vw;
+  color: theme(colors.foreground);
+  background: theme(colors.secondary.DEFAULT);
+  border: 1px solid theme(colors.primary.DEFAULT);
+  white-space: break-spaces;
+  z-index: 1000;
+}
+
+.instruction::after {
+  content: "→";
+  font-size: theme(fontSize.lg);
+}
+
+.instruction-top {
+  bottom: 100%;
+  left: 50%;
+  translate: -50% -8px;
+}
+
+.instruction-left {
+  right: 100%;
+  top: 50%;
+  translate: -8px -50%;
+}
+
+.instruction-right {
+  left: 100%;
+  top: 50%;
+  translate: 8px -50%;
+}
+
+.instruction-bottom {
+  top: 100%;
+  left: 50%;
+  translate: -50% 8px;
 }

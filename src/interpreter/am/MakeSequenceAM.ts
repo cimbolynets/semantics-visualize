@@ -1,8 +1,8 @@
 import { a, s, text } from "@/lib/utils/format";
 import { Memory, StackEntry } from "@/types";
 import { IMakeSequence } from "../IMakeSequence.types";
-import { parseRestProgram, parseStack, parseState } from "./asUtils";
-import { generateVisitedTreeAS } from "./generateVisitedTree";
+import { parseRestProgram, parseStack, parseState } from "./amUtils";
+import { generateVisitedTreeAM } from "./generateVisitedTree";
 import {
   AddReturnType,
   AndReturnType,
@@ -21,7 +21,7 @@ import {
   SubReturnType,
 } from "./types";
 
-export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
+export class MakeSequenceAM implements IMakeSequence<string[] | undefined> {
   private states: string[];
   private nextStateNumber: number;
   private configNumber: number;
@@ -212,7 +212,6 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
   };
 
   traverse = (children?: InstructionReturnType[]) => {
-    // if(children.length === 4)debugger
     const result = children
       ?.map((child, index, initial) => {
         const value = child?.value;
@@ -272,7 +271,7 @@ export class MakeSequenceAS implements IMakeSequence<string[] | undefined> {
   };
 
   getSequence(input: string, variables: Memory, noEval = false) {
-    const result = generateVisitedTreeAS(input, variables, noEval);
+    const result = generateVisitedTreeAM(input, variables, noEval);
     if (!result) return undefined;
     const [tree, visitor] = result;
     this.changeState(variables);

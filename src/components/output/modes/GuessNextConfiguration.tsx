@@ -3,7 +3,7 @@ import { CodeEditor } from "@/components/editor/CodeEditor";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MakeSequenceAS } from "@/interpreter/as/MakeSequenceAS";
+import { MakeSequenceAM } from "@/interpreter/am/MakeSequenceAM";
 import { MakeSequenceSOS } from "@/interpreter/sos/MakeSequenceSOS";
 import { useProgramStorage } from "@/lib/storage/programStorage";
 import { extractSequence } from "@/lib/utils/extract";
@@ -33,8 +33,8 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
     if (!guessedConfig) return;
     try {
       const MakeSequence =
-        activeInterpreter === "as"
-          ? MakeSequenceAS
+        activeInterpreter === "am"
+          ? MakeSequenceAM
           : activeInterpreter === "sos"
           ? MakeSequenceSOS
           : undefined;
@@ -61,7 +61,7 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
           "i+1"
         )}`}</MathRenderer>
       </>
-    ) : activeInterpreter === "as" ? (
+    ) : activeInterpreter === "am" ? (
       <>
         <MathRenderer className="!p-0">{String.raw`${a("i")} = \langle `}</MathRenderer>
         <span className="bg-blue-400">...</span>

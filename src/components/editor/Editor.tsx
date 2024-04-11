@@ -15,6 +15,7 @@ export default function Editor(props: HTMLAttributes<HTMLDivElement>) {
     <div {...props} className={cn("flex flex-col gap-2", props.className)}>
       <VariablesList variables={variables} />
       <CodeEditor
+        data-runprogram-2
         value={programText}
         setValue={setProgramText}
         variables={variables}

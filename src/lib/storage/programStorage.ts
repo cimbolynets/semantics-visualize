@@ -26,7 +26,7 @@ const abstractMachineExamples = [
   },
 ];
 
-export type Interpreters = "ns" | "sos" | "as";
+export type Interpreters = "ns" | "sos" | "am";
 
 export type ProgramStorage = {
   getActiveExamples: () => Array<{ name: string; value: string; variables?: Memory }>;
@@ -51,7 +51,7 @@ export const useProgramStorage = create<ProgramStorage>()(
             return get().withExtensions ? nsExamples : janeBasicExamples;
           case "sos":
             return sosExamples;
-          case "as":
+          case "am":
             return abstractMachineExamples;
           default:
             return [];

@@ -44,9 +44,9 @@ import {
   SubReturnType,
 } from "./types";
 
-export type VisitorASResult = ReturnType<VisitorAS["visitProgram"]>;
+export type VisitorAMResult = ReturnType<VisitorAM["visitProgram"]>;
 
-export default class VisitorAS implements AbstractMachineVisitor<object> {
+export default class VisitorAM implements AbstractMachineVisitor<object> {
   private errors: IEditorError[];
   private memory: Memory;
   private stack: StackEntry[];
