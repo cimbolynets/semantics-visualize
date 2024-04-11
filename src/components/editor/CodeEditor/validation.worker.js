@@ -30,7 +30,7 @@ onmessage = (message) => {
   if (!message?.data?.type) return;
   if (message.data.type === CONFIG_CHANGED) {
     const { activeInterpreter, withExtensions } = message.data;
-    interpreter = activeInterpreter === "as" ? generateVisitedTreeAM : generateVisitedTreeJane;
+    interpreter = activeInterpreter === "am" ? generateVisitedTreeAM : generateVisitedTreeJane;
     withoutExtensions = activeInterpreter !== "ns" || !withExtensions;
     validate(
       lastMessageData?.value,
