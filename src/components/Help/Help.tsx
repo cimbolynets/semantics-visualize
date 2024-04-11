@@ -4,8 +4,9 @@ import { FC, useState } from "react";
 import { DefaultHeaderButton } from "../Header/DefaultHeaderButton";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
-import { Tabs, TabsContent } from "../ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { HelpItem } from "./HelpItem";
+import { amGrammar, janeBaseGrammar, janeExtendedGrammar } from "./formattedGrammars";
 
 interface HelpProps {}
 
@@ -25,15 +26,21 @@ export const Help: FC<HelpProps> = () => {
           Help <HelpCircle />
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <Tabs value="general" className="flex flex-col gap-4">
-          {/* <TabsList className="w-full">
+      <DialogContent className="h-[calc(100%-3rem)] flex flex-col top-6 translate-y-0 max-w-4xl">
+        <Tabs defaultValue="general" className="h-full flex flex-col gap-4 pt-4">
+          <TabsList className="w-full">
             <TabsTrigger value="general" className="basis-0 grow">
               General
             </TabsTrigger>
-          </TabsList> */}
-          <TabsContent value="general" className="flex flex-col gap-6">
-            <h3>General</h3>
+            <TabsTrigger value="grammar" className="basis-0 grow">
+              Grammar
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent
+            value="general"
+            className="w-full h-full overflow-auto flex flex-col gap-6 data-[state=inactive]:hidden"
+          >
+            <h3>About</h3>
             <div className="flex flex-col gap-2">
               <p>
                 The purpose of this web application is to visualize program interpretation using
@@ -81,6 +88,17 @@ export const Help: FC<HelpProps> = () => {
                 </DefaultHeaderButton>
               </HelpItem>
             </div>
+          </TabsContent>
+          <TabsContent
+            value="grammar"
+            className="w-full h-full [&>*]:mb-6 overflow-auto data-[state=inactive]:hidden"
+          >
+            <h3>Jane base grammar</h3>
+            <pre className="code-block grow">{janeBaseGrammar}</pre>
+            <h3>Jane extended grammar</h3>
+            <pre className="code-block grow">{janeExtendedGrammar}</pre>
+            <h3>Abstract machine grammar</h3>
+            <pre className="code-block grow">{amGrammar}</pre>
           </TabsContent>
         </Tabs>
       </DialogContent>

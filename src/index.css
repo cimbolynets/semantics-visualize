@@ -68,6 +68,14 @@
   h3 {
     font-size: theme(fontSize.3xl);
   }
+
+  .code-block {
+    padding: theme(spacing.4);
+    background: theme(colors.slate.100);
+    border-radius: theme(borderRadius.xl);
+    overflow-x: auto;
+    height: max-content;
+  }
 }
 
 body {
