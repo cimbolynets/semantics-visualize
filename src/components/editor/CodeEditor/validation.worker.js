@@ -39,9 +39,9 @@ onmessage = (message) => {
       withoutExtensions
     );
   }
+  if (message.data?.value) lastMessageData = message.data;
   if (timerId) clearTimeout(timerId);
   timerId = setTimeout(() => {
-    lastMessageData = message.data;
     validate(message.data.value, message.data.variables, interpreter, withoutExtensions);
   }, DEBOUNCE_DELAY);
 };

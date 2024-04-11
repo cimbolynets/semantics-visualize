@@ -113,7 +113,7 @@ export default function SetVariables() {
           <VariableIcon /> Set variables
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="flex flex-col gap-4 h-full transition-all">
+      <SheetContent side="left" className="max-w-full flex flex-col gap-4 h-full transition-all">
         <SheetHeader>
           <SheetTitle>Set Variables</SheetTitle>
           <SheetDescription>

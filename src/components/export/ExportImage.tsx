@@ -44,7 +44,7 @@ export const ExportImage: FC<ExportImageProps> = ({ sequence }) => {
       </Dialog>
       <div
         ref={sequenceRef}
-        className="z-50 bg-background p-4 rounded-xl top-0 left-[10000%] absolute overflow-initial"
+        className="z-50 bg-background p-4 rounded-xl top-0 left-[10000%] fixed overflow-initial"
       >
         <SequenceBody sequence={sequence} className="export-math-renderer" />
       </div>

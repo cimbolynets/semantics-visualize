@@ -2,6 +2,7 @@ import MathRenderer from "@/components/MathRenderer";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
@@ -16,6 +17,15 @@ import { SequenceBody } from "../SequenceBody";
 import States from "../States";
 import { ConfigsPagination } from "./ConfigsPagination";
 import { GuessNextConfiguration } from "./GuessNextConfiguration";
+import { useMediaBreakpointUp } from "@/lib/hooks/useMediaBreakpointUp";
+import { tailwindConfig } from "@/lib/tailwindConfig";
+
+type Tab = "whole-sequence" | "step-by-step" | "single-instruction";
+const tabs: Array<{ name: string; value: Tab }> = [
+  { name: "Whole sequence", value: "whole-sequence" },
+  { name: "Step by step", value: "step-by-step" },
+  { name: "Single instruction", value: "single-instruction" },
+];
 
 interface RenderInModeProps {
   sequence: string[];
@@ -23,20 +33,57 @@ interface RenderInModeProps {
 }
 
 export const RenderInMode: FC<RenderInModeProps> = ({ sequence, states }) => {
+  const [tab, setTab] = useState<Tab>("step-by-step");
+  const isLarge = useMediaBreakpointUp(tailwindConfig.theme.screens.lg);
+
+  const activeTabName = useMemo(() => {
+    return tabs.find((t) => t.value === tab)?.name ?? "Select mode";
+  }, [tab]);
+
   return (
-    <Tabs defaultValue="step-by-step" className="flex flex-col gap-4 h-full">
+    <Tabs
+      value={tab}
+      onValueChange={(v) => setTab(v as Tab)}
+      className="flex flex-col gap-4 h-full"
+    >
       <div className="output-controls justify-between items-center">
         <div className="flex gap-4">
           <States states={states} />
-          <TabsList>
-            <TabsTrigger value="whole-sequence">Whole sequence</TabsTrigger>
-            <TabsTrigger value="step-by-step">Step by step</TabsTrigger>
-            <TabsTrigger value="single-instruction">Single instruction</TabsTrigger>
-          </TabsList>
+          {isLarge ? (
+            <TabsList>
+              {tabs.map((t) => (
+                <TabsTrigger key={t.value} value={t.value}>
+                  {t.name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" className="gap-2">
+                  {activeTabName}
+                  <ChevronDown />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {tabs.map((t) => (
+                  <DropdownMenuCheckboxItem
+                    key={t.value}
+                    checked={tab === t.value}
+                    onCheckedChange={() => setTab(t.value)}
+                  >
+                    {t.name}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
-        <span className="text-base">
-          Sequence length: <span className="font-bold">{sequence.length}</span>
-        </span>
+        {isLarge ? (
+          <span className="text-base">
+            Sequence length: <span className="font-bold">{sequence.length}</span>
+          </span>
+        ) : null}
       </div>
       <TabsContent value="whole-sequence" asChild>
         <WholeSequence sequence={sequence} states={states} />

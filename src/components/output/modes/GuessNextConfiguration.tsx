@@ -78,7 +78,7 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
           Guess next
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[40rem] max-w-full flex flex-col gap-2">
+      <PopoverContent className="w-[calc(100vw-1.25rem)] translate-x-2 lg:w-[40rem] max-w-full sm:max-w-[40rem] flex flex-col gap-2">
         {inputExample ? (
           <div className="flex flex-wrap">
             <span className="mr-2">Enter only highlighted instruction part: </span>

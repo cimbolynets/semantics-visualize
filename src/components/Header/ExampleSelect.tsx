@@ -16,7 +16,7 @@ export const ExampleSelector: FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button data-runprogram-1 color="primary" className="flex gap-2">
+        <Button data-runprogram-1 className="flex gap-2">
           {(
             examples.find((e) => e.value === storage.programText)?.name ?? "Select example"
           ).toUpperCase()}{" "}

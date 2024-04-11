@@ -9,7 +9,11 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-const interpreters: Interpreters[] = ["ns", "sos", "am"];
+const interpreters: Array<{ name: string; value: Interpreters }> = [
+  { name: "Natural semantics", value: "ns" },
+  { name: "Structural operational semantics", value: "sos" },
+  { name: "Abstract machine", value: "am" },
+];
 
 export const InterpreterSelector: FC = () => {
   const [active, setActive] = useProgramStorage((state) => [
@@ -20,14 +24,14 @@ export const InterpreterSelector: FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button data-runprogram-0="right" color="primary" className="flex gap-2">
+        <Button data-runprogram-0="right" className="flex gap-2">
           {active.toUpperCase()} <ChevronDown />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {interpreters.map((i) => (
-          <DropdownMenuItem key={i} onClick={() => setActive(i)}>
-            {i.toUpperCase()}
+          <DropdownMenuItem key={i.value} onClick={() => setActive(i.value)}>
+            {i.name}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
