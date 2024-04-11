@@ -6,8 +6,8 @@ export const a = (n: number | string) => {
   return `a_{${n}}`;
 };
 
-export const envp = (n: number | string) => {
-  return String.raw`envp_{${n}}`;
+export const envp = (n: number | string, withoutExtensions = false) => {
+  return !withoutExtensions ? String.raw`envp_{${n}}` : "";
 };
 
 /**
@@ -15,8 +15,8 @@ export const envp = (n: number | string) => {
  * @param n
  * @returns
  */
-export const envpa = (n: number | string) => {
-  return String.raw`${envp(n)} \vdash `;
+export const envpa = (n: number | string, withoutExtensions = false) => {
+  return !withoutExtensions ? String.raw`${envp(n)} \vdash ` : "";
 };
 
 export function formatCondition(text: string, isTrue: boolean, stateNumber: number) {

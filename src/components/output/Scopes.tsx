@@ -16,13 +16,13 @@ export default function Scopes({ states, envs }: ScopesProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size="sm" variant="secondary" className="gap-2 self-start">
-          <BetweenHorizontalStart /> Show scopes
+        <Button variant="secondary" className="gap-2 self-start">
+          Show scopes <BetweenHorizontalStart />
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="transition-all">
-        <Tabs defaultValue="states">
-          <TabsList className="w-full my-4">
+        <Tabs defaultValue="states" className="h-full flex flex-col gap-4 py-4">
+          <TabsList className="w-full">
             <TabsTrigger value="states" className="basis-0 grow">States</TabsTrigger>
             <TabsTrigger value="envs" className="basis-0 grow">Environments</TabsTrigger>
           </TabsList>

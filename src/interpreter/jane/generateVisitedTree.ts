@@ -55,8 +55,8 @@ export function createParseTreeJane(input: string) {
 export function generateVisitedTreeJane(
   input: string,
   variables: Record<string, number>,
+  noEval = false,
   withoutExtensions = false,
-  noEval = false
 ): [VisitorResult, Visitor] {
   const tree = createParseTreeJane(input);
 

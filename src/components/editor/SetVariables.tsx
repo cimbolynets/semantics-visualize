@@ -113,8 +113,8 @@ export default function SetVariables() {
           <VariableIcon /> Set variables
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="transition-all">
-        <SheetHeader className="mb-4">
+      <SheetContent side="left" className="flex flex-col gap-4 h-full transition-all">
+        <SheetHeader>
           <SheetTitle>Set Variables</SheetTitle>
           <SheetDescription>
             Define the set of variables that will be present in initial state.
@@ -133,7 +133,7 @@ export default function SetVariables() {
             </Button>
           </div>
         </SheetHeader>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 h-full overflow-y-auto">
           {variablesList.map((v) => (
             <Variable key={v.id} variable={v} setVariable={setVar} />
           ))}

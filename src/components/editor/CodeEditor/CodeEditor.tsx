@@ -1,15 +1,15 @@
+import ThemeContext from "@/components/ThemeContext";
 import { transformToSpecialSymbols } from "@/lib/specialSymbols/replaceSymbols";
 import specialSymbols from "@/lib/specialSymbols/specialSymbols";
+import { useProgramStorage } from "@/lib/storage/programStorage";
+import { cn } from "@/lib/utils";
 import { IEditorError, Memory } from "@/types";
 import { Editor, EditorProps, Monaco } from "@monaco-editor/react";
 import { IPosition, editor } from "monaco-editor";
 import { useContext, useEffect, useRef } from "react";
+import { CODE_CHANGED, CONFIG_CHANGED } from "./constants";
 import { config, language } from "./jane-mode";
 import ValidationWorker from "./validation.worker?worker";
-import { useProgramStorage } from "@/lib/storage/programStorage";
-import { CODE_CHANGED, INTERPRETER_CHANGED } from "./constants";
-import ThemeContext from "@/components/ThemeContext";
-import { cn } from "@/lib/utils";
 
 // start line and end line mostly will be the same, but start column and end column will depend on latex notation text length;
 // cursor will tell us where to place the cursor after the text will be replaced
@@ -85,6 +85,7 @@ export default function CodeEditor({
   const validation = useRef<Worker | undefined>(undefined);
   const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
   const activeInterpreter = useProgramStorage((state) => state.activeInterpreter);
+  const withExtensions = useProgramStorage((state) => state.withExtensions);
   const theme = useContext(ThemeContext).state.editorTheme;
 
   useEffect(() => {
@@ -97,10 +98,11 @@ export default function CodeEditor({
 
   useEffect(() => {
     validation.current?.postMessage({
-      type: INTERPRETER_CHANGED,
+      type: CONFIG_CHANGED,
       activeInterpreter,
+      withExtensions,
     });
-  }, [activeInterpreter]);
+  }, [activeInterpreter, withExtensions]);
 
   // update errors when variables are changed
   useEffect(() => {
@@ -119,20 +121,16 @@ export default function CodeEditor({
     monaco.languages.register({ id: "jane" });
     monaco.languages.setMonarchTokensProvider("jane", language);
     monaco.languages.setLanguageConfiguration("jane", config);
-    // Define themes
-    // monaco.editor.defineTheme("dark", dark);
-    // monaco.editor.defineTheme("light", light as editor.IStandaloneThemeData);
-    // monaco.editor.defineTheme("contrast", contrast as editor.IStandaloneThemeData);
-    // monaco.editor.setTheme(theme);
     // sending initial code for validation.current
+    validation.current?.postMessage({
+      type: CONFIG_CHANGED,
+      activeInterpreter,
+      withExtensions,
+    });
     validation.current?.postMessage({
       type: CODE_CHANGED,
       value: editor.getModel()?.getValue(),
       variables,
-    });
-    validation.current?.postMessage({
-      type: INTERPRETER_CHANGED,
-      activeInterpreter,
     });
     // setting up an event listener for sending code to the worker every time the editor value changes
     editor.getModel()?.onDidChangeContent((e) => {

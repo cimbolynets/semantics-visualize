@@ -3,36 +3,45 @@
 import { generateVisitedTreeAS } from "@/interpreter/as/generateVisitedTree";
 import { generateVisitedTreeJane } from "@/interpreter/jane/generateVisitedTree";
 import { InterpreterError } from "@/interpreter/InterpreterError";
-import { INTERPRETER_CHANGED } from "./constants";
+import { CONFIG_CHANGED } from "./constants";
 
 const DEBOUNCE_DELAY = 700;
+
+function validate(input, variables, interpreter, withoutExtensions) {
+  if (typeof input === "undefined" || !interpreter) return;
+  if (!input.trim()) return postMessage([]);
+  let errors = [];
+  try {
+    const [, visitor] = interpreter(input, variables, false, withoutExtensions);
+    errors = visitor.getErrors();
+  } catch (error) {
+    if (error instanceof InterpreterError) {
+      errors = error.errors;
+    }
+  }
+  postMessage(errors);
+}
 
 let timerId;
 let interpreter;
 let withoutExtensions = false;
+let lastMessageData;
 onmessage = (message) => {
   if (!message?.data?.type) return;
-  if (message.data.type === INTERPRETER_CHANGED) {
-    const { activeInterpreter } = message.data;
+  if (message.data.type === CONFIG_CHANGED) {
+    const { activeInterpreter, withExtensions } = message.data;
     interpreter = activeInterpreter === "as" ? generateVisitedTreeAS : generateVisitedTreeJane;
-    withoutExtensions = activeInterpreter !== "ns";
+    withoutExtensions = activeInterpreter !== "ns" || !withExtensions;
+    validate(
+      lastMessageData?.value,
+      lastMessageData?.variables ?? {},
+      interpreter,
+      withoutExtensions
+    );
   }
   if (timerId) clearTimeout(timerId);
   timerId = setTimeout(() => {
-    if (!message.data.value || !interpreter) return;
-    let errors = [];
-    try {
-      const [, visitor] = interpreter(
-        message.data.value,
-        message.data.variables,
-        withoutExtensions
-      );
-      errors = visitor.getErrors();
-    } catch (error) {
-      if (error instanceof InterpreterError) {
-        errors = error.errors;
-      }
-    }
-    postMessage(errors);
+    lastMessageData = message.data;
+    validate(message.data.value, message.data.variables, interpreter, withoutExtensions);
   }, DEBOUNCE_DELAY);
 };

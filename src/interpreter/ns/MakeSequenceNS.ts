@@ -23,6 +23,7 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   private nextStateNumber: number;
   private nextEnvNumber: number;
   private nextEnvNumbersStack: number[];
+  private withoutExtensions: boolean;
 
   constructor() {
     this.states = [];
@@ -32,6 +33,7 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
     this.nextEnvNumbersStack = [];
     this.changeEnv([]);
     this.nextEnvNumbersStack.push(this.nextEnvNumber);
+    this.withoutExtensions = false;
   }
 
   getStates = () => {
@@ -51,7 +53,7 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
     const formattedProcs = procs.length
       ? String.raw`\\ ${procs.map((p) => String.raw`\quad \text{${p.text}}`).join(" \\\\ ")}\\`
       : "";
-    this.envs.push(`${envp(this.getNextEnvNumber())} = [${formattedProcs}]`);
+    this.envs.push(`${envp(this.getNextEnvNumber(), this.withoutExtensions)} = [${formattedProcs}]`);
     this.nextEnvNumber++;
   };
 
@@ -129,8 +131,8 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   };
 
   addEnvUpdate = (procs: ProcDefinitionValue[]) => {
-    const text = String.raw`${envp(this.getNextEnvNumber())} = update(D_p, ${envp(
-      this.getNextEnvNumber() - 1
+    const text = String.raw`${envp(this.getNextEnvNumber(), this.withoutExtensions)} = update(D_p, ${envp(
+      this.getNextEnvNumber() - 1, this.withoutExtensions
     )})`;
     this.changeEnv(procs);
     return text;
@@ -189,7 +191,7 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
         console.error("Not an instruction:", instr.text);
         result = undefined;
     }
-    return (includeEnv ? envpa(this.getNextEnvNumber() - 1) : "") + result;
+    return (includeEnv ? envpa(this.getNextEnvNumber() - 1, this.withoutExtensions) : "") + result;
   };
 
   parseInstructionSequence = (tree: InstructionSequence<InstructionValue>, last: boolean) => {
@@ -199,7 +201,7 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
       `\\text{${first.text}}` +
       rest.reduce((acc: string, node: { text: string }) => acc + "; \\text{" + node.text + "}", "");
     const currentInstruction = String.raw`${envpa(
-      this.getNextEnvNumber() - 1
+      this.getNextEnvNumber() - 1, this.withoutExtensions
     )} \langle ${firstAndRestText},\ ${s(this.nextStateNumber - 1)} \rangle`;
 
     let resultNominator: string | undefined;
@@ -242,8 +244,9 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
     }
   };
 
-  getSequence(input: string, variables: Memory) {
-    const [tree] = generateVisitedTreeJane(input, variables);
+  getSequence(input: string, variables: Memory, noEval = false, withoutExtensions = false) {
+    const [tree] = generateVisitedTreeJane(input, variables, noEval, withoutExtensions);
+    this.withoutExtensions = withoutExtensions;
     this.changeState({ memory: variables });
     const res = this.traverse(tree);
     return res;

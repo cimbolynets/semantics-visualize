@@ -13,8 +13,8 @@ interface OutputProps extends HTMLAttributes<HTMLDivElement> {}
 
 export default function Output(props: OutputProps) {
   const activeInterpreter = useProgramStorage((state) => state.activeInterpreter);
-  const { variables, programText, programId } = useProgramStorage((state) =>
-    pick(state, "programText", "variables", "programId", "activeInterpreter")
+  const { variables, programText, programId, withExtensions } = useProgramStorage((state) =>
+    pick(state, "programText", "variables", "programId", "activeInterpreter", "withExtensions")
   );
 
   const [sequence, setSequence] = useState<string | string[] | undefined>();
@@ -27,7 +27,7 @@ export default function Output(props: OutputProps) {
     setStates([]);
     setEnvs([]);
   }, [activeInterpreter]);
-
+  
   useEffect(() => {
     if (!programText) return;
     setErrors([]);
@@ -42,7 +42,7 @@ export default function Output(props: OutputProps) {
           : undefined;
       if (!MakeSequence) return;
       const ms = new MakeSequence();
-      const sequence = ms.getSequence(programText, variables);
+      const sequence = ms.getSequence(programText, variables ?? {}, false, !withExtensions);
       setStates(ms.getStates());
       setEnvs("getEnvs" in ms ? ms.getEnvs() : undefined);
       setSequence(sequence);
@@ -54,7 +54,7 @@ export default function Output(props: OutputProps) {
         setErrors([error.message]);
       }
     }
-  }, [programId]);
+  }, [programId, withExtensions]);
 
   return (
     <div {...props} className={cn("output", props.className)}>

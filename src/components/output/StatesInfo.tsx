@@ -9,14 +9,14 @@ interface StatesInfoProps {
 export const StatesInfo: FC<StatesInfoProps> = ({ states }) => {
   return (
     <>
-      <SheetHeader className="mb-4">
+      <SheetHeader>
         <SheetTitle>List of program states</SheetTitle>
         <SheetDescription>
           Here you can see the according memory states, where the state identifier matches the one
           you see in a tree.
         </SheetDescription>
       </SheetHeader>
-      <div className="flex flex-col gap-2 overflow-x-auto">
+      <div className="flex flex-col gap-2 h-full overflow-auto">
         {states.map((state, index) => (
           <MathRenderer key={index}>{state}</MathRenderer>
         ))}

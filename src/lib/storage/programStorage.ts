@@ -35,6 +35,8 @@ export type ProgramStorage = {
   programText?: string;
   setProgramText: (v?: string) => void;
   variables: Memory;
+  withExtensions: boolean;
+  setWithExtensions: (v: boolean) => void;
   setVariables: (m: Memory) => void;
   programId: number;
   setProgramId: (id: number) => void;
@@ -42,11 +44,11 @@ export type ProgramStorage = {
 
 export const useProgramStorage = create<ProgramStorage>()(
   persist<ProgramStorage>(
-    (set) => ({
+    (set, get) => ({
       getActiveExamples() {
         switch (this.activeInterpreter) {
           case "ns":
-            return nsExamples;
+            return get().withExtensions ? nsExamples : janeBasicExamples;
           case "sos":
             return sosExamples;
           case "as":
@@ -58,18 +60,22 @@ export const useProgramStorage = create<ProgramStorage>()(
       activeInterpreter: "ns",
       programText: "",
       variables: {},
+      withExtensions: false,
+      setWithExtensions(withExtensions) {
+        set(() => ({ withExtensions }));
+      },
       setActiveInterpreter(a) {
-        set((state) => ({ ...state, programText: "", activeInterpreter: a }));
+        set(() => ({ programText: "", activeInterpreter: a }));
       },
       setProgramText(v) {
-        set((state) => ({ ...state, programText: v }));
+        set(() => ({ programText: v }));
       },
       setVariables(m) {
-        set((state) => ({ ...state, variables: m }));
+        set(() => ({ variables: m }));
       },
       programId: 0,
       setProgramId(id) {
-        set((state) => ({ ...state, programId: id }));
+        set(() => ({ programId: id }));
       },
     }),
     {
