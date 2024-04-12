@@ -29,7 +29,7 @@ const InfoPopover: FC = () => {
 };
 
 interface GuessNextConfigurationProps {
-  nextConfig: string;
+  nextConfig?: string;
   revealNext: () => void;
 }
 
@@ -91,7 +91,7 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
   return (
     <Popover open={open} onOpenChange={(v) => setOpen(v)}>
       <PopoverTrigger asChild>
-        <Button size="sm" variant="secondary">
+        <Button disabled={typeof nextConfig === "undefined"} size="sm" variant="secondary">
           Guess next
         </Button>
       </PopoverTrigger>

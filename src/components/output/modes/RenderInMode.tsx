@@ -132,7 +132,7 @@ function StepByStep({ sequence }: RenderInModeProps) {
   return sequencePart.length ? (
     <>
       <div className="flex gap-2">
-        {nextConfig ? <GuessNextConfiguration nextConfig={nextConfig} revealNext={inc} /> : null}
+        <GuessNextConfiguration nextConfig={nextConfig} revealNext={inc} />
         <div className="flex gap-2 ml-auto">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
