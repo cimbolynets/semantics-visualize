@@ -132,32 +132,34 @@ function StepByStep({ sequence }: RenderInModeProps) {
   return sequencePart.length ? (
     <>
       <div className="flex gap-2">
-        <Button disabled={renderedLength <= 1} onClick={dec} size="sm" variant="secondary">
-          Prev
-        </Button>
-        <Button
-          disabled={renderedLength === sequence.length}
-          onClick={inc}
-          size="sm"
-          variant="secondary"
-        >
-          Next
-        </Button>
         {nextConfig ? <GuessNextConfiguration nextConfig={nextConfig} revealNext={inc} /> : null}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild className="ml-auto">
-            <Button size="sm" variant="secondary" className="gap-2">
-              Goto <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="!max-h-80 !overflow-y-auto">
-            {new Array(sequence.length).fill(0).map((_, index) => (
-              <DropdownMenuItem key={index} onClick={() => setRenderedLength(index + 1)}>
-                {index + 1}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex gap-2 ml-auto">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="secondary" className="gap-2">
+                Goto <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="!max-h-80 !overflow-y-auto">
+              {new Array(sequence.length).fill(0).map((_, index) => (
+                <DropdownMenuItem key={index} onClick={() => setRenderedLength(index + 1)}>
+                  {index + 1}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button disabled={renderedLength <= 1} onClick={dec} size="sm" variant="secondary">
+            Prev
+          </Button>
+          <Button
+            disabled={renderedLength === sequence.length}
+            onClick={inc}
+            size="sm"
+            variant="secondary"
+          >
+            Next
+          </Button>
+        </div>
       </div>
       <SequenceBody ref={seqRef} sequence={sequencePart} />
     </>

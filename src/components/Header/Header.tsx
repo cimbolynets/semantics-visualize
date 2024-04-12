@@ -44,7 +44,7 @@ export function Header() {
   );
 
   return (
-    <header className="flex justify-between items-center bg-secondary rounded-xl pr-1">
+    <header className="flex justify-between items-center bg-secondary rounded-xl lg:pr-1">
       {isLarge ? (
         <>
           <div className="flex">

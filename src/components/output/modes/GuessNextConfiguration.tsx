@@ -2,7 +2,6 @@ import MathRenderer from "@/components/MathRenderer";
 import { CodeEditor } from "@/components/editor/CodeEditor";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MakeSequenceAM } from "@/interpreter/am/MakeSequenceAM";
 import { MakeSequenceSOS } from "@/interpreter/sos/MakeSequenceSOS";
 import { useProgramStorage } from "@/lib/storage/programStorage";
@@ -10,6 +9,24 @@ import { extractSequence } from "@/lib/utils/extract";
 import { a, s } from "@/lib/utils/format";
 import { InfoIcon } from "lucide-react";
 import { FC, useEffect, useState } from "react";
+
+const InfoPopover: FC = () => {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="ghost" size="icon" className="rounded-full">
+          <InfoIcon />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent side="top" className="max-w-80">
+        <p>
+          When transforming while loop to branch, you must include parentheses for else condition -{" "}
+          <pre>else ( skip )</pre>
+        </p>
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 interface GuessNextConfigurationProps {
   nextConfig: string;
@@ -109,21 +126,7 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
                 <span className="text-red-600">Wrong guess.</span>
               )
             ) : null}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="rounded-full">
-                    <InfoIcon />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-80">
-                  <p>
-                    When transforming while loop to branch, you must include parentheses for else
-                    condition - <pre>else ( skip )</pre>
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <InfoPopover />
           </div>
         </div>
       </PopoverContent>

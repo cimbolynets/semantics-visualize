@@ -82,6 +82,22 @@ body {
   overflow: hidden;
 }
 
+*::-webkit-scrollbar {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 1000px;
+}
+
+*::-webkit-scrollbar-track {
+  border-radius: 1000px;
+  background: theme(colors.secondary.DEFAULT);
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 1000px;
+  background-color: theme(colors.secondary.foreground);
+}
+
 #root {
   padding: theme(padding.2) theme(padding.2) 0;
   max-width: 1600px;
