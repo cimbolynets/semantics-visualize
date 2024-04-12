@@ -14,7 +14,7 @@ export default function VariablesList({ variables }: VariablesListListProps) {
   return (
     <div className="flex items-center gap-4">
       <SetVariables />
-      <MathRenderer className="flex gap-2">{variablesFormatted}</MathRenderer>
+      <MathRenderer className="flex gap-2 grow overflow-x-auto">{variablesFormatted}</MathRenderer>
     </div>
   );
 }

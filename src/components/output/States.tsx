@@ -15,7 +15,7 @@ export default function States({ states }: StatesProps) {
           Show states <BetweenHorizontalStart />
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="transition-all">
+      <SheetContent side="right" className="flex flex-col gap-4 transition-all">
         <StatesInfo states={states} />
       </SheetContent>
     </Sheet>

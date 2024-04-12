@@ -2,13 +2,18 @@ import { Memory } from "@/types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import {
-  abstractionMachineFactorial,
+  abstractMachineFactorial,
+  abstractMachineFibonacci,
   blocksAndProcedures,
   factorialJane,
   factorialProc,
+  swapVariablesJane,
 } from "../examples";
 
-const janeBasicExamples = [{ name: "Factorial", value: factorialJane }];
+const janeBasicExamples = [
+  { name: "Factorial", value: factorialJane },
+  { name: "Swap variables", value: swapVariablesJane, variables: { x: 5, y: 10 } },
+];
 
 const nsExamples = [
   ...janeBasicExamples,
@@ -20,9 +25,14 @@ const sosExamples = [...janeBasicExamples];
 
 const abstractMachineExamples = [
   {
-    name: "Abstract machine factorial",
-    value: abstractionMachineFactorial,
+    name: "Factorial",
+    value: abstractMachineFactorial,
     variables: { x: 1, y: 3 },
+  },
+  {
+    name: "Fibonacci",
+    value: abstractMachineFibonacci,
+    variables: { length: 7, current: 1, prev: 0, fibNumber: 0 },
   },
 ];
 

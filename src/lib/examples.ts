@@ -5,7 +5,16 @@ while !(x = 1) do (
     while i <= 4 do i := i + 1
 ); x := 4`;
 
-export const factorialJane = `x := 1; y := 3; while !(y = 1) do ( x := x*y; y := y - 1)`;
+export const swapVariablesJane = `x := x+y;
+y := x-y;
+x := x-y`
+
+export const factorialJane = `x := 1; 
+y := 3; 
+while !(y = 1) do (
+    x := x*y; 
+    y := y - 1
+)`;
 
 export const factorialProc = `n := 2;
 result := 1;
@@ -49,12 +58,17 @@ export const blocksAndProcedures = `begin var x := 0;
   )
 end`;
 
-// export const abstractionMachineFactorial = `
-// PUSH-2:PUSH-10:SUB:STORE-y
-// `;
+export const abstractMachineFactorial = `LOOP(
+    FETCH-y:PUSH-1:EQ:NEG,
+    FETCH-x:FETCH-y:MULT:STORE-x:PUSH-1:FETCH-y:SUB:STORE-y
+):TRUE:BRANCH(
+    PUSH-1,
+    PUSH-2
+)`;
 
-// export const abstractionMachineFactorial = `
-// PUSH-10:STORE-y:PUSH-5:FETCH-y:SUB:STORE-x:FETCH-y:FETCH-x:LE:BRANCH(PUSH-3:FETCH-x:ADD:STORE-x:FETCH-x:FETCH-y:SUB:STORE-y,EMPTYOP)
-// `;
-
-export const abstractionMachineFactorial = `LOOP(FETCH-y:PUSH-1:EQ:NEG,FETCH-x:FETCH-y:MULT:STORE-x:PUSH-1:FETCH-y:SUB:STORE-y):TRUE:BRANCH(PUSH-1,PUSH-2)`;
+export const abstractMachineFibonacci = `LOOP(
+  FETCH-length:PUSH-1:LE,FETCH-current:FETCH-prev:ADD:STORE-fibNumber:
+  FETCH-prev:FETCH-current:STORE-prev:
+  FETCH-current:ADD:STORE-current:
+  PUSH-1:FETCH-length:SUB:STORE-length
+)`
