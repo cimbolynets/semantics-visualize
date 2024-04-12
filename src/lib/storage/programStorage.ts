@@ -10,20 +10,26 @@ import {
   swapVariablesJane,
 } from "../examples";
 
-const janeBasicExamples = [
+type IExample = {
+  name: string;
+  value: string;
+  variables?: Memory;
+};
+
+const janeBasicExamples: IExample[] = [
   { name: "Factorial", value: factorialJane },
   { name: "Swap variables", value: swapVariablesJane, variables: { x: 5, y: 10 } },
 ];
 
-const nsExamples = [
+const nsExamples: IExample[] = [
   ...janeBasicExamples,
   { name: "Procedures factorial", value: factorialProc },
   { name: "Blocks and procedures", value: blocksAndProcedures },
 ];
 
-const sosExamples = [...janeBasicExamples];
+const sosExamples: IExample[] = [...janeBasicExamples];
 
-const abstractMachineExamples = [
+const abstractMachineExamples: IExample[] = [
   {
     name: "Factorial",
     value: abstractMachineFactorial,
@@ -39,7 +45,7 @@ const abstractMachineExamples = [
 export type Interpreters = "ns" | "sos" | "am";
 
 export type ProgramStorage = {
-  getActiveExamples: () => Array<{ name: string; value: string; variables?: Memory }>;
+  getActiveExamples: () => IExample[];
   activeInterpreter: Interpreters;
   setActiveInterpreter: (a: Interpreters) => void;
   programText?: string;
