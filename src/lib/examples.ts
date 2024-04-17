@@ -7,14 +7,14 @@ while !(x = 1) do (
 
 export const swapVariablesJane = `x := x+y;
 y := x-y;
-x := x-y`
+x := x-y`;
 
 export const factorialJane = `x := 1; 
 y := 3; 
 while !(y = 1) do (
     x := x*y; 
     y := y - 1
-)`;
+); z := 4; if x <= 2 then ( ${swapVariablesJane} ) else skip`;
 
 export const factorialProc = `n := 2;
 result := 1;
@@ -71,4 +71,4 @@ export const abstractMachineFibonacci = `LOOP(
   FETCH-prev:FETCH-current:STORE-prev:
   FETCH-current:ADD:STORE-current:
   PUSH-1:FETCH-length:SUB:STORE-length
-)`
+)`;

@@ -9,7 +9,7 @@ export function generateVisitedTreeAM(
   input: string,
   variables: Record<string, number>,
   noEval = false
-): [VisitorAMResult, VisitorAM] | undefined {
+): [VisitorAMResult, VisitorAM] {
   const errors: IEditorError[] = [];
 
   const chars = CharStreams.fromString(input);

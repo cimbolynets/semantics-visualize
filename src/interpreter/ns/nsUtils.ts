@@ -1,7 +1,8 @@
-import { s } from "@/lib/utils/format";
+import { T, s } from "@/lib/utils/format";
 import { formatMemory } from "@/lib/utils/formatMemory";
 import { Memory } from "@/types";
 import { CycleValue, Instruction } from "../jane/types";
+import { Leaf, Node, Tree } from "./types";
 
 export const assignPattern = /(.+) +:= +(.+)/;
 
@@ -42,3 +43,57 @@ export function balanceTrees(tree1: string, tree2: string) {
 export function frac(num: string, den: string, dividerThickness = 1) {
   return String.raw`\genfrac{}{}{${dividerThickness}pt}{0}{${num}}{${den}}`;
 }
+
+export const treeToString = (tree: Tree | Tree[]): string => {
+  if (!Array.isArray(tree)) {
+    return "children" in tree ? frac(treeToString(tree.children), tree.text) : tree.text;
+  }
+  const trees = tree.map((node) => treeToString(node));
+  return trees.join(" ,\\quad ");
+};
+
+function transformLeaf(leaf: Leaf): string {
+  return leaf.text;
+}
+
+function transformNode(node: Node, currentTreeNumber: number): string[] {
+  const [first, ...rest] = node.children;
+  let substitutionsCount = 1;
+  const [firstTransformed, ...firstRest] = transformTree(first, currentTreeNumber);
+  const currentInstruction = frac(
+    [
+      firstTransformed,
+      ...rest.map((c) => {
+        // maybe try to do transoformTree(rest) here also, so the ordering is correct
+        if ("children" in c) {
+          return T(currentTreeNumber + firstRest.length + substitutionsCount++);
+        }
+        return transformLeaf(c);
+      }),
+    ].join(", \\quad "),
+    node.text
+  );
+  return [
+    currentInstruction,
+    ...firstRest,
+    ...transformTree(
+      rest.filter((c) => "children" in c),
+      currentTreeNumber + 1 + firstRest.length
+    ),
+  ];
+}
+
+function transformTree(tree: Tree | Tree[], currentTreeNumber: number): string[] {
+  const treeArr = Array.isArray(tree) ? tree : [tree];
+  return treeArr
+    .map((node, i) => {
+      return "children" in node ? transformNode(node, currentTreeNumber + i) : transformLeaf(node);
+    })
+    .flat();
+}
+
+export const treeToSequence = (tree: Tree | Tree[]): string[] => {
+  return transformTree(tree, 1).map(
+    (substitution, i) => String.raw`${T(i + 1)} = ${substitution} \\ \quad`
+  );
+};

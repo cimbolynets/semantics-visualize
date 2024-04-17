@@ -6,17 +6,16 @@ import { MenuIcon, Moon, Play, Sun } from "lucide-react";
 import { useContext } from "react";
 import { Help } from "../Help";
 import ThemeContext from "../ThemeContext";
+import { Export } from "../export/Export";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { DefaultHeaderButton } from "./DefaultHeaderButton";
 import { ExampleSelector } from "./ExampleSelect";
 import { InterpreterSelector } from "./InterpreterSelector";
-import { useHeaderSlots } from "./headerSlots";
 
 export function Header() {
   const isLarge = useMediaBreakpointUp(tailwindConfig.theme.screens.lg);
-  const slots = useHeaderSlots((state) => state.headerSlots);
   const theme = useContext(ThemeContext) ?? {};
   const incrementProgramId = useProgramStorage((state) => {
     return () => state.setProgramId(state.programId + 1);
@@ -65,7 +64,7 @@ export function Header() {
             {runProgram}
           </div>
           <div className="flex gap-2">
-            {slots}
+            <Export />
             <Help />
             {themeChange}
           </div>

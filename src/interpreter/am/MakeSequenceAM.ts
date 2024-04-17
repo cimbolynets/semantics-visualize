@@ -22,7 +22,7 @@ import {
   SubValue,
 } from "./types";
 
-export class MakeSequenceAM implements IMakeSequence<IConfig[] | undefined> {
+export class MakeSequenceAM implements IMakeSequence<IConfig[]> {
   private states: string[];
   private nextStateNumber: number;
   private configNumber: number;
@@ -329,7 +329,6 @@ export class MakeSequenceAM implements IMakeSequence<IConfig[] | undefined> {
 
   getSequence(input: string, variables: Memory, noEval = false) {
     const result = generateVisitedTreeAM(input, variables, noEval);
-    if (!result) return undefined;
     const [tree, visitor] = result;
     this.changeState(variables);
     const finalSequence = [
