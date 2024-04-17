@@ -14,5 +14,5 @@ export default defineConfig({
   worker: {
     format: "es",
   },
-  base: "/semantics-visualize",
+  base: "/",
 });

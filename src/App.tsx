@@ -1,5 +1,4 @@
 import "katex/dist/katex.css";
-
 import { useEffect, useState } from "react";
 import { Header } from "./components/Header";
 import OccupyRestWindowHeight from "./components/OccupyRestWindowHeight";
