@@ -5,9 +5,10 @@ import { SequenceBody } from "../output/SequenceBody";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import "./export.css";
+import { SequenceResult } from "../output/types";
 
 interface ExportImageProps {
-  sequence: string[];
+  sequence: SequenceResult;
 }
 
 export const ExportImage: FC<ExportImageProps> = ({ sequence }) => {

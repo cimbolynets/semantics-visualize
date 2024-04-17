@@ -5,9 +5,10 @@ import { ExportImage } from "../export/ExportImage";
 import { ExportLatex } from "../export/ExportLatex";
 import { RenderInMode } from "./modes/RenderInMode";
 import { RenderNS } from "./modes/RenderNS";
+import { SequenceResult } from "./types";
 
 export interface RenderSequenceProps {
-  sequence: string | string[] | undefined;
+  sequence: SequenceResult;
   states: string[];
   envs?: string[];
 }

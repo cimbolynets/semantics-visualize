@@ -47,32 +47,6 @@ export class MakeSequenceAM implements IMakeSequence<string[] | undefined> {
     this.configNumber++;
   };
 
-  // formatInstruction = (instr: InstructionReturnType) => {
-  //   const value = instr.value
-  //   switch (value?.type) {
-  //     case "push":
-  //     case "add":
-  //     case "sub":
-  //     case "mult":
-  //     case "boolean":
-  //     case "eq":
-  //     case "le":
-  //     case "and":
-  //     case "neg":
-  //     case "fetch":
-  //     case "store":
-  //     case "emptyop":
-  //       return text(value.text);
-  //     case "branch":
-  //       return value.
-  //     case "loop":
-  //       result = this.addLoop(value, child.stack, initial.slice(index + 1));
-  //       break;
-  //     default:
-  //       return undefined;
-  //   }
-  // }
-
   parseConfig = (configText: string, stack: StackEntry[]) => {
     const cyclePart = this.remainingInstructions.length
       ? ":" +

@@ -1,9 +1,13 @@
+export const T = (n: number | string) => {
+  return `T_{${n}}`;
+};
+
 export const s = (n: number | string) => {
   return `s_{${n}}`;
 };
 
 export const a = (n: number | string) => {
-  return `a_{${n}}`;
+  return String.raw`\alpha_{${n}}`;
 };
 
 export const envp = (n: number | string, withoutExtensions = false) => {

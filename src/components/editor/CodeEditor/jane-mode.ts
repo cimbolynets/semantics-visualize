@@ -14,7 +14,7 @@ export const config: languages.LanguageConfiguration = {
 };
 
 export const language: languages.IMonarchLanguage = {
-  keywords: ["if", "then", "else", "do", "while"],
+  keywords: ["if", "then", "else", "do", "while", "begin", "end", "var", "proc", "call"],
   defaultToken: "invalid",
   brackets: [
     {

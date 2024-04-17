@@ -8,6 +8,7 @@ import { pick } from "lodash";
 import { HTMLAttributes, useEffect, useState } from "react";
 import { EditorError as EditorErrorComponent } from "../EditorError";
 import { RenderSequence } from "./RenderSequence";
+import { SequenceResult } from "./types";
 
 interface OutputProps extends HTMLAttributes<HTMLDivElement> {}
 
@@ -17,7 +18,7 @@ export default function Output(props: OutputProps) {
     pick(state, "programText", "variables", "programId", "activeInterpreter", "withExtensions")
   );
 
-  const [sequence, setSequence] = useState<string | string[] | undefined>();
+  const [sequence, setSequence] = useState<SequenceResult>();
   const [states, setStates] = useState<string[]>([]);
   const [envs, setEnvs] = useState<string[] | undefined>([]);
   const [errors, setErrors] = useState<string[]>([]);
@@ -27,7 +28,7 @@ export default function Output(props: OutputProps) {
     setStates([]);
     setEnvs([]);
   }, [activeInterpreter]);
-  
+
   useEffect(() => {
     if (!programText) return;
     setErrors([]);
