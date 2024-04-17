@@ -1,12 +1,11 @@
 import { useProgramStorage } from "@/lib/storage/programStorage";
-import { FC, useEffect, useMemo } from "react";
+import { FC, useEffect } from "react";
 import { useHeaderSlots } from "../Header/headerSlots";
 import { ExportImage } from "../export/ExportImage";
 import { ExportLatex } from "../export/ExportLatex";
 import { RenderInMode } from "./modes/RenderInMode";
 import { RenderNS } from "./modes/RenderNS";
 import { SequenceResult } from "./types";
-import { IConfig } from "@/interpreter/types";
 
 export interface RenderSequenceProps {
   sequence: SequenceResult;
@@ -14,32 +13,23 @@ export interface RenderSequenceProps {
   envs?: string[];
 }
 
-export const RenderSequence: FC<RenderSequenceProps> = ({ sequence, states, envs }) => {
-  const strSequence = Array.isArray(sequence) ? sequence.join("") : sequence;
-  const sequenceArr = useMemo(
-    () => (sequence ? (!Array.isArray(sequence) ? [sequence] : sequence) : []),
-    [strSequence]
-  );
+export const RenderSequence: FC<RenderSequenceProps> = ({ sequence = [], states, envs }) => {
   const activeInterpreter = useProgramStorage((state) => state.activeInterpreter);
   const setHeaderSlots = useHeaderSlots((state) => state.setHeaderSlots);
 
   useEffect(() => {
-    if (!sequenceArr.length) return;
+    if (!sequence.length) return;
     setHeaderSlots(
       <>
-        <ExportImage
-          sequence={sequenceArr.map((item) => (typeof item === "string" ? item : item.text))}
-        />
-        <ExportLatex
-          sequence={sequenceArr.map((item) => (typeof item === "string" ? item : item.text))}
-        />
+        <ExportImage sequence={sequence.map((item) => item.text)} />
+        <ExportLatex sequence={sequence.map((item) => item.text)} />
       </>
     );
-  }, [sequenceArr]);
+  }, [sequence]);
 
   return activeInterpreter === "ns" ? (
-    <RenderNS sequence={sequenceArr as string[]} states={states} envs={envs ?? []} />
+    <RenderNS sequence={sequence} states={states} envs={envs ?? []} />
   ) : (
-    <RenderInMode sequence={sequenceArr as IConfig[]} states={states} />
+    <RenderInMode sequence={sequence} states={states} />
   );
 };

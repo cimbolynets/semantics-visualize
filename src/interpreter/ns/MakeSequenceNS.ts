@@ -16,8 +16,9 @@ import {
   SkipValue,
 } from "../jane/types";
 import { frac, parseState } from "./nsUtils";
+import { IConfig } from "../types";
 
-export class MakeSequenceNS implements IMakeSequence<string | undefined> {
+export class MakeSequenceNS implements IMakeSequence<IConfig[] | undefined> {
   private states: string[];
   private envs: string[];
   private nextStateNumber: number;
@@ -53,7 +54,9 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
     const formattedProcs = procs.length
       ? String.raw`\\ ${procs.map((p) => String.raw`\quad \text{${p.text}}`).join(" \\\\ ")}\\`
       : "";
-    this.envs.push(`${envp(this.getNextEnvNumber(), this.withoutExtensions)} = [${formattedProcs}]`);
+    this.envs.push(
+      `${envp(this.getNextEnvNumber(), this.withoutExtensions)} = [${formattedProcs}]`
+    );
     this.nextEnvNumber++;
   };
 
@@ -131,9 +134,10 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   };
 
   addEnvUpdate = (procs: ProcDefinitionValue[]) => {
-    const text = String.raw`${envp(this.getNextEnvNumber(), this.withoutExtensions)} = update(D_p, ${envp(
-      this.getNextEnvNumber() - 1, this.withoutExtensions
-    )})`;
+    const text = String.raw`${envp(
+      this.getNextEnvNumber(),
+      this.withoutExtensions
+    )} = update(D_p, ${envp(this.getNextEnvNumber() - 1, this.withoutExtensions)})`;
     this.changeEnv(procs);
     return text;
   };
@@ -155,14 +159,16 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   };
 
   addProcCall = (instr: Instruction<ProcCallValue>) => {
-    const parsedBody = instr.value.body ? this.traverse(instr.value.body) : undefined;
-    if (!parsedBody) return undefined;
+    if (!instr.value.body) throw new Error("Procedure has no body");
+    const parsedBody = this.traverse(instr.value.body);
+    if (!parsedBody) throw new Error("Failed to transform procedure bo");
     return parsedBody;
   };
 
-  chooseInstruction = (instr: Instruction<InstructionValue>, last: boolean) => {
+  chooseInstruction = (instr: Instruction<InstructionValue>, last: boolean): string => {
     let includeEnv = true;
-    let result: string | undefined;
+    let result: string;
+
     switch (instr.value?.type) {
       case "assign":
         includeEnv = !last;
@@ -188,20 +194,23 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
         result = this.addProcCall(instr as Instruction<ProcCallValue>);
         break;
       default:
-        console.error("Not an instruction:", instr.text);
-        result = undefined;
+        throw new Error("Not an instruction: " + instr.text);
     }
     return (includeEnv ? envpa(this.getNextEnvNumber() - 1, this.withoutExtensions) : "") + result;
   };
 
-  parseInstructionSequence = (tree: InstructionSequence<InstructionValue>, last: boolean) => {
+  parseInstructionSequence = (
+    tree: InstructionSequence<InstructionValue>,
+    last: boolean
+  ): string => {
     if (tree.children.length === 0) return "";
     const [first, ...rest] = tree.children;
     const firstAndRestText =
       `\\text{${first.text}}` +
       rest.reduce((acc: string, node: { text: string }) => acc + "; \\text{" + node.text + "}", "");
     const currentInstruction = String.raw`${envpa(
-      this.getNextEnvNumber() - 1, this.withoutExtensions
+      this.getNextEnvNumber() - 1,
+      this.withoutExtensions
     )} \langle ${firstAndRestText},\ ${s(this.nextStateNumber - 1)} \rangle`;
 
     let resultNominator: string | undefined;
@@ -227,7 +236,7 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
     );
   };
 
-  parseInstruction = (tree: Instruction<InstructionValue>, last: boolean) => {
+  parseInstruction = (tree: Instruction<InstructionValue>, last: boolean): string => {
     const result = this.chooseInstruction(tree, last);
     return result;
   };
@@ -235,13 +244,14 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
   traverse = (
     tree: Instruction<InstructionValue> | InstructionSequence<InstructionValue>,
     last = false
-  ): string | undefined => {
-    if (!tree) return;
+  ): string => {
+    if (!tree) throw new Error("Tree was not provided");
     if (tree.type === "instructionSequence") {
       return this.parseInstructionSequence(tree, last);
     } else if (tree.type === "instruction") {
       return this.parseInstruction(tree, last);
     }
+    throw new Error("Incorrect tree type");
   };
 
   getSequence(input: string, variables: Memory, noEval = false, withoutExtensions = false) {
@@ -249,6 +259,6 @@ export class MakeSequenceNS implements IMakeSequence<string | undefined> {
     this.withoutExtensions = withoutExtensions;
     this.changeState({ memory: variables });
     const res = this.traverse(tree);
-    return res;
+    return res ? [{ text: res }] : undefined;
   }
 }

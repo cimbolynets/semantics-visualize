@@ -121,14 +121,7 @@ export default class VisitorAM implements AbstractMachineVisitor<object> {
           | typeof this.visitBoolean
         >
       | undefined;
-    console.log(
-      "Ctx:",
-      ctx.text,
-      ctx.start.charPositionInLine,
-      ctx.stop?.charPositionInLine,
-      ctx.start.startIndex,
-      ctx.start.stopIndex
-    );
+
     if (ctx.push()) {
       instr = this.visitPush(ctx.push()!, noEval);
     } else if (ctx.add()) {
