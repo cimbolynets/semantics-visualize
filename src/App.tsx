@@ -6,13 +6,9 @@ import Editor from "./components/editor/Editor";
 import Output from "./components/output/Output";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./components/ui/resizable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
-import { MakeSequenceNS } from "./interpreter/ns/MakeSequenceNS";
-import { blocksAndProcedures, factorialJane, factorialProc } from "./lib/examples";
 import { useMediaBreakpointUp } from "./lib/hooks/useMediaBreakpointUp";
 import { useProgramStorage } from "./lib/storage/programStorage";
 import { tailwindConfig } from "./lib/tailwindConfig";
-import MathRenderer from "./components/MathRenderer";
-import { treeToSequence, treeToString } from "./interpreter/ns/nsUtils";
 
 export default function App() {
   const [tab, setTab] = useState("editor");
@@ -25,29 +21,6 @@ export default function App() {
   const isLarge = useMediaBreakpointUp(tailwindConfig.theme.screens.lg);
   const editor = <Editor className="h-full" />;
   const output = <Output />;
-
-  const ms = new MakeSequenceNS();
-  const res = ms.getSequence(factorialJane, {}, false, false);
-  document.body.style.overflow = "auto";
-  // document.body.innerHTML = `<pre>${JSON.stringify(res, null, 4)}</pre>`;
-
-  const seqTree = [treeToString(res)];
-  const seq = treeToSequence(res);
-  return (
-    <>
-      <div>
-        {seqTree.map((item) => (
-          <MathRenderer key={item}>{item}</MathRenderer>
-        ))}
-      </div>
-      <hr className="my-20" />
-      <div>
-        {seq.map((item) => (
-          <MathRenderer key={item}>{item}</MathRenderer>
-        ))}
-      </div>
-    </>
-  );
 
   return (
     <>

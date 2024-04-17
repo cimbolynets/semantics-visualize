@@ -58,29 +58,25 @@ function transformLeaf(leaf: Leaf): string {
 
 function transformNode(node: Node, currentTreeNumber: number): string[] {
   const [first, ...rest] = node.children;
-  let substitutionsCount = 1;
   const [firstTransformed, ...firstRest] = transformTree(first, currentTreeNumber);
+  const transformedRest: string[] = [];
+  transformedRest.push(...firstRest);
   const currentInstruction = frac(
     [
       firstTransformed,
       ...rest.map((c) => {
         // maybe try to do transoformTree(rest) here also, so the ordering is correct
         if ("children" in c) {
-          return T(currentTreeNumber + firstRest.length + substitutionsCount++);
+          const result = T(currentTreeNumber + transformedRest.length + 1);
+          transformedRest.push(...transformTree(c, currentTreeNumber + transformedRest.length + 1));
+          return result;
         }
         return transformLeaf(c);
       }),
     ].join(", \\quad "),
     node.text
   );
-  return [
-    currentInstruction,
-    ...firstRest,
-    ...transformTree(
-      rest.filter((c) => "children" in c),
-      currentTreeNumber + 1 + firstRest.length
-    ),
-  ];
+  return [currentInstruction, ...transformedRest];
 }
 
 function transformTree(tree: Tree | Tree[], currentTreeNumber: number): string[] {

@@ -14,7 +14,7 @@ y := 3;
 while !(y = 1) do (
     x := x*y; 
     y := y - 1
-); z := 4; if x <= 2 then ( ${swapVariablesJane} ) else skip`;
+)`;
 
 export const factorialProc = `n := 2;
 result := 1;
