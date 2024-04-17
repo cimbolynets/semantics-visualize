@@ -58,7 +58,7 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
       if (!MakeSequence) return;
       const seq = new MakeSequence().getSequence(guessedConfig, {}, true);
       const targetSequence = extractSequence(nextConfig);
-      const guessedSequence = extractSequence(seq?.[0]);
+      const guessedSequence = extractSequence(seq?.[0].text);
       setStatus(guessedSequence === targetSequence ? "success" : "failure");
     } catch (error) {
       setStatus("failure");

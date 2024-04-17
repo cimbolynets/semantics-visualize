@@ -4,10 +4,11 @@ import { IMakeSequence } from "../IMakeSequence.types";
 import { generateVisitedTreeJane } from "../jane/generateVisitedTree";
 import { AssignmentValue, BranchValue, CycleValue, Instruction, SkipValue } from "../jane/types";
 import { parseState } from "../ns/nsUtils";
+import { IConfig } from "../types";
 import { parseRestProgram } from "./sosUtils";
 
 // the main function is getSequence, which is used to get lists of configs, states and errors
-export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
+export class MakeSequenceSOS implements IMakeSequence<IConfig[] | undefined> {
   private states: string[];
   private nextStateNumber: number;
   private configNumber: number;
@@ -68,10 +69,10 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
   };
 
   // add assign instruction to the configs
-  addAssign(instr: Instruction<AssignmentValue>, rest: Instruction[]) {
+  addAssign(instr: Instruction<AssignmentValue>, rest: Instruction[]): IConfig {
     const result = this.parseTransition(instr.text, rest);
     this.changeState(instr.value.state);
-    return result;
+    return { text: result, reference: instr.position };
   }
 
   transformToBranch = (cycle: CycleValue, rest: Instruction[], condition: boolean) => {
@@ -84,11 +85,11 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
     );
   };
 
-  addCycle = ({ value }: Instruction<CycleValue>, rest: Instruction[]) => {
-    const result = [];
+  addCycle = ({ value, position }: Instruction<CycleValue>, rest: Instruction[]): IConfig[] => {
+    const result: IConfig[] = [];
     for (const iteration of value.iters) {
-      result.push(this.parseTransition(value.text, rest));
-      result.push(this.transformToBranch(value, rest, true));
+      result.push({ text: this.parseTransition(value.text, rest), reference: position });
+      result.push({ text: this.transformToBranch(value, rest, true), reference: position });
       this.whileStack.push(value.text + (rest.length ? "; " + parseRestProgram(rest) : ""));
       result.push(
         ...this.traverse(
@@ -97,31 +98,38 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
       );
       this.whileStack.pop();
     }
-    result.push(this.parseTransition(value.text, rest));
-    result.push(this.transformToBranch(value, rest, false));
-    result.push(this.parseTransition(String.raw`skip`, rest));
+    result.push({ text: this.parseTransition(value.text, rest), reference: position });
+    result.push({ text: this.transformToBranch(value, rest, false), reference: position });
+    result.push({ text: this.parseTransition(String.raw`skip`, rest), reference: position });
     return result;
   };
 
-  addBranch(instr: Instruction<BranchValue>, rest: Instruction[]): string[] {
+  addBranch(instr: Instruction<BranchValue>, rest: Instruction[]): IConfig[] {
     const executeBranch = instr.value.isTrue ? instr.value.ifBranch : instr.value.elBranch;
+    const instrText = this.parseTransition(
+      instr.text,
+      rest,
+      formatCondition(instr.value.conditionText, instr.value.isTrue, this.nextStateNumber - 1)
+    );
     return [
-      this.parseTransition(
-        instr.text,
-        rest,
-        formatCondition(instr.value.conditionText, instr.value.isTrue, this.nextStateNumber - 1)
-      ),
+      {
+        text: instrText,
+        reference: instr.position,
+      },
       ...this.traverse(
         executeBranch.type === "instructionSequence" ? executeBranch.children : [executeBranch]
       ),
     ];
   }
 
-  addSkip(instr: Instruction<SkipValue>, rest: Instruction[]) {
-    return this.parseTransition(instr.text, rest);
+  addSkip(instr: Instruction<SkipValue>, rest: Instruction[]): IConfig {
+    return {
+      text: this.parseTransition(instr.text, rest),
+      reference: instr.position,
+    };
   }
 
-  chooseInstruction(instr: Instruction, rest: Instruction[]): string | string[] | undefined {
+  chooseInstruction(instr: Instruction, rest: Instruction[]): IConfig | IConfig[] | undefined {
     switch (instr.value.type) {
       case "assign":
         return this.addAssign(instr as Instruction<AssignmentValue>, rest);
@@ -137,11 +145,11 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
     }
   }
 
-  traverse = (children: Instruction[] | undefined): string[] => {
+  traverse = (children: Instruction[] | undefined): IConfig[] => {
     if (!children) return [];
     return children
       .map((c, index, initial) => this.chooseInstruction(c, initial.slice(index + 1)))
-      .filter((c): c is string => !!c)
+      .filter((c): c is IConfig => !!c)
       .flat();
   };
 
@@ -149,7 +157,7 @@ export class MakeSequenceSOS implements IMakeSequence<string[] | undefined> {
     const [tree] = generateVisitedTreeJane(input, variables, noEval, true);
     this.changeState(variables);
     const res = this.traverse(tree.children);
-    res.push(this.parseConfig("", true));
+    res.push({ text: this.parseConfig("", true) });
     return res;
   }
 }

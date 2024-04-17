@@ -40,6 +40,7 @@ import {
   ProcDefinitionValue,
   SkipValue,
 } from "./types";
+import { extractPositionFromCtx } from "../utils";
 
 export type VisitorResult = ReturnType<Visitor["visitInstructionSequence"]>;
 export type VisitorInstructionSequenceResult = ReturnType<Visitor["visitInstructionSequence"]>;
@@ -140,6 +141,7 @@ export default class Visitor implements JaneVisitor<object> {
       value: instr,
       state,
       text: instr.text,
+      position: extractPositionFromCtx(ctx),
       type: "instruction",
     };
   };

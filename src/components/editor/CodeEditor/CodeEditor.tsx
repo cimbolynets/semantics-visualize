@@ -3,9 +3,9 @@ import { transformToSpecialSymbols } from "@/lib/specialSymbols/replaceSymbols";
 import specialSymbols from "@/lib/specialSymbols/specialSymbols";
 import { useProgramStorage } from "@/lib/storage/programStorage";
 import { cn } from "@/lib/utils";
-import { IEditorError, Memory } from "@/types";
+import { IEditorError, IEditorPosition, Memory } from "@/types";
 import { Editor, EditorProps, Monaco } from "@monaco-editor/react";
-import { IPosition, editor } from "monaco-editor";
+import { IPosition, Selection, editor } from "monaco-editor";
 import { useContext, useEffect, useRef } from "react";
 import { CODE_CHANGED, CONFIG_CHANGED } from "./constants";
 import { config, language } from "./jane-mode";
@@ -63,6 +63,7 @@ function transformIfPasted(
 }
 
 export type CodeEditorProps = {
+  currentSelection?: IEditorPosition;
   variables: Memory;
   value?: string;
   setValue: (v?: string) => void;
@@ -73,6 +74,7 @@ export type CodeEditorProps = {
 // variables must be defined outside of the component scope, because they will be used in the worker
 let variables: Memory = {};
 export default function CodeEditor({
+  currentSelection,
   variables: variablesProp,
   value,
   setValue,
@@ -87,6 +89,15 @@ export default function CodeEditor({
   const activeInterpreter = useProgramStorage((state) => state.activeInterpreter);
   const withExtensions = useProgramStorage((state) => state.withExtensions);
   const theme = useContext(ThemeContext).state.editorTheme;
+
+  useEffect(() => {
+    if (!editorRef.current) return;
+    if (!currentSelection) {
+      editorRef.current.setSelection(new Selection(0, 0, 0, 0));
+      return;
+    }
+    editorRef.current.setSelection(currentSelection);
+  }, [currentSelection]);
 
   useEffect(() => {
     if (disableValidation) return;

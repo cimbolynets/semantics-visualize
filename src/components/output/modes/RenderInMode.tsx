@@ -19,6 +19,8 @@ import { ConfigsPagination } from "./ConfigsPagination";
 import { GuessNextConfiguration } from "./GuessNextConfiguration";
 import { useMediaBreakpointUp } from "@/lib/hooks/useMediaBreakpointUp";
 import { tailwindConfig } from "@/lib/tailwindConfig";
+import { IConfig } from "@/interpreter/types";
+import { useEditorStorage } from "@/lib/storage/editorStorage";
 
 type Tab = "whole-sequence" | "step-by-step" | "single-instruction";
 const tabs: Array<{ name: string; value: Tab }> = [
@@ -28,7 +30,7 @@ const tabs: Array<{ name: string; value: Tab }> = [
 ];
 
 interface RenderInModeProps {
-  sequence: string[];
+  sequence: IConfig[];
   states: string[];
 }
 
@@ -100,7 +102,7 @@ export const RenderInMode: FC<RenderInModeProps> = ({ sequence, states }) => {
 
 function WholeSequence({ sequence }: RenderInModeProps) {
   return sequence.length ? (
-    <SequenceBody sequence={sequence} />
+    <SequenceBody sequence={sequence.map((s) => s.text)} />
   ) : (
     <span className="text-xl font-bold">No sequence</span>
   );
@@ -132,7 +134,7 @@ function StepByStep({ sequence }: RenderInModeProps) {
   return sequencePart.length ? (
     <>
       <div className="flex gap-2">
-        <GuessNextConfiguration nextConfig={nextConfig} revealNext={inc} />
+        <GuessNextConfiguration nextConfig={nextConfig?.text} revealNext={inc} />
         <div className="flex gap-2 ml-auto">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -161,7 +163,7 @@ function StepByStep({ sequence }: RenderInModeProps) {
           </Button>
         </div>
       </div>
-      <SequenceBody ref={seqRef} sequence={sequencePart} />
+      <SequenceBody ref={seqRef} sequence={sequencePart.map((item) => item.text)} />
     </>
   ) : (
     <span className="text-xl font-bold">No sequence</span>
@@ -169,6 +171,7 @@ function StepByStep({ sequence }: RenderInModeProps) {
 }
 
 function SingleInstruction({ sequence, states }: RenderInModeProps) {
+  const setEditorSelection = useEditorStorage((state) => state.setSelection);
   const [configIndex, setConfigIndex] = useState(0);
 
   useEffect(() => {
@@ -176,13 +179,18 @@ function SingleInstruction({ sequence, states }: RenderInModeProps) {
   }, [sequence]);
 
   const config = useMemo(() => {
-    return sequence[configIndex];
+    return sequence.at(configIndex);
   }, [sequence, configIndex]);
   const state = useMemo(() => {
-    const targetStateNumber = extractStateNumber(config);
+    if (!config) return undefined;
+    const targetStateNumber = extractStateNumber(config.text);
     if (targetStateNumber === undefined) return undefined;
     return states.find((state) => state.includes(s(targetStateNumber)));
   }, [config, states]);
+
+  useEffect(() => {
+    setEditorSelection(config?.reference);
+  }, [config]);
 
   const inc = () => {
     setConfigIndex((prev) => (prev < sequence.length - 1 ? prev + 1 : prev));
@@ -220,7 +228,9 @@ function SingleInstruction({ sequence, states }: RenderInModeProps) {
       ) : null}
       <div className="flex flex-col gap-2">
         <span className="text-xl font-bold">Configuration</span>
-        <MathRenderer className="overflow-x-auto overflow-y-hidden">{config}</MathRenderer>
+        {config ? (
+          <MathRenderer className="overflow-x-auto overflow-y-hidden">{config.text}</MathRenderer>
+        ) : null}
       </div>
     </>
   );

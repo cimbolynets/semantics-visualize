@@ -1,9 +1,9 @@
-export interface IEditorError {
+import { IRange } from "monaco-editor";
+
+export type IEditorPosition = IRange;
+
+export interface IEditorError extends IEditorPosition {
   message: string;
-  startLineNumber: number;
-  startColumn: number;
-  endLineNumber: number;
-  endColumn: number;
 }
 
 export type StackEntry = string | number | boolean;

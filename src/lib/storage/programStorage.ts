@@ -81,7 +81,7 @@ export const useProgramStorage = create<ProgramStorage>()(
         set(() => ({ withExtensions }));
       },
       setActiveInterpreter(a) {
-        set(() => ({ programText: "", activeInterpreter: a }));
+        set(() => ({ programText: "", variables: {}, activeInterpreter: a }));
       },
       setProgramText(v) {
         set(() => ({ programText: v }));

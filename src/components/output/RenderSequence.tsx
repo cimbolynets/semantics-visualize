@@ -6,6 +6,7 @@ import { ExportLatex } from "../export/ExportLatex";
 import { RenderInMode } from "./modes/RenderInMode";
 import { RenderNS } from "./modes/RenderNS";
 import { SequenceResult } from "./types";
+import { IConfig } from "@/interpreter/types";
 
 export interface RenderSequenceProps {
   sequence: SequenceResult;
@@ -26,15 +27,19 @@ export const RenderSequence: FC<RenderSequenceProps> = ({ sequence, states, envs
     if (!sequenceArr.length) return;
     setHeaderSlots(
       <>
-        <ExportImage sequence={sequenceArr} />
-        <ExportLatex sequence={sequenceArr} />
+        <ExportImage
+          sequence={sequenceArr.map((item) => (typeof item === "string" ? item : item.text))}
+        />
+        <ExportLatex
+          sequence={sequenceArr.map((item) => (typeof item === "string" ? item : item.text))}
+        />
       </>
     );
   }, [sequenceArr]);
 
   return activeInterpreter === "ns" ? (
-    <RenderNS sequence={sequenceArr} states={states} envs={envs ?? []} />
+    <RenderNS sequence={sequenceArr as string[]} states={states} envs={envs ?? []} />
   ) : (
-    <RenderInMode sequence={sequenceArr} states={states} />
+    <RenderInMode sequence={sequenceArr as IConfig[]} states={states} />
   );
 };

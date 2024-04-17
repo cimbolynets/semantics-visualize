@@ -1,105 +1,110 @@
-import { Memory, StackEntry } from "@/types";
+import { IEditorPosition, Memory, StackEntry } from "@/types";
 
-export type ProgramReturnType = InstructionSequenceReturnType;
+export type ProgramReturnType = InstructionSequence;
 
-export type InstructionSequenceReturnType = {
-  children: InstructionReturnType[];
+export interface InstructionSequence<Value extends InstructionValue = InstructionValue> {
+  children: Instruction<Value>[];
   text: string;
   type: "instructionSequence";
-};
+}
 
-export type InstructionReturnType = {
-  value:
-    | PushReturnType
-    | AddReturnType
-    | MultReturnType
-    | SubReturnType
-    | BooleanReturnType
-    | EqReturnType
-    | LeReturnType
-    | AndReturnType
-    | NegReturnType
-    | FetchReturnType
-    | StoreReturnType
-    | EmptyopReturnType
-    | BranchReturnType
-    | LoopReturnType;
+export interface Instruction<Value extends InstructionValue = InstructionValue> {
+  value: Value;
   state: Memory;
   stack: StackEntry[];
   text: string;
+  position: IEditorPosition;
   type: "instruction";
-};
+}
 
-export type PushReturnType = {
+export type InstructionType = "assign" | "cycle" | "branch" | "skip" | "block" | "procCall";
+
+export type InstructionValue =
+  | PushValue
+  | AddValue
+  | MultValue
+  | SubValue
+  | BooleanValue
+  | EqValue
+  | LeValue
+  | AndValue
+  | NegValue
+  | FetchValue
+  | StoreValue
+  | EmptyopValue
+  | BranchValue
+  | LoopValue;
+
+export type PushValue = {
   type: "push";
   text: string;
   stack: StackEntry[];
   value: number;
 };
 
-export type AddReturnType = {
+export type AddValue = {
   type: "add";
   text: string;
 };
 
-export type MultReturnType = {
+export type MultValue = {
   type: "mult";
   text: string;
 };
 
-export type SubReturnType = {
+export type SubValue = {
   type: "sub";
   text: string;
 };
 
-export type BooleanReturnType = {
+export type BooleanValue = {
   type: "boolean";
   value?: boolean;
   text: string;
 };
 
-export type EqReturnType = {
+export type EqValue = {
   type: "eq";
   text: string;
 };
 
-export type LeReturnType = {
+export type LeValue = {
   type: "le";
   text: string;
 };
 
-export type AndReturnType = {
+export type AndValue = {
   type: "and";
   text: string;
 };
 
-export type NegReturnType = {
+export type NegValue = {
   text: string;
   type: "neg";
 };
 
-export type FetchReturnType = {
+export type FetchValue = {
   text: string;
   value: number;
   type: "fetch";
 };
 
-export type StoreReturnType = {
+export type StoreValue = {
   text: string;
   value?: number;
   state?: Memory;
   type: "store";
 };
 
-export type EmptyopReturnType = {
+export type EmptyopValue = {
   text: string;
   type: "emptyop";
 };
 
-export type BranchReturnType = {
+export type BranchValue = {
   text: string;
-  ifBranch: InstructionSequenceReturnType;
-  elBranch: InstructionSequenceReturnType;
+  ifBranch: InstructionSequence;
+  elBranch: InstructionSequence;
   type: "branch";
   isTrue: boolean | undefined;
 };
@@ -107,18 +112,18 @@ export type BranchReturnType = {
 export type LoopIteration =
   | {
       condition: true;
-      conditionSequence: InstructionSequenceReturnType;
+      conditionSequence: InstructionSequence;
       conditionResultStack: StackEntry[];
-      sequence: InstructionSequenceReturnType;
+      sequence: InstructionSequence;
     }
   | {
       condition: false;
-      conditionSequence: InstructionSequenceReturnType;
+      conditionSequence: InstructionSequence;
       conditionResultStack: StackEntry[];
       sequence: undefined;
     };
 
-export type LoopReturnType = {
+export type LoopValue = {
   text: string;
   conditionText: string;
   body: string;

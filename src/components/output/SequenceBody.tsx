@@ -1,10 +1,9 @@
 import { cn } from "@/lib/utils";
 import { forwardRef, memo } from "react";
 import MathRenderer from "../MathRenderer";
-import { SequenceResult } from "./types";
 
 interface SequenceBodyProps {
-  sequence: SequenceResult;
+  sequence: string | string[];
   className?: string;
 }
 

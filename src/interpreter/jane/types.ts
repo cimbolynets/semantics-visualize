@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Memory } from "@/types";
+import { IEditorPosition, Memory } from "@/types";
 
 export interface InstructionSequence<Value extends InstructionValue = InstructionValue> {
   children: Instruction<Value>[];
@@ -11,6 +11,7 @@ export interface Instruction<Value extends InstructionValue = InstructionValue> 
   text: string;
   state: Memory;
   value: Value;
+  position: IEditorPosition;
   type: "instruction";
 }
 
