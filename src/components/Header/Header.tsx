@@ -92,6 +92,7 @@ export function Header() {
                   </div>
                 ) : null}
                 <ExampleSelector />
+                <Export />
                 <Help />
               </SheetContent>
             </Sheet>
