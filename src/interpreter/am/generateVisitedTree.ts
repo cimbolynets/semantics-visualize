@@ -1,5 +1,5 @@
-import { AbstractMachineLexer } from "@/grammar/as/AbstractMachineLexer";
-import { AbstractMachineParser } from "@/grammar/as/AbstractMachineParser";
+import { AbstractMachineLexer } from "@/grammar/am/AbstractMachineLexer";
+import { AbstractMachineParser } from "@/grammar/am/AbstractMachineParser";
 import { IEditorError } from "@/types";
 import { CharStreams, CommonTokenStream } from "antlr4ts";
 import VisitorAM, { VisitorAMResult } from "./VisitorAM";

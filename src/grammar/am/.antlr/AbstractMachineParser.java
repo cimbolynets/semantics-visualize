@@ -1,4 +1,4 @@
-// Generated from /Users/hotovo/personal/semantics-visualize/src/grammar/as/AbstractMachine.g4 by ANTLR 4.13.1
+// Generated from /Users/hotovo/personal/semantics-visualize/src/grammar/am/AbstractMachine.g4 by ANTLR 4.13.1
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;

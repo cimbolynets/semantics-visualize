@@ -16,8 +16,8 @@ import {
   PushContext,
   StoreContext,
   SubContext,
-} from "@/grammar/as/AbstractMachineParser";
-import { AbstractMachineVisitor } from "@/grammar/as/AbstractMachineVisitor";
+} from "@/grammar/am/AbstractMachineParser";
+import { AbstractMachineVisitor } from "@/grammar/am/AbstractMachineVisitor";
 import { notEmpty } from "@/lib/utils/notEmpty";
 import { IEditorError, Memory, StackEntry } from "@/types";
 import { ParserRuleContext } from "antlr4ts";
