@@ -88,7 +88,7 @@ export default function CodeEditor({
   const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
   const activeInterpreter = useProgramStorage((state) => state.activeInterpreter);
   const withExtensions = useProgramStorage((state) => state.withExtensions);
-  const theme = useContext(ThemeContext).state.editorTheme;
+  const theme = useContext(ThemeContext).theme?.editorTheme;
 
   useEffect(() => {
     if (!editorRef.current) return;

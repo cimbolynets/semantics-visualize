@@ -33,12 +33,10 @@ export function Header() {
   const themeChange = (
     <DefaultHeaderButton
       onClick={() => {
-        theme.dispatch?.({
-          type: theme.state.name === "light" ? "dark" : "light",
-        });
+        theme.setThemeName(theme.themeName === "light" ? "dark" : "light");
       }}
     >
-      {theme.state.name === "light" ? <Moon size="1rem" /> : <Sun size="1rem" />}
+      {theme.themeName === "light" ? <Moon size="1rem" /> : <Sun size="1rem" />}
     </DefaultHeaderButton>
   );
 
