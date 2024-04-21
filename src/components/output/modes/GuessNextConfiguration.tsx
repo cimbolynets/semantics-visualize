@@ -56,6 +56,7 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
           ? MakeSequenceSOS
           : undefined;
       if (!MakeSequence) return;
+      // we're only concerned about instructions sequence, so state doesn't matter here
       const seq = new MakeSequence().getSequence(guessedConfig, {}, true);
       const targetSequence = extractSequence(nextConfig);
       const guessedSequence = extractSequence(seq?.[0].text);

@@ -1,7 +1,7 @@
 import { Memory } from "@/types";
 import MathRenderer from "../MathRenderer";
 import SetVariables from "./SetVariables";
-import { formatMemory } from "@/lib/utils/formatMemory";
+import { formatMemory } from "@/lib/utils/format";
 import { s } from "@/lib/utils/format";
 
 interface VariablesListListProps {

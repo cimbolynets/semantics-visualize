@@ -1,4 +1,4 @@
-import { formatMemory } from "@/lib/utils/formatMemory";
+import { formatMemory } from "@/lib/utils/format";
 import { Memory, StackEntry } from "@/types";
 import { s } from "@/lib/utils/format";
 import { Instruction } from "./types";

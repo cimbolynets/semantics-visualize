@@ -1,3 +1,5 @@
+import { Memory } from "@/types";
+
 export const T = (n: number | string) => {
   return `T_{${n}}`;
 };
@@ -31,4 +33,14 @@ export function formatCondition(text: string, isTrue: boolean, stateNumber: numb
 
 export const text = (text: string) => {
   return String.raw`\text{${text}}`;
+};
+
+export const formatMemory = (variables: Memory) => {
+  const kvPairs = Object.entries(variables);
+
+  return (
+    String.raw`[ ` +
+    kvPairs.map(([k, v]) => String.raw`${k} \mapsto \textbf{${v}}`) +
+    String.raw` ]`
+  );
 };

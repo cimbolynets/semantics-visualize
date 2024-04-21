@@ -1,4 +1,4 @@
-import { a, formatCondition, s, text } from "@/lib/utils/format";
+import { a, formatCondition, s } from "@/lib/utils/format";
 import { Memory } from "@/types";
 import { IMakeSequence } from "../IMakeSequence.types";
 import { generateVisitedTreeJane } from "../jane/generateVisitedTree";
@@ -6,6 +6,7 @@ import { AssignmentValue, BranchValue, CycleValue, Instruction, SkipValue } from
 import { parseState } from "../ns/nsUtils";
 import { IConfig } from "../types";
 import { parseRestProgram } from "./sosUtils";
+import { addKeywordsPaddingJane } from "@/lib/utils/padding";
 
 // the main function is getSequence, which is used to get lists of configs, states and errors
 export class MakeSequenceSOS implements IMakeSequence<IConfig[] | undefined> {
@@ -36,16 +37,10 @@ export class MakeSequenceSOS implements IMakeSequence<IConfig[] | undefined> {
 
   parseConfig = (instrText: string, last: boolean, conditionText?: string) => {
     if (last) return String.raw`${a(this.configNumber)} \ = \ ${s(this.nextStateNumber - 1)}`;
-    const cyclePart = this.whileStack.length
-      ? "; " +
-        this.whileStack
-          .toReversed()
-          .map((entry) => entry)
-          .join("; ")
-      : "";
+    const cyclePart = this.whileStack.length ? "; " + this.whileStack.toReversed().join("; ") : "";
 
     return (
-      String.raw`${a(this.configNumber)} \ = \ \langle ${text(instrText + cyclePart)}, ${s(
+      String.raw`${a(this.configNumber)} \ = \ \langle ${instrText + cyclePart}, ${s(
         this.nextStateNumber - 1
       )} \rangle \Rightarrow \ ${a(this.configNumber + 1)}` +
       (conditionText ? ",\\;" + conditionText : "")
@@ -158,6 +153,9 @@ export class MakeSequenceSOS implements IMakeSequence<IConfig[] | undefined> {
     this.changeState(variables);
     const res = this.traverse(tree.children);
     res.push({ text: this.parseConfig("", true) });
-    return res;
+    return res.map((c) => {
+      c.text = addKeywordsPaddingJane(c.text);
+      return c;
+    });
   }
 }

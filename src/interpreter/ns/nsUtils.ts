@@ -1,8 +1,9 @@
 import { T, s } from "@/lib/utils/format";
-import { formatMemory } from "@/lib/utils/formatMemory";
+import { formatMemory } from "@/lib/utils/format";
 import { Memory } from "@/types";
 import { CycleValue, Instruction } from "../jane/types";
 import { Leaf, Node, Tree } from "./types";
+import { addKeywordsPaddingJane } from "@/lib/utils/padding";
 
 export const assignPattern = /(.+) +:= +(.+)/;
 
@@ -44,12 +45,16 @@ export function frac(num: string, den: string, dividerThickness = 1) {
   return String.raw`\genfrac{}{}{${dividerThickness}pt}{0}{${num}}{${den}}`;
 }
 
-export const treeToString = (tree: Tree | Tree[]): string => {
+export const treeToStringRecursive = (tree: Tree | Tree[]): string => {
   if (!Array.isArray(tree)) {
-    return "children" in tree ? frac(treeToString(tree.children), tree.text) : tree.text;
+    return "children" in tree ? frac(treeToStringRecursive(tree.children), tree.text) : tree.text;
   }
-  const trees = tree.map((node) => treeToString(node));
+  const trees = tree.map((node) => treeToStringRecursive(node));
   return trees.join(" ,\\quad ");
+};
+
+export const treeToString = (tree: Tree | Tree[]): string => {
+  return addKeywordsPaddingJane(treeToStringRecursive(tree));
 };
 
 function transformLeaf(leaf: Leaf): string {
@@ -65,7 +70,6 @@ function transformNode(node: Node, currentTreeNumber: number): string[] {
     [
       firstTransformed,
       ...rest.map((c) => {
-        // maybe try to do transoformTree(rest) here also, so the ordering is correct
         if ("children" in c) {
           const result = T(currentTreeNumber + transformedRest.length + 1);
           transformedRest.push(...transformTree(c, currentTreeNumber + transformedRest.length + 1));
@@ -89,7 +93,7 @@ function transformTree(tree: Tree | Tree[], currentTreeNumber: number): string[]
 }
 
 export const treeToSequence = (tree: Tree | Tree[]): string[] => {
-  return transformTree(tree, 1).map(
-    (substitution, i) => String.raw`${T(i + 1)} = ${substitution} \\ \quad`
+  return transformTree(tree, 1).map((substitution, i) =>
+    addKeywordsPaddingJane(String.raw`${T(i + 1)} = ${substitution} \\ \quad`)
   );
 };
