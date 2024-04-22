@@ -1,7 +1,6 @@
 import { useMediaBreakpointUp } from "@/lib/hooks/useMediaBreakpointUp";
 import { useProgramStorage } from "@/lib/storage/programStorage";
 import { tailwindConfig } from "@/lib/tailwindConfig";
-import { pick } from "lodash";
 import { MenuIcon, Moon, Play, Sun } from "lucide-react";
 import { useContext } from "react";
 import { Help } from "../Help";
@@ -13,6 +12,7 @@ import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { DefaultHeaderButton } from "./DefaultHeaderButton";
 import { ExampleSelector } from "./ExampleSelect";
 import { InterpreterSelector } from "./InterpreterSelector";
+import { TranslateProgram } from "./TranslateProgram";
 
 export function Header() {
   const isLarge = useMediaBreakpointUp(tailwindConfig.theme.screens.lg);
@@ -20,9 +20,7 @@ export function Header() {
   const incrementProgramId = useProgramStorage((state) => {
     return () => state.setProgramId(state.programId + 1);
   });
-  const { withExtensions, setWithExtensions, activeInterpreter } = useProgramStorage((state) =>
-    pick(state, "withExtensions", "setWithExtensions", "activeInterpreter")
-  );
+  const { withExtensions, setWithExtensions, activeInterpreter } = useProgramStorage();
 
   const runProgram = (
     <Button data-runprogram-3 onClick={incrementProgramId} className="gap-2">
@@ -58,6 +56,7 @@ export function Header() {
                 </div>
               ) : null}
               <ExampleSelector />
+              <TranslateProgram />
             </div>
             {runProgram}
           </div>
@@ -92,6 +91,7 @@ export function Header() {
                   </div>
                 ) : null}
                 <ExampleSelector />
+                <TranslateProgram />
                 <Export />
                 <Help />
               </SheetContent>

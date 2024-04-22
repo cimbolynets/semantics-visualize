@@ -8,8 +8,8 @@ import { RenderInMode } from "./RenderInMode";
 interface RenderSOSProps {}
 
 export const RenderSOS: FC<RenderSOSProps> = () => {
-  const [sequence, setSequence] = useState<IConfig[]>([]);
   const { programText, variables, programId } = useProgramStorage();
+  const [sequence, setSequence] = useState<IConfig[]>([]);
   const [states, setStates] = useState<string[]>([]);
 
   const setOutput = useOutputStorage((state) => state.setOutput);

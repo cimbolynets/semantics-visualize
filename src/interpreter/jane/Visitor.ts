@@ -1,5 +1,3 @@
-// need to import from here, otherwise instance of won't work
-
 import {
   AssignContext,
   BlockContext,
@@ -55,14 +53,9 @@ export default class Visitor implements JaneVisitor<object> {
   private withoutExtensions: boolean;
   private noEval: boolean;
 
-  constructor(
-    errors: IEditorError[],
-    variables: Memory,
-    withoutExtensions = false,
-    noEval = false
-  ) {
+  constructor(variables: Memory, noEval = false, withoutExtensions = false) {
     this.scope = new Scope({ ...variables });
-    this.errors = errors ?? [];
+    this.errors = [];
     this.scopeStack = [];
     this.withoutExtensions = withoutExtensions;
     this.noEval = noEval;
@@ -100,7 +93,10 @@ export default class Visitor implements JaneVisitor<object> {
   };
 
   // Visit a parse tree produced by JaneParser#instruction.
-  visitInstruction = (ctx: InstructionContext, noEval = false): Instruction<InstructionValue> => {
+  visitInstruction = (
+    ctx: InstructionContext,
+    noEval = this.noEval
+  ): Instruction<InstructionValue> => {
     const state = structuredClone(this.scope.memory);
     let instr: ReturnType<
       | typeof this.visitBranch
@@ -147,7 +143,7 @@ export default class Visitor implements JaneVisitor<object> {
   };
 
   // Visit a parse tree produced by JaneParser#cycle.
-  visitCycle = (ctx: CycleContext, noEval = false): CycleValue => {
+  visitCycle = (ctx: CycleContext, noEval = this.noEval): CycleValue => {
     const iters = [];
     const instructionSequence = ctx.instructionSequence();
     const instruction = ctx.instruction();
@@ -209,7 +205,7 @@ export default class Visitor implements JaneVisitor<object> {
   };
 
   // Visit a parse tree produced by JaneParser#branch.
-  visitBranch = (ctx: BranchContext, noEval = false): BranchValue => {
+  visitBranch = (ctx: BranchContext, noEval = this.noEval): BranchValue => {
     const { children } = ctx;
     if (!children) {
       this.errors.push(createIEditorError(ctx, "Branch has no body"));
@@ -262,8 +258,7 @@ export default class Visitor implements JaneVisitor<object> {
     };
   };
 
-  // Visit a parse tree produced by JaneParser#assign.
-  visitAssign = (ctx: AssignContext, noEval?: boolean): AssignmentValue => {
+  visitAssign = (ctx: AssignContext, noEval = this.noEval): AssignmentValue => {
     const expr = this.visitExpr(ctx.expr(), noEval);
     const id = ctx.Id().text;
     if (!noEval) this.scope.setVariable(id, expr.value);
@@ -284,7 +279,7 @@ export default class Visitor implements JaneVisitor<object> {
     };
   };
 
-  visitBlock = (ctx: BlockContext, noEval?: boolean): BlockValue => {
+  visitBlock = (ctx: BlockContext, noEval = this.noEval): BlockValue => {
     const declCtx = ctx.decl();
     const procsCtx = ctx.procs();
     if (noEval) {
@@ -332,11 +327,11 @@ export default class Visitor implements JaneVisitor<object> {
     };
   };
 
-  visitProcs = (ctx: ProcsContext, noEval = false): ProcDefinitionValue[] => {
+  visitProcs = (ctx: ProcsContext, noEval = this.noEval): ProcDefinitionValue[] => {
     return ctx.procDefinition().map((proc) => this.visitProcDefinition(proc, noEval));
   };
 
-  visitProcDefinition = (ctx: ProcDefinitionContext, noEval?: boolean): ProcDefinitionValue => {
+  visitProcDefinition = (ctx: ProcDefinitionContext, noEval = this.noEval): ProcDefinitionValue => {
     const body = ctx.instruction() ?? ctx.instructionSequence();
     if (!body) {
       throw new InterpreterError("Missing body for procedure", [
@@ -364,7 +359,7 @@ export default class Visitor implements JaneVisitor<object> {
     };
   };
 
-  visitProcCall = (ctx: ProcCallContext, noEval?: boolean): ProcCallValue => {
+  visitProcCall = (ctx: ProcCallContext, noEval = this.noEval): ProcCallValue => {
     const procId = ctx.Id().text;
     if (noEval) {
       return { type: "procCall", text: `call ${procId}` };
@@ -390,7 +385,7 @@ export default class Visitor implements JaneVisitor<object> {
     return { type: "procCall", text: `call ${procId}`, body, memoryBefore, memoryAfter };
   };
 
-  visitDecl = (ctx: DeclContext, noEval?: boolean): DeclarationValue => {
+  visitDecl = (ctx: DeclContext, noEval = this.noEval): DeclarationValue => {
     const assignments = ctx.assign().map((assignCtx) => this.visitAssign(assignCtx, noEval));
 
     return {
@@ -400,15 +395,14 @@ export default class Visitor implements JaneVisitor<object> {
     };
   };
 
-  // Visit a parse tree produced by JaneParser#stats.
-  visitStats = (ctx: StatsContext): VisitStatsResult => {
+  visitStats = (ctx: StatsContext, noEval = this.noEval): VisitStatsResult => {
     const stats = ctx.stat();
     if (!stats) {
       return { value: true, text: "" };
     }
     return stats.reduce(
       (acc, c, i) => {
-        const stat = this.visitStat(c);
+        const stat = this.visitStat(c, noEval);
         return {
           value: acc.value && stat.value,
           text: acc.text + (i > 1 ? " and " : "") + stat.text,
@@ -418,25 +412,24 @@ export default class Visitor implements JaneVisitor<object> {
     );
   };
 
-  // Visit a parse tree produced by JaneParser#stat.
-  visitStat = (ctx: StatContext) => {
+  visitStat = (ctx: StatContext, noEval = this.noEval) => {
     const statsCtx = ctx.stats();
     const exprs = ctx.expr();
     if (ctx.Not() && statsCtx) {
-      const stats = this.visitStats(statsCtx);
+      const stats = this.visitStats(statsCtx, noEval);
       return {
         value: !stats.value,
         text: "!(" + stats.text + ")",
       };
     } else if (ctx.Lpar() && statsCtx) {
-      const stats = this.visitStats(statsCtx);
+      const stats = this.visitStats(statsCtx, noEval);
       return {
         value: stats.value,
         text: "(" + stats.text + ")",
       };
     } else if (exprs.length === 2) {
-      const leftOp = this.visitExpr(exprs[0]),
-        rightOp = this.visitExpr(exprs[1]);
+      const leftOp = this.visitExpr(exprs[0], noEval),
+        rightOp = this.visitExpr(exprs[1], noEval);
       if (ctx.Eq()) {
         return {
           value: leftOp.value === rightOp.value,
@@ -455,8 +448,7 @@ export default class Visitor implements JaneVisitor<object> {
     };
   };
 
-  // Visit a parse tree produced by JaneParser#expr.
-  visitExpr = (ctx: ExprContext, noEval?: boolean): { value: number; text: string } => {
+  visitExpr = (ctx: ExprContext, noEval = this.noEval): { value: number; text: string } => {
     if (!ctx.children) return { value: 0, text: "" };
     let op = "+";
     return ctx.children.reduce(
@@ -479,7 +471,7 @@ export default class Visitor implements JaneVisitor<object> {
   };
 
   // Visit a parse tree produced by JaneParser#mul.
-  visitMul = (ctx: MulContext, noEval?: boolean): { value: number; text: string } => {
+  visitMul = (ctx: MulContext, noEval = this.noEval): { value: number; text: string } => {
     return ctx.term().reduce(
       (acc, c, i) => {
         const term = this.visitTerm(c, noEval);
@@ -490,7 +482,7 @@ export default class Visitor implements JaneVisitor<object> {
   };
 
   // Visit a parse tree produced by JaneParser#term.
-  visitTerm = (ctx: TermContext, noEval?: boolean) => {
+  visitTerm = (ctx: TermContext, noEval = this.noEval) => {
     const expr = ctx.expr();
     const id = ctx.Id();
     const value = ctx.Value();

@@ -56,11 +56,11 @@ export function generateVisitedTreeJane(
   input: string,
   variables: Record<string, number>,
   noEval = false,
-  withoutExtensions = false,
+  withoutExtensions = false
 ): [VisitorResult, Visitor] {
   const tree = createParseTreeJane(input);
 
-  const visitor = new Visitor([], variables, withoutExtensions, noEval);
+  const visitor = new Visitor(variables, noEval, withoutExtensions);
   const visited = tree.accept(visitor) as InstructionSequence;
 
   return [visited, visitor];
