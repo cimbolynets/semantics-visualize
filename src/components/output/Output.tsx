@@ -1,6 +1,7 @@
 import { InterpreterError } from "@/interpreter/InterpreterError";
-import { useProgramStorage } from "@/lib/storage/programStorage";
+import { ProgramStorage, useProgramStorage } from "@/lib/storage/programStorage";
 import { cn } from "@/lib/utils";
+import { pick } from "lodash";
 import { HTMLAttributes, useEffect, useRef } from "react";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import { EditorError } from "../EditorError";
@@ -37,16 +38,22 @@ function ErrorComponent({ error, resetErrorBoundary }: FallbackProps) {
 interface OutputProps extends HTMLAttributes<HTMLDivElement> {}
 
 export default function Output(props: OutputProps) {
-  const activeInterpreter = useProgramStorage((state) => state.activeInterpreter);
+  const { semanticMethod, programLanguage } = useProgramStorage(
+    (state) =>
+      pick(state, "semanticMethod", "programLanguage") as Pick<
+        ProgramStorage,
+        "semanticMethod" | "programLanguage"
+      >
+  );
 
   return (
     <div {...props} className={cn("output", props.className)}>
       <ErrorBoundary FallbackComponent={ErrorComponent}>
-        {activeInterpreter === "ns" ? (
+        {semanticMethod === "ns" ? (
           <RenderNS />
-        ) : activeInterpreter === "am" ? (
+        ) : semanticMethod === "sos" && programLanguage === "am" ? (
           <RenderAM />
-        ) : activeInterpreter === "sos" ? (
+        ) : semanticMethod === "sos" && programLanguage === "jane" ? (
           <RenderSOS />
         ) : null}
       </ErrorBoundary>

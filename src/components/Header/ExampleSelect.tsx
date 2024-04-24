@@ -17,9 +17,8 @@ export const ExampleSelector: FC = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button data-runprogram-1 className="flex gap-2">
-          {(
-            examples.find((e) => e.value === storage.programText)?.name ?? "Select example"
-          ).toUpperCase()}{" "}
+          {examples.find((e) => e.value === storage.programText)?.name ??
+            "Select example".toUpperCase()}{" "}
           <ChevronDown />
         </Button>
       </DropdownMenuTrigger>

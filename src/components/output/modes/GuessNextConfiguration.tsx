@@ -37,7 +37,7 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
   nextConfig,
   revealNext,
 }) => {
-  const activeInterpreter = useProgramStorage((state) => state.activeInterpreter);
+  const programLanguage = useProgramStorage((state) => state.programLanguage);
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<"success" | "failure" | undefined>(undefined);
   const [guessedConfig, setGuessedConfig] = useState<string | undefined>("");
@@ -50,9 +50,9 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
     if (!guessedConfig) return;
     try {
       const MakeSequence =
-        activeInterpreter === "am"
+        programLanguage === "am"
           ? MakeSequenceAM
-          : activeInterpreter === "sos"
+          : programLanguage === "jane"
           ? MakeSequenceSOS
           : undefined;
       if (!MakeSequence) return;
@@ -71,7 +71,7 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
   };
 
   const inputExample =
-    activeInterpreter === "sos" ? (
+    programLanguage === "jane" ? (
       <>
         <MathRenderer className="!p-0">{String.raw`${a("i")} = \langle `}</MathRenderer>
         <span className="bg-blue-400">...</span>
@@ -79,7 +79,7 @@ export const GuessNextConfiguration: FC<GuessNextConfigurationProps> = ({
           "i+1"
         )}`}</MathRenderer>
       </>
-    ) : activeInterpreter === "am" ? (
+    ) : programLanguage === "am" ? (
       <>
         <MathRenderer className="!p-0">{String.raw`${a("i")} = \langle `}</MathRenderer>
         <span className="bg-blue-400">...</span>

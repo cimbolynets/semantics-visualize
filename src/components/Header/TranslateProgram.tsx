@@ -12,18 +12,18 @@ export const TranslateProgram: FC<TranslateProgramProps> = () => {
     setVariables,
     programText,
     setProgramText,
-    withExtensions,
-    activeInterpreter,
-    setActiveInterpreter,
+    setSemanticMethod,
+    programLanguage,
+    setProgramLanguage,
   } = useProgramStorage();
 
-  const shouldEnableTranslationToAM =
-    activeInterpreter === "sos" || (activeInterpreter === "ns" && withExtensions === false);
+  const shouldEnableTranslationToAM = programLanguage === "jane";
 
   const translateToAM = () => {
     if (!programText || !shouldEnableTranslationToAM) return;
     const prevVariables = variables;
-    setActiveInterpreter("am");
+    setSemanticMethod("sos");
+    setProgramLanguage("am");
     setVariables(prevVariables);
     setProgramText(janeToAM(programText));
   };

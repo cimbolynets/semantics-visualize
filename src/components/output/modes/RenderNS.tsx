@@ -16,7 +16,7 @@ interface RenderNSProps {}
 export const RenderNS: FC<RenderNSProps> = () => {
   const [mode, setMode] = useState<Mode>("tree");
   const [tree, setTree] = useState<Tree | Tree[] | undefined>();
-  const { programText, variables, programId, withExtensions } = useProgramStorage();
+  const { programText, variables, programId, programLanguage } = useProgramStorage();
   const [states, setStates] = useState<string[]>([]);
   const [envs, setEnvs] = useState<string[] | undefined>([]);
   const setOutput = useOutputStorage((state) => state.setOutput);
@@ -24,9 +24,9 @@ export const RenderNS: FC<RenderNSProps> = () => {
   useEffect(() => {
     if (!programText) return;
     const ms = new MakeSequenceNS();
-    const tree = ms.getSequence(programText, variables ?? {}, false, !withExtensions);
+    const tree = ms.getSequence(programText, variables ?? {}, false, programLanguage === "jane");
     setStates(ms.getStates());
-    setEnvs(withExtensions ? ms.getEnvs() : undefined);
+    setEnvs(programLanguage === "jane-extended" ? ms.getEnvs() : undefined);
     setTree(tree);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }, [programId]);
@@ -43,7 +43,11 @@ export const RenderNS: FC<RenderNSProps> = () => {
   return (
     <>
       <div className="output-controls">
-        {withExtensions ? <Scopes states={states} envs={envs ?? []} /> : <States states={states} />}
+        {programLanguage === "jane-extended" ? (
+          <Scopes states={states} envs={envs ?? []} />
+        ) : (
+          <States states={states} />
+        )}
         <Tabs value={mode} onValueChange={(v) => setMode(v as Mode)}>
           <TabsList>
             <TabsTrigger value="tree">Tree</TabsTrigger>

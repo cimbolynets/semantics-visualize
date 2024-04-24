@@ -1,13 +1,28 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useMediaBreakpointUp } from "@/lib/hooks/useMediaBreakpointUp";
 import { useProgramStorage } from "@/lib/storage/programStorage";
+import { tailwindConfig } from "@/lib/tailwindConfig";
 import html2canvas from "html2canvas";
-import { Image } from "lucide-react";
+import { ChevronDown, Image } from "lucide-react";
 import { FC, useMemo, useRef, useState } from "react";
 import { SequenceBody } from "../output/SequenceBody";
 import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import "./export.css";
 
 type ExportType = "sequence" | "states" | "envs" | "whole";
+
+const exportTypes: Array<{ name: string; value: ExportType }> = [
+  { value: "sequence", name: "Only sequence" },
+  { value: "states", name: "Only states" },
+  { value: "envs", name: "Only environments" },
+  { value: "whole", name: "Everything" },
+];
 
 interface ExportImageProps {
   sequence: string[];
@@ -16,7 +31,8 @@ interface ExportImageProps {
 }
 
 export const ExportImage: FC<ExportImageProps> = ({ sequence, states, envs }) => {
-  const withExtensions = useProgramStorage((state) => state.withExtensions);
+  const isLarge = useMediaBreakpointUp(tailwindConfig.theme.screens.lg);
+  const programLanguage = useProgramStorage((state) => state.programLanguage);
 
   const [exportType, setExportType] = useState<ExportType>("whole");
   const sequenceRef = useRef<HTMLDivElement | null>(null);
@@ -45,9 +61,9 @@ export const ExportImage: FC<ExportImageProps> = ({ sequence, states, envs }) =>
       case "whole":
         return [...sequence, ...states, ...(envs ?? [])];
     }
-    if (withExtensions && exportType === "envs") return envs ?? [];
+    if (programLanguage === "jane-extended" && exportType === "envs") return envs ?? [];
     return [];
-  }, [exportType, withExtensions]);
+  }, [exportType, programLanguage]);
 
   return (
     <>
@@ -55,14 +71,37 @@ export const ExportImage: FC<ExportImageProps> = ({ sequence, states, envs }) =>
         <h3 className="flex items-center gap-2">
           Download as image <Image />
         </h3>
-        <Tabs value={exportType} onValueChange={(v) => setExportType(v as ExportType)}>
-          <TabsList>
-            <TabsTrigger value="sequence">Only sequence</TabsTrigger>
-            <TabsTrigger value="states">Only states</TabsTrigger>
-            {envs ? <TabsTrigger value="envs">Only environments</TabsTrigger> : null}
-            <TabsTrigger value="whole">Everything</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        {isLarge ? (
+          <Tabs value={exportType} onValueChange={(v) => setExportType(v as ExportType)}>
+            <TabsList>
+              {exportTypes.map((et) =>
+                !envs && et.value === "envs" ? null : (
+                  <TabsTrigger key={et.value} value={et.value}>
+                    {et.name}
+                  </TabsTrigger>
+                )
+              )}
+            </TabsList>
+          </Tabs>
+        ) : (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button data-runprogram-0="right" className="flex gap-2">
+                {exportTypes.find((et) => et.value === exportType)?.name ?? "Select export type"}{" "}
+                <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {exportTypes.map((et) =>
+                !envs && et.value === "envs" ? null : (
+                  <DropdownMenuItem key={et.value} onClick={() => setExportType(et.value)}>
+                    {et.name}
+                  </DropdownMenuItem>
+                )
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         <Button variant="secondary" onClick={downloadImage} className="gap-2">
           Download
         </Button>

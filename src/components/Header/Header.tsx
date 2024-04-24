@@ -7,7 +7,6 @@ import { Help } from "../Help";
 import ThemeContext from "../ThemeContext";
 import { Export } from "../export/Export";
 import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { DefaultHeaderButton } from "./DefaultHeaderButton";
 import { ExampleSelector } from "./ExampleSelect";
@@ -20,7 +19,6 @@ export function Header() {
   const incrementProgramId = useProgramStorage((state) => {
     return () => state.setProgramId(state.programId + 1);
   });
-  const { withExtensions, setWithExtensions, activeInterpreter } = useProgramStorage();
 
   const runProgram = (
     <Button data-runprogram-3 onClick={incrementProgramId} className="gap-2">
@@ -45,16 +43,6 @@ export function Header() {
           <div className="flex">
             <div className="flex items-center gap-2 mr-2">
               <InterpreterSelector />
-              {activeInterpreter === "ns" ? (
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="with-extensions-toggle"
-                    checked={withExtensions}
-                    onCheckedChange={setWithExtensions}
-                  />
-                  <label htmlFor="with-extensions-toggle">With extensions</label>
-                </div>
-              ) : null}
               <ExampleSelector />
               <TranslateProgram />
             </div>
@@ -80,16 +68,6 @@ export function Header() {
                 className="max-w-full flex flex-col gap-4 h-full transition-all pt-10"
               >
                 <InterpreterSelector />
-                {activeInterpreter === "ns" ? (
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="with-extensions-toggle"
-                      checked={withExtensions}
-                      onCheckedChange={setWithExtensions}
-                    />
-                    <label htmlFor="with-extensions-toggle">With extensions</label>
-                  </div>
-                ) : null}
                 <ExampleSelector />
                 <TranslateProgram />
                 <Export />

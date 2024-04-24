@@ -1,10 +1,11 @@
 import ThemeContext from "@/components/ThemeContext";
 import { transformToSpecialSymbols } from "@/lib/specialSymbols/replaceSymbols";
 import specialSymbols from "@/lib/specialSymbols/specialSymbols";
-import { useProgramStorage } from "@/lib/storage/programStorage";
+import { ProgramStorage, useProgramStorage } from "@/lib/storage/programStorage";
 import { cn } from "@/lib/utils";
 import { IEditorError, IEditorPosition, Memory } from "@/types";
 import { Editor, EditorProps, Monaco } from "@monaco-editor/react";
+import { pick } from "lodash";
 import { IPosition, Selection, editor } from "monaco-editor";
 import { useContext, useEffect, useRef } from "react";
 import { CODE_CHANGED, CONFIG_CHANGED } from "./constants";
@@ -86,8 +87,13 @@ export default function CodeEditor({
   // can display them in the editor by using standard error display mechanism of monaco editor
   const validation = useRef<Worker | undefined>(undefined);
   const editorRef = useRef<editor.IStandaloneCodeEditor>(null);
-  const activeInterpreter = useProgramStorage((state) => state.activeInterpreter);
-  const withExtensions = useProgramStorage((state) => state.withExtensions);
+  const { semanticMethod, programLanguage } = useProgramStorage(
+    (state) =>
+      pick(state, "semanticMethod", "programLanguage") as Pick<
+        ProgramStorage,
+        "semanticMethod" | "programLanguage"
+      >
+  );
   const theme = useContext(ThemeContext).theme?.editorTheme;
 
   useEffect(() => {
@@ -110,10 +116,10 @@ export default function CodeEditor({
   useEffect(() => {
     validation.current?.postMessage({
       type: CONFIG_CHANGED,
-      activeInterpreter,
-      withExtensions,
+      semanticMethod,
+      programLanguage,
     });
-  }, [activeInterpreter, withExtensions]);
+  }, [semanticMethod, programLanguage]);
 
   // update errors when variables are changed
   useEffect(() => {
@@ -135,8 +141,8 @@ export default function CodeEditor({
     // sending initial code for validation.current
     validation.current?.postMessage({
       type: CONFIG_CHANGED,
-      activeInterpreter,
-      withExtensions,
+      semanticMethod,
+      programLanguage,
     });
     validation.current?.postMessage({
       type: CODE_CHANGED,

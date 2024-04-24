@@ -21,13 +21,11 @@ const janeBasicExamples: IExample[] = [
   { name: "Swap variables", value: swapVariablesJane, variables: { x: 5, y: 10 } },
 ];
 
-const nsExamples: IExample[] = [
+const janeExtendedExamples: IExample[] = [
   ...janeBasicExamples,
   { name: "Procedures factorial", value: factorialProc },
   { name: "Blocks and procedures", value: blocksAndProcedures },
 ];
-
-const sosExamples: IExample[] = [...janeBasicExamples];
 
 const abstractMachineExamples: IExample[] = [
   {
@@ -42,17 +40,34 @@ const abstractMachineExamples: IExample[] = [
   },
 ];
 
-export type Interpreters = "ns" | "sos" | "am";
+export type SemanticMethod = "ns" | "sos";
+export type ProgramLanguage = "jane" | "jane-extended" | "am";
+
+export const semanticMethods: Array<{ name: string; value: SemanticMethod }> = [
+  { name: "Natural semantics", value: "ns" },
+  { name: "Structural operational semantics", value: "sos" },
+];
+
+export const programLanguages: Array<{ name: string; value: ProgramLanguage }> = [
+  { name: "Jane", value: "jane" },
+  { name: "Jane Extended", value: "jane-extended" },
+  { name: "Abstract Machine", value: "am" },
+];
+
+export const allowedCombinations: Record<SemanticMethod, ProgramLanguage[]> = {
+  ns: ["jane", "jane-extended"],
+  sos: ["jane", "am"],
+};
 
 export type ProgramStorage = {
   getActiveExamples: () => IExample[];
-  activeInterpreter: Interpreters;
-  setActiveInterpreter: (a: Interpreters) => void;
+  semanticMethod: SemanticMethod;
+  setSemanticMethod: (a: SemanticMethod) => void;
+  programLanguage: ProgramLanguage;
+  setProgramLanguage: (l: ProgramLanguage) => void;
   programText?: string;
   setProgramText: (v?: string) => void;
   variables: Memory;
-  withExtensions: boolean;
-  setWithExtensions: (v: boolean) => void;
   setVariables: (m: Memory) => void;
   programId: number;
   setProgramId: (id: number) => void;
@@ -62,26 +77,44 @@ export const useProgramStorage = create<ProgramStorage>()(
   persist<ProgramStorage>(
     (set, get) => ({
       getActiveExamples() {
-        switch (this.activeInterpreter) {
-          case "ns":
-            return get().withExtensions ? nsExamples : janeBasicExamples;
-          case "sos":
-            return sosExamples;
+        const lang = get().programLanguage;
+        switch (lang) {
+          case "jane":
+            return janeBasicExamples;
+          case "jane-extended":
+            return janeExtendedExamples;
           case "am":
             return abstractMachineExamples;
           default:
             return [];
         }
       },
-      activeInterpreter: "ns",
       programText: "",
       variables: {},
-      withExtensions: false,
-      setWithExtensions(withExtensions) {
-        set(() => ({ withExtensions }));
+      semanticMethod: "ns",
+      setSemanticMethod: (method: SemanticMethod) => {
+        set((state) => {
+          return {
+            semanticMethod: method,
+            programLanguage: allowedCombinations[method].includes(state.programLanguage)
+              ? state.programLanguage
+              : allowedCombinations[method][0],
+            programText: "",
+            variables: {},
+          };
+        });
       },
-      setActiveInterpreter(a) {
-        set(() => ({ programText: "", variables: {}, activeInterpreter: a }));
+      programLanguage: "jane",
+      setProgramLanguage: (lang: ProgramLanguage) => {
+        set((state) => {
+          return {
+            programLanguage: allowedCombinations[state.semanticMethod].includes(lang)
+              ? lang
+              : state.programLanguage,
+            programText: "",
+            variables: {},
+          };
+        });
       },
       setProgramText(v) {
         set(() => ({ programText: v }));
