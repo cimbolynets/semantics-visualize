@@ -43,8 +43,8 @@ export function Header() {
           <div className="flex">
             <div className="flex items-center gap-2 mr-2">
               <InterpreterSelector />
-              <ExampleSelector />
               <TranslateProgram />
+              <ExampleSelector />
             </div>
             {runProgram}
           </div>
@@ -68,8 +68,8 @@ export function Header() {
                 className="max-w-full flex flex-col gap-4 h-full transition-all pt-10"
               >
                 <InterpreterSelector />
-                <ExampleSelector />
                 <TranslateProgram />
+                <ExampleSelector />
                 <Export />
                 <Help />
               </SheetContent>

@@ -4,7 +4,7 @@ import {
   semanticMethods,
   useProgramStorage,
 } from "@/lib/storage/programStorage";
-import { ChevronDown } from "lucide-react";
+import { FunctionSquareIcon, LanguagesIcon } from "lucide-react";
 import { FC } from "react";
 import { Button } from "../ui/button";
 import {
@@ -26,7 +26,7 @@ export const InterpreterSelector: FC = () => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button data-runprogram-0="right" className="flex gap-2">
-            {activeMethodName} <ChevronDown />
+            {activeMethodName} <FunctionSquareIcon />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -40,7 +40,7 @@ export const InterpreterSelector: FC = () => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button data-runprogram-0="right" className="flex gap-2">
-            {activeLanguageName} <ChevronDown />
+            {activeLanguageName} <LanguagesIcon />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>

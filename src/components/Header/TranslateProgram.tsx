@@ -1,6 +1,6 @@
 import { janeToAM } from "@/interpreter/jane/translate";
 import { useProgramStorage } from "@/lib/storage/programStorage";
-import { LanguagesIcon } from "lucide-react";
+import { ArrowLeftRightIcon } from "lucide-react";
 import { FC } from "react";
 import { Button } from "../ui/button";
 
@@ -30,7 +30,7 @@ export const TranslateProgram: FC<TranslateProgramProps> = () => {
 
   return shouldEnableTranslationToAM ? (
     <Button onClick={translateToAM} className="gap-2">
-      Translate to AM <LanguagesIcon />
+      Translate to AM <ArrowLeftRightIcon />
     </Button>
   ) : null;
 };
