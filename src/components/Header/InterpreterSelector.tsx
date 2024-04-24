@@ -18,7 +18,6 @@ export const InterpreterSelector: FC = () => {
   const { semanticMethod, setSemanticMethod, programLanguage, setProgramLanguage } =
     useProgramStorage();
 
-  const activeMethodName = semanticMethods.find((item) => item.value === semanticMethod)?.name;
   const activeLanguageName = programLanguages.find((item) => item.value === programLanguage)?.name;
 
   return (
@@ -26,7 +25,7 @@ export const InterpreterSelector: FC = () => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button data-runprogram-0="right" className="flex gap-2">
-          <FunctionSquareIcon /> {activeMethodName} <ChevronDownIcon />
+          <FunctionSquareIcon /> {semanticMethod.toUpperCase()} <ChevronDownIcon />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
