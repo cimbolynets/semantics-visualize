@@ -56,9 +56,9 @@ export class MakeSequenceAM implements IMakeSequence<IConfig[]> {
           .map((entry) => entry)
           .join(":")
       : "";
-    return String.raw`${a(this.configNumber)} \ =  \ \langle ${text(
-      configText + cyclePart
-    )}, ${parseStack(stack)}, ${s(this.nextStateNumber - 1)} \rangle \ = \! \gg  ${a(
+    return String.raw`${a(this.configNumber)} \ =  \ \langle ${
+      configText !== "\\mathscr{e}" ? text(configText + cyclePart) : configText
+    }, ${parseStack(stack)}, ${s(this.nextStateNumber - 1)} \rangle \ = \! \gg  ${a(
       this.configNumber + 1
     )}`;
   };
@@ -333,7 +333,7 @@ export class MakeSequenceAM implements IMakeSequence<IConfig[]> {
     this.changeState(variables);
     const finalSequence = [
       ...this.traverse(tree?.children),
-      { text: this.parseTransition("c", visitor.getStack(), []) },
+      { text: this.parseTransition("\\mathscr{e}", visitor.getStack(), []).split("= \\! \\gg")[0] },
     ];
     return finalSequence;
   }

@@ -109,7 +109,10 @@ export class MakeSequenceNS implements IMakeSequence<Tree | Tree[] | undefined> 
     const targetBranch = instr.value.isTrue ? instr.value.ifBranch : instr.value.elBranch;
     const branchBody = this.traverse(targetBranch);
     return [
-      ...(Array.isArray(branchBody) ? branchBody : [branchBody]),
+      {
+        text: envpa(this.getNextEnvNumber() - 1, this.withoutExtensions) + instr.text,
+        children: Array.isArray(branchBody) ? branchBody : [branchBody],
+      },
       { text: formatCondition(instr.value.conditionText, instr.value.isTrue, stateBeforeBranch) },
     ];
   };

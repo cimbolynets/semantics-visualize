@@ -1,6 +1,7 @@
 import {
   AssignContext,
   BlockContext,
+  BoolContext,
   BranchContext,
   CycleContext,
   DeclContext,
@@ -25,6 +26,7 @@ import { TerminalNode } from "antlr4ts/tree/TerminalNode";
 import { InterpreterError } from "../InterpreterError";
 import { createIEditorError } from "../errorUtils";
 import { Scope } from "../ns/Scope";
+import { extractPositionFromCtx } from "../utils";
 import {
   AssignmentValue,
   BlockValue,
@@ -38,7 +40,6 @@ import {
   ProcDefinitionValue,
   SkipValue,
 } from "./types";
-import { extractPositionFromCtx } from "../utils";
 
 export type VisitorResult = ReturnType<Visitor["visitInstructionSequence"]>;
 export type VisitorInstructionSequenceResult = ReturnType<Visitor["visitInstructionSequence"]>;
@@ -415,7 +416,9 @@ export default class Visitor implements JaneVisitor<object> {
   visitStat = (ctx: StatContext, noEval = this.noEval) => {
     const statsCtx = ctx.stats();
     const exprs = ctx.expr();
-    if (ctx.Not() && statsCtx) {
+    if (ctx.bool()) {
+      return this.visitBool(ctx.bool()!);
+    } else if (ctx.Not() && statsCtx) {
       const stats = this.visitStats(statsCtx, noEval);
       return {
         value: !stats.value,
@@ -445,6 +448,13 @@ export default class Visitor implements JaneVisitor<object> {
     return {
       value: false,
       text: "",
+    };
+  };
+
+  visitBool = (ctx: BoolContext) => {
+    return {
+      text: ctx.text,
+      value: ctx.True() ? true : false,
     };
   };
 

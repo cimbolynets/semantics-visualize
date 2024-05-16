@@ -17,6 +17,7 @@ import { ProcDefinitionContext } from "./JaneParser";
 import { ProcCallContext } from "./JaneParser";
 import { StatsContext } from "./JaneParser";
 import { StatContext } from "./JaneParser";
+import { BoolContext } from "./JaneParser";
 import { ExprContext } from "./JaneParser";
 import { MulContext } from "./JaneParser";
 import { TermContext } from "./JaneParser";
@@ -180,6 +181,17 @@ export interface JaneListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitStat?: (ctx: StatContext) => void;
+
+	/**
+	 * Enter a parse tree produced by `JaneParser.bool`.
+	 * @param ctx the parse tree
+	 */
+	enterBool?: (ctx: BoolContext) => void;
+	/**
+	 * Exit a parse tree produced by `JaneParser.bool`.
+	 * @param ctx the parse tree
+	 */
+	exitBool?: (ctx: BoolContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `JaneParser.expr`.

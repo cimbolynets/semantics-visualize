@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { JaneParser } from "@/grammar/jane/JaneParser";
-import { text } from "@/lib/utils/format";
+import { text, textbf } from "@/lib/utils/format";
 
 const wordPattern = /[A-Za-z]+/;
 const startPaddingPattern = /\\langle +\\ +/g;
@@ -16,7 +16,10 @@ export const addKeywordsPaddingJane = (str: string) => {
   // @ts-ignore
   const keywords = getKeywordsFromLiteralNames(JaneParser._LITERAL_NAMES);
   return keywords.reduce((acc, kw) => {
-    const withFormattedKeywords = acc.replaceAll(kw, String.raw` \ ${text(kw)} \ `);
+    const withFormattedKeywords = acc.replaceAll(
+      kw,
+      String.raw` \ ${kw === "true" || kw === "false" ? textbf(kw) : text(kw)} \ `
+    );
     return withFormattedKeywords
       .replaceAll(startPaddingPattern, "\\langle")
       .replaceAll(endPaddingPattern, ",");

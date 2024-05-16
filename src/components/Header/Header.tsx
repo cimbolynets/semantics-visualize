@@ -19,6 +19,7 @@ export function Header() {
   const incrementProgramId = useProgramStorage((state) => {
     return () => state.setProgramId(state.programId + 1);
   });
+  const reset = useProgramStorage((state) => state.reset);
 
   const runProgram = (
     <Button data-runprogram-3 onClick={incrementProgramId} className="gap-2">
@@ -76,7 +77,16 @@ export function Header() {
             </Sheet>
             {themeChange}
           </div>
-          {runProgram}
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              onClick={reset}
+              className="block lg:hidden"
+            >
+              Reset
+            </Button>
+            {runProgram}
+          </div>
         </>
       )}
     </header>

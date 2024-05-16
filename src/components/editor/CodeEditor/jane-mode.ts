@@ -1,6 +1,7 @@
 import { languages } from "monaco-editor";
 
 export const config: languages.LanguageConfiguration = {
+  // eslint-disable-next-line no-useless-escape
   wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\#\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g,
   brackets: [["(", ")"]],
   autoClosingPairs: [{ open: "(", close: ")" }],
@@ -14,7 +15,18 @@ export const config: languages.LanguageConfiguration = {
 };
 
 export const language: languages.IMonarchLanguage = {
-  keywords: ["if", "then", "else", "do", "while", "begin", "end", "var", "proc", "call"],
+  keywords: [
+    "if",
+    "then",
+    "else",
+    "do",
+    "while",
+    "begin",
+    "end",
+    "var",
+    "proc",
+    "call",
+  ],
   defaultToken: "invalid",
   brackets: [
     {
@@ -40,6 +52,7 @@ export const language: languages.IMonarchLanguage = {
       [/[()]/, "@brackets"],
       [/\d+/, "number"],
       [/[;]/, "delimiter"],
+      [/true|false/, "boolean"]
     ],
 
     whitespace: [[/[ \t\r\n]+/, "white"]],

@@ -9,6 +9,7 @@ import { ATN } from "antlr4ts/atn/ATN";
 import { ATNDeserializer } from "antlr4ts/atn/ATNDeserializer";
 import { ParserATNSimulator } from "antlr4ts/atn/ParserATNSimulator";
 //import { RuleVersion } from "antlr4ts/RuleVersion";
+import { Token } from "antlr4ts/Token";
 import { TokenStream } from "antlr4ts/TokenStream";
 import { Vocabulary } from "antlr4ts/Vocabulary";
 import { VocabularyImpl } from "antlr4ts/VocabularyImpl";
@@ -22,32 +23,34 @@ import { JaneVisitor } from "./JaneVisitor";
 export class JaneParser extends Parser {
   public static readonly Whitespace = 1;
   public static readonly Newline = 2;
-  public static readonly Skip = 3;
-  public static readonly Lpar = 4;
-  public static readonly Rpar = 5;
-  public static readonly And = 6;
-  public static readonly AssignSymbol = 7;
-  public static readonly While = 8;
-  public static readonly Do = 9;
-  public static readonly Then = 10;
-  public static readonly If = 11;
-  public static readonly Else = 12;
-  public static readonly Mult = 13;
-  public static readonly Plus = 14;
-  public static readonly Minus = 15;
-  public static readonly Not = 16;
-  public static readonly Leq = 17;
-  public static readonly Eq = 18;
-  public static readonly Semicolon = 19;
-  public static readonly Begin = 20;
-  public static readonly End = 21;
-  public static readonly Var = 22;
-  public static readonly Proc = 23;
-  public static readonly Is = 24;
-  public static readonly Call = 25;
-  public static readonly Colon = 26;
-  public static readonly Id = 27;
-  public static readonly Value = 28;
+  public static readonly If = 3;
+  public static readonly Then = 4;
+  public static readonly Else = 5;
+  public static readonly While = 6;
+  public static readonly Do = 7;
+  public static readonly Skip = 8;
+  public static readonly Begin = 9;
+  public static readonly End = 10;
+  public static readonly Var = 11;
+  public static readonly Proc = 12;
+  public static readonly Is = 13;
+  public static readonly Call = 14;
+  public static readonly And = 15;
+  public static readonly True = 16;
+  public static readonly False = 17;
+  public static readonly Lpar = 18;
+  public static readonly Rpar = 19;
+  public static readonly AssignSymbol = 20;
+  public static readonly Mult = 21;
+  public static readonly Plus = 22;
+  public static readonly Minus = 23;
+  public static readonly Not = 24;
+  public static readonly Leq = 25;
+  public static readonly Eq = 26;
+  public static readonly Semicolon = 27;
+  public static readonly Colon = 28;
+  public static readonly Id = 29;
+  public static readonly Value = 30;
   public static readonly RULE_program = 0;
   public static readonly RULE_instructionSequence = 1;
   public static readonly RULE_instruction = 2;
@@ -62,9 +65,10 @@ export class JaneParser extends Parser {
   public static readonly RULE_procCall = 11;
   public static readonly RULE_stats = 12;
   public static readonly RULE_stat = 13;
-  public static readonly RULE_expr = 14;
-  public static readonly RULE_mul = 15;
-  public static readonly RULE_term = 16;
+  public static readonly RULE_bool = 14;
+  public static readonly RULE_expr = 15;
+  public static readonly RULE_mul = 16;
+  public static readonly RULE_term = 17;
   // tslint:disable:no-trailing-whitespace
   public static readonly ruleNames: string[] = [
     "program",
@@ -81,6 +85,7 @@ export class JaneParser extends Parser {
     "procCall",
     "stats",
     "stat",
+    "bool",
     "expr",
     "mul",
     "term",
@@ -90,16 +95,24 @@ export class JaneParser extends Parser {
     undefined,
     undefined,
     undefined,
-    "'skip'",
-    "'('",
-    "')'",
-    "'and'",
-    "':='",
+    "'if'",
+    "'then'",
+    "'else'",
     "'while'",
     "'do'",
-    "'then'",
-    "'if'",
-    "'else'",
+    "'skip'",
+    "'begin'",
+    "'end'",
+    "'var'",
+    "'proc'",
+    "'is'",
+    "'call'",
+    "'and'",
+    "'true'",
+    "'false'",
+    "'('",
+    "')'",
+    "':='",
     "'*'",
     "'+'",
     "'-'",
@@ -107,28 +120,30 @@ export class JaneParser extends Parser {
     "'<='",
     "'='",
     "';'",
-    "'begin'",
-    "'end'",
-    "'var'",
-    "'proc'",
-    "'is'",
-    "'call'",
     "','",
   ];
   private static readonly _SYMBOLIC_NAMES: Array<string | undefined> = [
     undefined,
     "Whitespace",
     "Newline",
-    "Skip",
-    "Lpar",
-    "Rpar",
-    "And",
-    "AssignSymbol",
+    "If",
+    "Then",
+    "Else",
     "While",
     "Do",
-    "Then",
-    "If",
-    "Else",
+    "Skip",
+    "Begin",
+    "End",
+    "Var",
+    "Proc",
+    "Is",
+    "Call",
+    "And",
+    "True",
+    "False",
+    "Lpar",
+    "Rpar",
+    "AssignSymbol",
     "Mult",
     "Plus",
     "Minus",
@@ -136,12 +151,6 @@ export class JaneParser extends Parser {
     "Leq",
     "Eq",
     "Semicolon",
-    "Begin",
-    "End",
-    "Var",
-    "Proc",
-    "Is",
-    "Call",
     "Colon",
     "Id",
     "Value",
@@ -192,9 +201,9 @@ export class JaneParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 34;
+        this.state = 36;
         this.instructionSequence();
-        this.state = 35;
+        this.state = 37;
         this.match(JaneParser.EOF);
       }
     } catch (re) {
@@ -221,21 +230,21 @@ export class JaneParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 37;
+        this.state = 39;
         this.instruction();
-        this.state = 42;
+        this.state = 44;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         while (_la === JaneParser.Semicolon) {
           {
             {
-              this.state = 38;
+              this.state = 40;
               this.match(JaneParser.Semicolon);
-              this.state = 39;
+              this.state = 41;
               this.instruction();
             }
           }
-          this.state = 44;
+          this.state = 46;
           this._errHandler.sync(this);
           _la = this._input.LA(1);
         }
@@ -258,48 +267,48 @@ export class JaneParser extends Parser {
     let _localctx: InstructionContext = new InstructionContext(this._ctx, this.state);
     this.enterRule(_localctx, 4, JaneParser.RULE_instruction);
     try {
-      this.state = 51;
+      this.state = 53;
       this._errHandler.sync(this);
       switch (this._input.LA(1)) {
         case JaneParser.Id:
           this.enterOuterAlt(_localctx, 1);
           {
-            this.state = 45;
+            this.state = 47;
             this.assign();
           }
           break;
         case JaneParser.While:
           this.enterOuterAlt(_localctx, 2);
           {
-            this.state = 46;
+            this.state = 48;
             this.cycle();
           }
           break;
         case JaneParser.If:
           this.enterOuterAlt(_localctx, 3);
           {
-            this.state = 47;
+            this.state = 49;
             this.branch();
           }
           break;
         case JaneParser.Skip:
           this.enterOuterAlt(_localctx, 4);
           {
-            this.state = 48;
+            this.state = 50;
             this.skip();
           }
           break;
         case JaneParser.Begin:
           this.enterOuterAlt(_localctx, 5);
           {
-            this.state = 49;
+            this.state = 51;
             this.block();
           }
           break;
         case JaneParser.Call:
           this.enterOuterAlt(_localctx, 6);
           {
-            this.state = 50;
+            this.state = 52;
             this.procCall();
           }
           break;
@@ -326,33 +335,33 @@ export class JaneParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 53;
-        this.match(JaneParser.While);
-        this.state = 54;
-        this.stats();
         this.state = 55;
+        this.match(JaneParser.While);
+        this.state = 56;
+        this.stats();
+        this.state = 57;
         this.match(JaneParser.Do);
-        this.state = 61;
+        this.state = 63;
         this._errHandler.sync(this);
         switch (this._input.LA(1)) {
           case JaneParser.Lpar:
             {
-              this.state = 56;
-              this.match(JaneParser.Lpar);
-              this.state = 57;
-              this.instructionSequence();
               this.state = 58;
+              this.match(JaneParser.Lpar);
+              this.state = 59;
+              this.instructionSequence();
+              this.state = 60;
               this.match(JaneParser.Rpar);
             }
             break;
-          case JaneParser.Skip:
-          case JaneParser.While:
           case JaneParser.If:
+          case JaneParser.While:
+          case JaneParser.Skip:
           case JaneParser.Begin:
           case JaneParser.Call:
           case JaneParser.Id:
             {
-              this.state = 60;
+              this.state = 62;
               this.instruction();
             }
             break;
@@ -380,62 +389,62 @@ export class JaneParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 63;
-        this.match(JaneParser.If);
-        this.state = 64;
-        this.stats();
         this.state = 65;
+        this.match(JaneParser.If);
+        this.state = 66;
+        this.stats();
+        this.state = 67;
         this.match(JaneParser.Then);
-        this.state = 71;
+        this.state = 73;
         this._errHandler.sync(this);
         switch (this._input.LA(1)) {
           case JaneParser.Lpar:
             {
-              this.state = 66;
-              this.match(JaneParser.Lpar);
-              this.state = 67;
-              this.instructionSequence();
               this.state = 68;
+              this.match(JaneParser.Lpar);
+              this.state = 69;
+              this.instructionSequence();
+              this.state = 70;
               this.match(JaneParser.Rpar);
             }
             break;
-          case JaneParser.Skip:
-          case JaneParser.While:
           case JaneParser.If:
+          case JaneParser.While:
+          case JaneParser.Skip:
           case JaneParser.Begin:
           case JaneParser.Call:
           case JaneParser.Id:
             {
-              this.state = 70;
+              this.state = 72;
               this.instruction();
             }
             break;
           default:
             throw new NoViableAltException(this);
         }
-        this.state = 73;
+        this.state = 75;
         this.match(JaneParser.Else);
-        this.state = 79;
+        this.state = 81;
         this._errHandler.sync(this);
         switch (this._input.LA(1)) {
           case JaneParser.Lpar:
             {
-              this.state = 74;
-              this.match(JaneParser.Lpar);
-              this.state = 75;
-              this.instructionSequence();
               this.state = 76;
+              this.match(JaneParser.Lpar);
+              this.state = 77;
+              this.instructionSequence();
+              this.state = 78;
               this.match(JaneParser.Rpar);
             }
             break;
-          case JaneParser.Skip:
-          case JaneParser.While:
           case JaneParser.If:
+          case JaneParser.While:
+          case JaneParser.Skip:
           case JaneParser.Begin:
           case JaneParser.Call:
           case JaneParser.Id:
             {
-              this.state = 78;
+              this.state = 80;
               this.instruction();
             }
             break;
@@ -463,11 +472,11 @@ export class JaneParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 81;
-        this.match(JaneParser.Id);
-        this.state = 82;
-        this.match(JaneParser.AssignSymbol);
         this.state = 83;
+        this.match(JaneParser.Id);
+        this.state = 84;
+        this.match(JaneParser.AssignSymbol);
+        this.state = 85;
         this.expr();
       }
     } catch (re) {
@@ -490,7 +499,7 @@ export class JaneParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 85;
+        this.state = 87;
         this.match(JaneParser.Skip);
       }
     } catch (re) {
@@ -514,60 +523,60 @@ export class JaneParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 87;
+        this.state = 89;
         this.match(JaneParser.Begin);
-        this.state = 91;
+        this.state = 93;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         if (_la === JaneParser.Var) {
           {
-            this.state = 88;
+            this.state = 90;
             this.decl();
-            this.state = 89;
+            this.state = 91;
             this.match(JaneParser.Semicolon);
           }
         }
 
-        this.state = 96;
+        this.state = 98;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         if (_la === JaneParser.Proc) {
           {
-            this.state = 93;
+            this.state = 95;
             this.procs();
-            this.state = 94;
+            this.state = 96;
             this.match(JaneParser.Semicolon);
           }
         }
 
-        this.state = 103;
+        this.state = 105;
         this._errHandler.sync(this);
         switch (this._input.LA(1)) {
           case JaneParser.Lpar:
             {
-              this.state = 98;
-              this.match(JaneParser.Lpar);
-              this.state = 99;
-              this.instructionSequence();
               this.state = 100;
+              this.match(JaneParser.Lpar);
+              this.state = 101;
+              this.instructionSequence();
+              this.state = 102;
               this.match(JaneParser.Rpar);
             }
             break;
-          case JaneParser.Skip:
-          case JaneParser.While:
           case JaneParser.If:
+          case JaneParser.While:
+          case JaneParser.Skip:
           case JaneParser.Begin:
           case JaneParser.Call:
           case JaneParser.Id:
             {
-              this.state = 102;
+              this.state = 104;
               this.instruction();
             }
             break;
           default:
             throw new NoViableAltException(this);
         }
-        this.state = 105;
+        this.state = 107;
         this.match(JaneParser.End);
       }
     } catch (re) {
@@ -591,21 +600,21 @@ export class JaneParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 107;
+        this.state = 109;
         this.procDefinition();
-        this.state = 112;
+        this.state = 114;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         while (_la === JaneParser.Colon) {
           {
             {
-              this.state = 108;
+              this.state = 110;
               this.match(JaneParser.Colon);
-              this.state = 109;
+              this.state = 111;
               this.procDefinition();
             }
           }
-          this.state = 114;
+          this.state = 116;
           this._errHandler.sync(this);
           _la = this._input.LA(1);
         }
@@ -631,23 +640,23 @@ export class JaneParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 115;
+        this.state = 117;
         this.match(JaneParser.Var);
-        this.state = 116;
+        this.state = 118;
         this.assign();
-        this.state = 121;
+        this.state = 123;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         while (_la === JaneParser.Colon) {
           {
             {
-              this.state = 117;
+              this.state = 119;
               this.match(JaneParser.Colon);
-              this.state = 118;
+              this.state = 120;
               this.assign();
             }
           }
-          this.state = 123;
+          this.state = 125;
           this._errHandler.sync(this);
           _la = this._input.LA(1);
         }
@@ -672,33 +681,33 @@ export class JaneParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 124;
-        this.match(JaneParser.Proc);
-        this.state = 125;
-        this.match(JaneParser.Id);
         this.state = 126;
+        this.match(JaneParser.Proc);
+        this.state = 127;
+        this.match(JaneParser.Id);
+        this.state = 128;
         this.match(JaneParser.Is);
-        this.state = 132;
+        this.state = 134;
         this._errHandler.sync(this);
         switch (this._input.LA(1)) {
           case JaneParser.Lpar:
             {
-              this.state = 127;
-              this.match(JaneParser.Lpar);
-              this.state = 128;
-              this.instructionSequence();
               this.state = 129;
+              this.match(JaneParser.Lpar);
+              this.state = 130;
+              this.instructionSequence();
+              this.state = 131;
               this.match(JaneParser.Rpar);
             }
             break;
-          case JaneParser.Skip:
-          case JaneParser.While:
           case JaneParser.If:
+          case JaneParser.While:
+          case JaneParser.Skip:
           case JaneParser.Begin:
           case JaneParser.Call:
           case JaneParser.Id:
             {
-              this.state = 131;
+              this.state = 133;
               this.instruction();
             }
             break;
@@ -726,9 +735,9 @@ export class JaneParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 134;
+        this.state = 136;
         this.match(JaneParser.Call);
-        this.state = 135;
+        this.state = 137;
         this.match(JaneParser.Id);
       }
     } catch (re) {
@@ -752,21 +761,21 @@ export class JaneParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 137;
+        this.state = 139;
         this.stat();
-        this.state = 142;
+        this.state = 144;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         while (_la === JaneParser.And) {
           {
             {
-              this.state = 138;
+              this.state = 140;
               this.match(JaneParser.And);
-              this.state = 139;
+              this.state = 141;
               this.stat();
             }
           }
-          this.state = 144;
+          this.state = 146;
           this._errHandler.sync(this);
           _la = this._input.LA(1);
         }
@@ -790,30 +799,38 @@ export class JaneParser extends Parser {
     this.enterRule(_localctx, 26, JaneParser.RULE_stat);
     let _la: number;
     try {
-      this.state = 159;
+      this.state = 162;
       this._errHandler.sync(this);
       switch (this.interpreter.adaptivePredict(this._input, 14, this._ctx)) {
         case 1:
           this.enterOuterAlt(_localctx, 1);
           {
-            this.state = 145;
+            this.state = 147;
+            this.bool();
+          }
+          break;
+
+        case 2:
+          this.enterOuterAlt(_localctx, 2);
+          {
+            this.state = 148;
             this.expr();
-            this.state = 150;
+            this.state = 153;
             this._errHandler.sync(this);
             switch (this._input.LA(1)) {
               case JaneParser.Leq:
                 {
-                  this.state = 146;
+                  this.state = 149;
                   this.match(JaneParser.Leq);
-                  this.state = 147;
+                  this.state = 150;
                   this.expr();
                 }
                 break;
               case JaneParser.Eq:
                 {
-                  this.state = 148;
+                  this.state = 151;
                   this.match(JaneParser.Eq);
-                  this.state = 149;
+                  this.state = 152;
                   this.expr();
                 }
                 break;
@@ -823,24 +840,24 @@ export class JaneParser extends Parser {
           }
           break;
 
-        case 2:
-          this.enterOuterAlt(_localctx, 2);
+        case 3:
+          this.enterOuterAlt(_localctx, 3);
           {
-            this.state = 153;
+            this.state = 156;
             this._errHandler.sync(this);
             _la = this._input.LA(1);
             if (_la === JaneParser.Not) {
               {
-                this.state = 152;
+                this.state = 155;
                 this.match(JaneParser.Not);
               }
             }
 
-            this.state = 155;
+            this.state = 158;
             this.match(JaneParser.Lpar);
-            this.state = 156;
+            this.state = 159;
             this.stats();
-            this.state = 157;
+            this.state = 160;
             this.match(JaneParser.Rpar);
           }
           break;
@@ -859,36 +876,70 @@ export class JaneParser extends Parser {
     return _localctx;
   }
   // @RuleVersion(0)
-  public expr(): ExprContext {
-    let _localctx: ExprContext = new ExprContext(this._ctx, this.state);
-    this.enterRule(_localctx, 28, JaneParser.RULE_expr);
+  public bool(): BoolContext {
+    let _localctx: BoolContext = new BoolContext(this._ctx, this.state);
+    this.enterRule(_localctx, 28, JaneParser.RULE_bool);
     let _la: number;
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 161;
+        this.state = 164;
+        _la = this._input.LA(1);
+        if (!(_la === JaneParser.True || _la === JaneParser.False)) {
+          this._errHandler.recoverInline(this);
+        } else {
+          if (this._input.LA(1) === Token.EOF) {
+            this.matchedEOF = true;
+          }
+
+          this._errHandler.reportMatch(this);
+          this.consume();
+        }
+      }
+    } catch (re) {
+      if (re instanceof RecognitionException) {
+        _localctx.exception = re;
+        this._errHandler.reportError(this, re);
+        this._errHandler.recover(this, re);
+      } else {
+        throw re;
+      }
+    } finally {
+      this.exitRule();
+    }
+    return _localctx;
+  }
+  // @RuleVersion(0)
+  public expr(): ExprContext {
+    let _localctx: ExprContext = new ExprContext(this._ctx, this.state);
+    this.enterRule(_localctx, 30, JaneParser.RULE_expr);
+    let _la: number;
+    try {
+      this.enterOuterAlt(_localctx, 1);
+      {
+        this.state = 166;
         this.mul();
-        this.state = 168;
+        this.state = 173;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         while (_la === JaneParser.Plus || _la === JaneParser.Minus) {
           {
-            this.state = 166;
+            this.state = 171;
             this._errHandler.sync(this);
             switch (this._input.LA(1)) {
               case JaneParser.Plus:
                 {
-                  this.state = 162;
+                  this.state = 167;
                   this.match(JaneParser.Plus);
-                  this.state = 163;
+                  this.state = 168;
                   this.mul();
                 }
                 break;
               case JaneParser.Minus:
                 {
-                  this.state = 164;
+                  this.state = 169;
                   this.match(JaneParser.Minus);
-                  this.state = 165;
+                  this.state = 170;
                   this.mul();
                 }
                 break;
@@ -896,7 +947,7 @@ export class JaneParser extends Parser {
                 throw new NoViableAltException(this);
             }
           }
-          this.state = 170;
+          this.state = 175;
           this._errHandler.sync(this);
           _la = this._input.LA(1);
         }
@@ -917,26 +968,26 @@ export class JaneParser extends Parser {
   // @RuleVersion(0)
   public mul(): MulContext {
     let _localctx: MulContext = new MulContext(this._ctx, this.state);
-    this.enterRule(_localctx, 30, JaneParser.RULE_mul);
+    this.enterRule(_localctx, 32, JaneParser.RULE_mul);
     let _la: number;
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 171;
-        this.term();
         this.state = 176;
+        this.term();
+        this.state = 181;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         while (_la === JaneParser.Mult) {
           {
             {
-              this.state = 172;
+              this.state = 177;
               this.match(JaneParser.Mult);
-              this.state = 173;
+              this.state = 178;
               this.term();
             }
           }
-          this.state = 178;
+          this.state = 183;
           this._errHandler.sync(this);
           _la = this._input.LA(1);
         }
@@ -957,22 +1008,22 @@ export class JaneParser extends Parser {
   // @RuleVersion(0)
   public term(): TermContext {
     let _localctx: TermContext = new TermContext(this._ctx, this.state);
-    this.enterRule(_localctx, 32, JaneParser.RULE_term);
+    this.enterRule(_localctx, 34, JaneParser.RULE_term);
     try {
-      this.state = 185;
+      this.state = 190;
       this._errHandler.sync(this);
       switch (this._input.LA(1)) {
         case JaneParser.Id:
           this.enterOuterAlt(_localctx, 1);
           {
-            this.state = 179;
+            this.state = 184;
             this.match(JaneParser.Id);
           }
           break;
         case JaneParser.Value:
           this.enterOuterAlt(_localctx, 2);
           {
-            this.state = 180;
+            this.state = 185;
             this.match(JaneParser.Value);
           }
           break;
@@ -980,11 +1031,11 @@ export class JaneParser extends Parser {
           this.enterOuterAlt(_localctx, 3);
           {
             {
-              this.state = 181;
+              this.state = 186;
               this.match(JaneParser.Lpar);
-              this.state = 182;
+              this.state = 187;
               this.expr();
-              this.state = 183;
+              this.state = 188;
               this.match(JaneParser.Rpar);
             }
           }
@@ -1007,85 +1058,88 @@ export class JaneParser extends Parser {
   }
 
   public static readonly _serializedATN: string =
-    "\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03\x1E\xBE\x04\x02" +
+    "\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03 \xC3\x04\x02" +
     "\t\x02\x04\x03\t\x03\x04\x04\t\x04\x04\x05\t\x05\x04\x06\t\x06\x04\x07" +
     "\t\x07\x04\b\t\b\x04\t\t\t\x04\n\t\n\x04\v\t\v\x04\f\t\f\x04\r\t\r\x04" +
-    "\x0E\t\x0E\x04\x0F\t\x0F\x04\x10\t\x10\x04\x11\t\x11\x04\x12\t\x12\x03" +
-    "\x02\x03\x02\x03\x02\x03\x03\x03\x03\x03\x03\x07\x03+\n\x03\f\x03\x0E" +
-    "\x03.\v\x03\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x05\x046\n" +
-    "\x04\x03\x05\x03\x05\x03\x05\x03\x05\x03\x05\x03\x05\x03\x05\x03\x05\x05" +
-    "\x05@\n\x05\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03" +
-    "\x06\x05\x06J\n\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x05" +
-    "\x06R\n\x06\x03\x07\x03\x07\x03\x07\x03\x07\x03\b\x03\b\x03\t\x03\t\x03" +
-    "\t\x03\t\x05\t^\n\t\x03\t\x03\t\x03\t\x05\tc\n\t\x03\t\x03\t\x03\t\x03" +
-    "\t\x03\t\x05\tj\n\t\x03\t\x03\t\x03\n\x03\n\x03\n\x07\nq\n\n\f\n\x0E\n" +
-    "t\v\n\x03\v\x03\v\x03\v\x03\v\x07\vz\n\v\f\v\x0E\v}\v\v\x03\f\x03\f\x03" +
-    "\f\x03\f\x03\f\x03\f\x03\f\x03\f\x05\f\x87\n\f\x03\r\x03\r\x03\r\x03\x0E" +
-    "\x03\x0E\x03\x0E\x07\x0E\x8F\n\x0E\f\x0E\x0E\x0E\x92\v\x0E\x03\x0F\x03" +
-    "\x0F\x03\x0F\x03\x0F\x03\x0F\x05\x0F\x99\n\x0F\x03\x0F\x05\x0F\x9C\n\x0F" +
-    "\x03\x0F\x03\x0F\x03\x0F\x03\x0F\x05\x0F\xA2\n\x0F\x03\x10\x03\x10\x03" +
-    "\x10\x03\x10\x03\x10\x07\x10\xA9\n\x10\f\x10\x0E\x10\xAC\v\x10\x03\x11" +
-    "\x03\x11\x03\x11\x07\x11\xB1\n\x11\f\x11\x0E\x11\xB4\v\x11\x03\x12\x03" +
-    "\x12\x03\x12\x03\x12\x03\x12\x03\x12\x05\x12\xBC\n\x12\x03\x12\x02\x02" +
-    "\x02\x13\x02\x02\x04\x02\x06\x02\b\x02\n\x02\f\x02\x0E\x02\x10\x02\x12" +
-    '\x02\x14\x02\x16\x02\x18\x02\x1A\x02\x1C\x02\x1E\x02 \x02"\x02\x02\x02' +
-    "\x02\xC4\x02$\x03\x02\x02\x02\x04'\x03\x02\x02\x02\x065\x03\x02\x02\x02" +
-    "\b7\x03\x02\x02\x02\nA\x03\x02\x02\x02\fS\x03\x02\x02\x02\x0EW\x03\x02" +
-    "\x02\x02\x10Y\x03\x02\x02\x02\x12m\x03\x02\x02\x02\x14u\x03\x02\x02\x02" +
-    "\x16~\x03\x02\x02\x02\x18\x88\x03\x02\x02\x02\x1A\x8B\x03\x02\x02\x02" +
-    "\x1C\xA1\x03\x02\x02\x02\x1E\xA3\x03\x02\x02\x02 \xAD\x03\x02\x02\x02" +
-    '"\xBB\x03\x02\x02\x02$%\x05\x04\x03\x02%&\x07\x02\x02\x03&\x03\x03\x02' +
-    "\x02\x02',\x05\x06\x04\x02()\x07\x15\x02\x02)+\x05\x06\x04\x02*(\x03" +
-    "\x02\x02\x02+.\x03\x02\x02\x02,*\x03\x02\x02\x02,-\x03\x02\x02\x02-\x05" +
-    "\x03\x02\x02\x02.,\x03\x02\x02\x02/6\x05\f\x07\x0206\x05\b\x05\x0216\x05" +
-    "\n\x06\x0226\x05\x0E\b\x0236\x05\x10\t\x0246\x05\x18\r\x025/\x03\x02\x02" +
-    "\x0250\x03\x02\x02\x0251\x03\x02\x02\x0252\x03\x02\x02\x0253\x03\x02\x02" +
-    "\x0254\x03\x02\x02\x026\x07\x03\x02\x02\x0278\x07\n\x02\x0289\x05\x1A" +
-    "\x0E\x029?\x07\v\x02\x02:;\x07\x06\x02\x02;<\x05\x04\x03\x02<=\x07\x07" +
-    "\x02\x02=@\x03\x02\x02\x02>@\x05\x06\x04\x02?:\x03\x02\x02\x02?>\x03\x02" +
-    "\x02\x02@\t\x03\x02\x02\x02AB\x07\r\x02\x02BC\x05\x1A\x0E\x02CI\x07\f" +
-    "\x02\x02DE\x07\x06\x02\x02EF\x05\x04\x03\x02FG\x07\x07\x02\x02GJ\x03\x02" +
-    "\x02\x02HJ\x05\x06\x04\x02ID\x03\x02\x02\x02IH\x03\x02\x02\x02JK\x03\x02" +
-    "\x02\x02KQ\x07\x0E\x02\x02LM\x07\x06\x02\x02MN\x05\x04\x03\x02NO\x07\x07" +
-    "\x02\x02OR\x03\x02\x02\x02PR\x05\x06\x04\x02QL\x03\x02\x02\x02QP\x03\x02" +
-    "\x02\x02R\v\x03\x02\x02\x02ST\x07\x1D\x02\x02TU\x07\t\x02\x02UV\x05\x1E" +
-    "\x10\x02V\r\x03\x02\x02\x02WX\x07\x05\x02\x02X\x0F\x03\x02\x02\x02Y]\x07" +
-    "\x16\x02\x02Z[\x05\x14\v\x02[\\\x07\x15\x02\x02\\^\x03\x02\x02\x02]Z\x03" +
-    "\x02\x02\x02]^\x03\x02\x02\x02^b\x03\x02\x02\x02_`\x05\x12\n\x02`a\x07" +
-    "\x15\x02\x02ac\x03\x02\x02\x02b_\x03\x02\x02\x02bc\x03\x02\x02\x02ci\x03" +
-    "\x02\x02\x02de\x07\x06\x02\x02ef\x05\x04\x03\x02fg\x07\x07\x02\x02gj\x03" +
-    "\x02\x02\x02hj\x05\x06\x04\x02id\x03\x02\x02\x02ih\x03\x02\x02\x02jk\x03" +
-    "\x02\x02\x02kl\x07\x17\x02\x02l\x11\x03\x02\x02\x02mr\x05\x16\f\x02no" +
-    "\x07\x1C\x02\x02oq\x05\x16\f\x02pn\x03\x02\x02\x02qt\x03\x02\x02\x02r" +
-    "p\x03\x02\x02\x02rs\x03\x02\x02\x02s\x13\x03\x02\x02\x02tr\x03\x02\x02" +
-    "\x02uv\x07\x18\x02\x02v{\x05\f\x07\x02wx\x07\x1C\x02\x02xz\x05\f\x07\x02" +
-    "yw\x03\x02\x02\x02z}\x03\x02\x02\x02{y\x03\x02\x02\x02{|\x03\x02\x02\x02" +
-    "|\x15\x03\x02\x02\x02}{\x03\x02\x02\x02~\x7F\x07\x19\x02\x02\x7F\x80\x07" +
-    "\x1D\x02\x02\x80\x86\x07\x1A\x02\x02\x81\x82\x07\x06\x02\x02\x82\x83\x05" +
-    "\x04\x03\x02\x83\x84\x07\x07\x02\x02\x84\x87\x03\x02\x02\x02\x85\x87\x05" +
-    "\x06\x04\x02\x86\x81\x03\x02\x02\x02\x86\x85\x03\x02\x02\x02\x87\x17\x03" +
-    "\x02\x02\x02\x88\x89\x07\x1B\x02\x02\x89\x8A\x07\x1D\x02\x02\x8A\x19\x03" +
-    "\x02\x02\x02\x8B\x90\x05\x1C\x0F\x02\x8C\x8D\x07\b\x02\x02\x8D\x8F\x05" +
-    "\x1C\x0F\x02\x8E\x8C\x03\x02\x02\x02\x8F\x92\x03\x02\x02\x02\x90\x8E\x03" +
-    "\x02\x02\x02\x90\x91\x03\x02\x02\x02\x91\x1B\x03\x02\x02\x02\x92\x90\x03" +
-    "\x02\x02\x02\x93\x98\x05\x1E\x10\x02\x94\x95\x07\x13\x02\x02\x95\x99\x05" +
-    "\x1E\x10\x02\x96\x97\x07\x14\x02\x02\x97\x99\x05\x1E\x10\x02\x98\x94\x03" +
-    "\x02\x02\x02\x98\x96\x03\x02\x02\x02\x99\xA2\x03\x02\x02\x02\x9A\x9C\x07" +
-    "\x12\x02\x02\x9B\x9A\x03\x02\x02\x02\x9B\x9C\x03\x02\x02\x02\x9C\x9D\x03" +
-    "\x02\x02\x02\x9D\x9E\x07\x06\x02\x02\x9E\x9F\x05\x1A\x0E\x02\x9F\xA0\x07" +
-    "\x07\x02\x02\xA0\xA2\x03\x02\x02\x02\xA1\x93\x03\x02\x02\x02\xA1\x9B\x03" +
-    "\x02\x02\x02\xA2\x1D\x03\x02\x02\x02\xA3\xAA\x05 \x11\x02\xA4\xA5\x07" +
-    "\x10\x02\x02\xA5\xA9\x05 \x11\x02\xA6\xA7\x07\x11\x02\x02\xA7\xA9\x05" +
-    " \x11\x02\xA8\xA4\x03\x02\x02\x02\xA8\xA6\x03\x02\x02\x02\xA9\xAC\x03" +
-    "\x02\x02\x02\xAA\xA8\x03\x02\x02\x02\xAA\xAB\x03\x02\x02\x02\xAB\x1F\x03" +
-    '\x02\x02\x02\xAC\xAA\x03\x02\x02\x02\xAD\xB2\x05"\x12\x02\xAE\xAF\x07' +
-    '\x0F\x02\x02\xAF\xB1\x05"\x12\x02\xB0\xAE\x03\x02\x02\x02\xB1\xB4\x03' +
-    "\x02\x02\x02\xB2\xB0\x03\x02\x02\x02\xB2\xB3\x03\x02\x02\x02\xB3!\x03" +
-    "\x02\x02\x02\xB4\xB2\x03\x02\x02\x02\xB5\xBC\x07\x1D\x02\x02\xB6\xBC\x07" +
-    "\x1E\x02\x02\xB7\xB8\x07\x06\x02\x02\xB8\xB9\x05\x1E\x10\x02\xB9\xBA\x07" +
-    "\x07\x02\x02\xBA\xBC\x03\x02\x02\x02\xBB\xB5\x03\x02\x02\x02\xBB\xB6\x03" +
-    "\x02\x02\x02\xBB\xB7\x03\x02\x02\x02\xBC#\x03\x02\x02\x02\x15,5?IQ]bi" +
-    "r{\x86\x90\x98\x9B\xA1\xA8\xAA\xB2\xBB";
+    "\x0E\t\x0E\x04\x0F\t\x0F\x04\x10\t\x10\x04\x11\t\x11\x04\x12\t\x12\x04" +
+    "\x13\t\x13\x03\x02\x03\x02\x03\x02\x03\x03\x03\x03\x03\x03\x07\x03-\n" +
+    "\x03\f\x03\x0E\x030\v\x03\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03" +
+    "\x04\x05\x048\n\x04\x03\x05\x03\x05\x03\x05\x03\x05\x03\x05\x03\x05\x03" +
+    "\x05\x03\x05\x05\x05B\n\x05\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03" +
+    "\x06\x03\x06\x03\x06\x05\x06L\n\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03" +
+    "\x06\x03\x06\x05\x06T\n\x06\x03\x07\x03\x07\x03\x07\x03\x07\x03\b\x03" +
+    "\b\x03\t\x03\t\x03\t\x03\t\x05\t`\n\t\x03\t\x03\t\x03\t\x05\te\n\t\x03" +
+    "\t\x03\t\x03\t\x03\t\x03\t\x05\tl\n\t\x03\t\x03\t\x03\n\x03\n\x03\n\x07" +
+    "\ns\n\n\f\n\x0E\nv\v\n\x03\v\x03\v\x03\v\x03\v\x07\v|\n\v\f\v\x0E\v\x7F" +
+    "\v\v\x03\f\x03\f\x03\f\x03\f\x03\f\x03\f\x03\f\x03\f\x05\f\x89\n\f\x03" +
+    "\r\x03\r\x03\r\x03\x0E\x03\x0E\x03\x0E\x07\x0E\x91\n\x0E\f\x0E\x0E\x0E" +
+    "\x94\v\x0E\x03\x0F\x03\x0F\x03\x0F\x03\x0F\x03\x0F\x03\x0F\x05\x0F\x9C" +
+    "\n\x0F\x03\x0F\x05\x0F\x9F\n\x0F\x03\x0F\x03\x0F\x03\x0F\x03\x0F\x05\x0F" +
+    "\xA5\n\x0F\x03\x10\x03\x10\x03\x11\x03\x11\x03\x11\x03\x11\x03\x11\x07" +
+    "\x11\xAE\n\x11\f\x11\x0E\x11\xB1\v\x11\x03\x12\x03\x12\x03\x12\x07\x12" +
+    "\xB6\n\x12\f\x12\x0E\x12\xB9\v\x12\x03\x13\x03\x13\x03\x13\x03\x13\x03" +
+    "\x13\x03\x13\x05\x13\xC1\n\x13\x03\x13\x02\x02\x02\x14\x02\x02\x04\x02" +
+    "\x06\x02\b\x02\n\x02\f\x02\x0E\x02\x10\x02\x12\x02\x14\x02\x16\x02\x18" +
+    '\x02\x1A\x02\x1C\x02\x1E\x02 \x02"\x02$\x02\x02\x03\x03\x02\x12\x13\x02' +
+    "\xC9\x02&\x03\x02\x02\x02\x04)\x03\x02\x02\x02\x067\x03\x02\x02\x02\b" +
+    "9\x03\x02\x02\x02\nC\x03\x02\x02\x02\fU\x03\x02\x02\x02\x0EY\x03\x02\x02" +
+    "\x02\x10[\x03\x02\x02\x02\x12o\x03\x02\x02\x02\x14w\x03\x02\x02\x02\x16" +
+    "\x80\x03\x02\x02\x02\x18\x8A\x03\x02\x02\x02\x1A\x8D\x03\x02\x02\x02\x1C" +
+    '\xA4\x03\x02\x02\x02\x1E\xA6\x03\x02\x02\x02 \xA8\x03\x02\x02\x02"\xB2' +
+    "\x03\x02\x02\x02$\xC0\x03\x02\x02\x02&'\x05\x04\x03\x02'(\x07\x02\x02" +
+    "\x03(\x03\x03\x02\x02\x02).\x05\x06\x04\x02*+\x07\x1D\x02\x02+-\x05\x06" +
+    "\x04\x02,*\x03\x02\x02\x02-0\x03\x02\x02\x02.,\x03\x02\x02\x02./\x03\x02" +
+    "\x02\x02/\x05\x03\x02\x02\x020.\x03\x02\x02\x0218\x05\f\x07\x0228\x05" +
+    "\b\x05\x0238\x05\n\x06\x0248\x05\x0E\b\x0258\x05\x10\t\x0268\x05\x18\r" +
+    "\x0271\x03\x02\x02\x0272\x03\x02\x02\x0273\x03\x02\x02\x0274\x03\x02\x02" +
+    "\x0275\x03\x02\x02\x0276\x03\x02\x02\x028\x07\x03\x02\x02\x029:\x07\b" +
+    "\x02\x02:;\x05\x1A\x0E\x02;A\x07\t\x02\x02<=\x07\x14\x02\x02=>\x05\x04" +
+    "\x03\x02>?\x07\x15\x02\x02?B\x03\x02\x02\x02@B\x05\x06\x04\x02A<\x03\x02" +
+    "\x02\x02A@\x03\x02\x02\x02B\t\x03\x02\x02\x02CD\x07\x05\x02\x02DE\x05" +
+    "\x1A\x0E\x02EK\x07\x06\x02\x02FG\x07\x14\x02\x02GH\x05\x04\x03\x02HI\x07" +
+    "\x15\x02\x02IL\x03\x02\x02\x02JL\x05\x06\x04\x02KF\x03\x02\x02\x02KJ\x03" +
+    "\x02\x02\x02LM\x03\x02\x02\x02MS\x07\x07\x02\x02NO\x07\x14\x02\x02OP\x05" +
+    "\x04\x03\x02PQ\x07\x15\x02\x02QT\x03\x02\x02\x02RT\x05\x06\x04\x02SN\x03" +
+    "\x02\x02\x02SR\x03\x02\x02\x02T\v\x03\x02\x02\x02UV\x07\x1F\x02\x02VW" +
+    "\x07\x16\x02\x02WX\x05 \x11\x02X\r\x03\x02\x02\x02YZ\x07\n\x02\x02Z\x0F" +
+    "\x03\x02\x02\x02[_\x07\v\x02\x02\\]\x05\x14\v\x02]^\x07\x1D\x02\x02^`" +
+    "\x03\x02\x02\x02_\\\x03\x02\x02\x02_`\x03\x02\x02\x02`d\x03\x02\x02\x02" +
+    "ab\x05\x12\n\x02bc\x07\x1D\x02\x02ce\x03\x02\x02\x02da\x03\x02\x02\x02" +
+    "de\x03\x02\x02\x02ek\x03\x02\x02\x02fg\x07\x14\x02\x02gh\x05\x04\x03\x02" +
+    "hi\x07\x15\x02\x02il\x03\x02\x02\x02jl\x05\x06\x04\x02kf\x03\x02\x02\x02" +
+    "kj\x03\x02\x02\x02lm\x03\x02\x02\x02mn\x07\f\x02\x02n\x11\x03\x02\x02" +
+    "\x02ot\x05\x16\f\x02pq\x07\x1E\x02\x02qs\x05\x16\f\x02rp\x03\x02\x02\x02" +
+    "sv\x03\x02\x02\x02tr\x03\x02\x02\x02tu\x03\x02\x02\x02u\x13\x03\x02\x02" +
+    "\x02vt\x03\x02\x02\x02wx\x07\r\x02\x02x}\x05\f\x07\x02yz\x07\x1E\x02\x02" +
+    "z|\x05\f\x07\x02{y\x03\x02\x02\x02|\x7F\x03\x02\x02\x02}{\x03\x02\x02" +
+    "\x02}~\x03\x02\x02\x02~\x15\x03\x02\x02\x02\x7F}\x03\x02\x02\x02\x80\x81" +
+    "\x07\x0E\x02\x02\x81\x82\x07\x1F\x02\x02\x82\x88\x07\x0F\x02\x02\x83\x84" +
+    "\x07\x14\x02\x02\x84\x85\x05\x04\x03\x02\x85\x86\x07\x15\x02\x02\x86\x89" +
+    "\x03\x02\x02\x02\x87\x89\x05\x06\x04\x02\x88\x83\x03\x02\x02\x02\x88\x87" +
+    "\x03\x02\x02\x02\x89\x17\x03\x02\x02\x02\x8A\x8B\x07\x10\x02\x02\x8B\x8C" +
+    "\x07\x1F\x02\x02\x8C\x19\x03\x02\x02\x02\x8D\x92\x05\x1C\x0F\x02\x8E\x8F" +
+    "\x07\x11\x02\x02\x8F\x91\x05\x1C\x0F\x02\x90\x8E\x03\x02\x02\x02\x91\x94" +
+    "\x03\x02\x02\x02\x92\x90\x03\x02\x02\x02\x92\x93\x03\x02\x02\x02\x93\x1B" +
+    "\x03\x02\x02\x02\x94\x92\x03\x02\x02\x02\x95\xA5\x05\x1E\x10\x02\x96\x9B" +
+    "\x05 \x11\x02\x97\x98\x07\x1B\x02\x02\x98\x9C\x05 \x11\x02\x99\x9A\x07" +
+    "\x1C\x02\x02\x9A\x9C\x05 \x11\x02\x9B\x97\x03\x02\x02\x02\x9B\x99\x03" +
+    "\x02\x02\x02\x9C\xA5\x03\x02\x02\x02\x9D\x9F\x07\x1A\x02\x02\x9E\x9D\x03" +
+    "\x02\x02\x02\x9E\x9F\x03\x02\x02\x02\x9F\xA0\x03\x02\x02\x02\xA0\xA1\x07" +
+    "\x14\x02\x02\xA1\xA2\x05\x1A\x0E\x02\xA2\xA3\x07\x15\x02\x02\xA3\xA5\x03" +
+    "\x02\x02\x02\xA4\x95\x03\x02\x02\x02\xA4\x96\x03\x02\x02\x02\xA4\x9E\x03" +
+    "\x02\x02\x02\xA5\x1D\x03\x02\x02\x02\xA6\xA7\t\x02\x02\x02\xA7\x1F\x03" +
+    '\x02\x02\x02\xA8\xAF\x05"\x12\x02\xA9\xAA\x07\x18\x02\x02\xAA\xAE\x05' +
+    '"\x12\x02\xAB\xAC\x07\x19\x02\x02\xAC\xAE\x05"\x12\x02\xAD\xA9\x03\x02' +
+    "\x02\x02\xAD\xAB\x03\x02\x02\x02\xAE\xB1\x03\x02\x02\x02\xAF\xAD\x03\x02" +
+    "\x02\x02\xAF\xB0\x03\x02\x02\x02\xB0!\x03\x02\x02\x02\xB1\xAF\x03\x02" +
+    "\x02\x02\xB2\xB7\x05$\x13\x02\xB3\xB4\x07\x17\x02\x02\xB4\xB6\x05$\x13" +
+    "\x02\xB5\xB3\x03\x02\x02\x02\xB6\xB9\x03\x02\x02\x02\xB7\xB5\x03\x02\x02" +
+    "\x02\xB7\xB8\x03\x02\x02\x02\xB8#\x03\x02\x02\x02\xB9\xB7\x03\x02\x02" +
+    "\x02\xBA\xC1\x07\x1F\x02\x02\xBB\xC1\x07 \x02\x02\xBC\xBD\x07\x14\x02" +
+    "\x02\xBD\xBE\x05 \x11\x02\xBE\xBF\x07\x15\x02\x02\xBF\xC1\x03\x02\x02" +
+    "\x02\xC0\xBA\x03\x02\x02\x02\xC0\xBB\x03\x02\x02\x02\xC0\xBC\x03\x02\x02" +
+    "\x02\xC1%\x03\x02\x02\x02\x15.7AKS_dkt}\x88\x92\x9B\x9E\xA4\xAD\xAF\xB7" +
+    "\xC0";
   public static __ATN: ATN;
   public static get _ATN(): ATN {
     if (!JaneParser.__ATN) {
@@ -1731,6 +1785,9 @@ export class StatsContext extends ParserRuleContext {
 }
 
 export class StatContext extends ParserRuleContext {
+  public bool(): BoolContext | undefined {
+    return this.tryGetRuleContext(0, BoolContext);
+  }
   public expr(): ExprContext[];
   public expr(i: number): ExprContext;
   public expr(i?: number): ExprContext | ExprContext[] {
@@ -1781,6 +1838,42 @@ export class StatContext extends ParserRuleContext {
   public accept<Result>(visitor: JaneVisitor<Result>): Result {
     if (visitor.visitStat) {
       return visitor.visitStat(this);
+    } else {
+      return visitor.visitChildren(this);
+    }
+  }
+}
+
+export class BoolContext extends ParserRuleContext {
+  public True(): TerminalNode | undefined {
+    return this.tryGetToken(JaneParser.True, 0);
+  }
+  public False(): TerminalNode | undefined {
+    return this.tryGetToken(JaneParser.False, 0);
+  }
+  constructor(parent: ParserRuleContext | undefined, invokingState: number) {
+    super(parent, invokingState);
+  }
+  // @Override
+  public get ruleIndex(): number {
+    return JaneParser.RULE_bool;
+  }
+  // @Override
+  public enterRule(listener: JaneListener): void {
+    if (listener.enterBool) {
+      listener.enterBool(this);
+    }
+  }
+  // @Override
+  public exitRule(listener: JaneListener): void {
+    if (listener.exitBool) {
+      listener.exitBool(this);
+    }
+  }
+  // @Override
+  public accept<Result>(visitor: JaneVisitor<Result>): Result {
+    if (visitor.visitBool) {
+      return visitor.visitBool(this);
     } else {
       return visitor.visitChildren(this);
     }

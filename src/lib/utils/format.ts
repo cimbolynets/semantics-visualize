@@ -35,6 +35,10 @@ export const text = (text: string) => {
   return String.raw`\text{${text}}`;
 };
 
+export const textbf = (text: string) => {
+  return String.raw`\textbf{${text}}`;
+};
+
 export const formatMemory = (variables: Memory) => {
   const kvPairs = Object.entries(variables);
 

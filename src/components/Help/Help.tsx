@@ -1,23 +1,23 @@
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import specialSymbols from "@/lib/specialSymbols/specialSymbols";
+import { cn } from "@/lib/utils";
 import { ChevronDown, HelpCircle, Play } from "lucide-react";
 import { FC, useState } from "react";
 import { DefaultHeaderButton } from "../Header/DefaultHeaderButton";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { HelpItem } from "./HelpItem";
 import { amGrammar, janeBaseGrammar, janeExtendedGrammar } from "./formattedGrammars";
+import MathRenderer from "../MathRenderer";
 
 interface HelpProps {}
 
+const sharedClasses = "w-full h-full overflow-auto data-[state=inactive]:hidden";
+
 export const Help: FC<HelpProps> = () => {
   const [open, setOpen] = useState(false);
-  // const { setActiveScenario } = useContext(GuideContext);
-
-  // const selectScenario = (s: string) => {
-  //   setActiveScenario?.(s);
-  //   setOpen(false);
-  // };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -35,11 +35,11 @@ export const Help: FC<HelpProps> = () => {
             <TabsTrigger value="grammar" className="basis-0 grow">
               Grammar
             </TabsTrigger>
+            <TabsTrigger value="special-symbols" className="basis-0 grow">
+              Special symbols
+            </TabsTrigger>
           </TabsList>
-          <TabsContent
-            value="general"
-            className="w-full h-full overflow-auto flex flex-col gap-6 data-[state=inactive]:hidden"
-          >
+          <TabsContent value="general" className={cn(sharedClasses, "flex flex-col gap-6")}>
             <h3>About</h3>
             <div className="flex flex-col gap-2">
               <p>
@@ -56,19 +56,6 @@ export const Help: FC<HelpProps> = () => {
                 semantics.
               </p>
             </div>
-            {/* <h3>Interactive guides</h3> */}
-            {/* <Select onValueChange={(s) => selectScenario(s)}>
-              <SelectTrigger className="max-w-xs">
-                <SelectValue placeholder="Select guide" />
-              </SelectTrigger>
-              <SelectContent>
-                {scenarioNames.map((sn) => (
-                  <SelectItem key={sn.value} value={sn.value}>
-                    {sn.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select> */}
             <h3>Control elements</h3>
             <div className="flex flex-col gap-4">
               <HelpItem description="Select an semantic method or abstract machine.">
@@ -89,16 +76,42 @@ export const Help: FC<HelpProps> = () => {
               </HelpItem>
             </div>
           </TabsContent>
-          <TabsContent
-            value="grammar"
-            className="w-full h-full [&>*]:mb-6 overflow-auto data-[state=inactive]:hidden"
-          >
+          <TabsContent value="grammar" className={cn(sharedClasses, "[&>*]:mb-6")}>
             <h3>Jane base grammar</h3>
             <pre className="code-block grow">{janeBaseGrammar}</pre>
             <h3>Jane extended grammar</h3>
             <pre className="code-block grow">{janeExtendedGrammar}</pre>
             <h3>Abstract machine grammar</h3>
             <pre className="code-block grow">{amGrammar}</pre>
+          </TabsContent>
+          <TabsContent value="special-symbols" className={cn(sharedClasses, "[&>*]:mb-6")}>
+            <h3>Special symbols</h3>
+            <div>
+              <p>
+                You can use some special symbols in editor. The symbols use TeX notation. To use
+                special symbol type any latex notation in editor.
+              </p>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>TeX Notation</TableHead>
+                  <TableHead>Normal Symbol</TableHead>
+                  <TableHead>Special Symbol</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {specialSymbols.map((specSymbol) => (
+                  <TableRow key={specSymbol.text}>
+                    <TableCell>{specSymbol.text}</TableCell>
+                    <TableCell>{specSymbol.normalSymbol}</TableCell>
+                    <TableCell>
+                      <MathRenderer>{specSymbol.text}</MathRenderer>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </TabsContent>
         </Tabs>
       </DialogContent>

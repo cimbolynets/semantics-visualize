@@ -452,6 +452,11 @@ export default class VisitorAM implements AbstractMachineVisitor<object> {
 
     if (!noEval) {
       do {
+        if (iterations.length > 100) {
+          const errorText = "Possible infinite loop";
+          this.errors.push(createIEditorError(ctx, errorText));
+          throw new InterpreterError(errorText, this.errors);
+        }
         const conditionResult = this.visitInstructionSequence(ctx.instructionSequence(0), noEval);
         const conditionResultStack = structuredClone(this.stack);
         const resultCondition = this.stack.pop();

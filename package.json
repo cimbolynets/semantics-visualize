@@ -9,8 +9,8 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "generate-grammar-jane": "antlr4ts -visitor ./src/grammar/jane/Jane.g4",
-    "generate-grammar-as": "antlr4ts -visitor ./src/grammar/as/AbstractMachine.g4",
-    "generate-grammar": "bun run generate-grammar-jane && bun run generate-grammar-as"
+    "generate-grammar-am": "antlr4ts -visitor ./src/grammar/am/AbstractMachine.g4",
+    "generate-grammar": "bun run generate-grammar-jane && bun run generate-grammar-am"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.6.0",

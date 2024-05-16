@@ -9,6 +9,16 @@ export const swapVariablesJane = `x := x+y;
 y := x-y;
 x := x-y`;
 
+export const findMiddleValue = `a := x - y;
+b := y - z;
+c := x - z;
+if (0 <= a * b) then
+  med := y
+else if (0 <= a * c) then
+  med := z
+else
+  med := x`
+
 export const factorialJane = `x := 1; 
 y := 3; 
 while !(y = 1) do (

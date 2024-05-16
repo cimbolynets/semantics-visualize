@@ -15,12 +15,15 @@ export const RenderSOS: FC<RenderSOSProps> = () => {
   const setOutput = useOutputStorage((state) => state.setOutput);
 
   useEffect(() => {
-    if (!sequence.length) return;
     setOutput({ sequence: sequence.map((item) => item.text), states });
   }, [sequence, states]);
 
   useEffect(() => {
-    if (!programText) return;
+    if (!programText) {
+      setSequence([]);
+      setStates([]);
+      return;
+    }
     const ms = new MakeSequenceSOS();
     const sequence = ms.getSequence(programText, variables ?? {});
     setStates(ms.getStates());

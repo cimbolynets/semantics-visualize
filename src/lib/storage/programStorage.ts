@@ -7,6 +7,7 @@ import {
   blocksAndProcedures,
   factorialJane,
   factorialProc,
+  findMiddleValue,
   swapVariablesJane,
 } from "../examples";
 
@@ -19,6 +20,7 @@ type IExample = {
 const janeBasicExamples: IExample[] = [
   { name: "Factorial", value: factorialJane },
   { name: "Swap variables", value: swapVariablesJane, variables: { x: 5, y: 10 } },
+  { name: "Find middle", value: findMiddleValue, variables: { x: 5, y: 10, z: 6 } },
 ];
 
 const janeExtendedExamples: IExample[] = [
@@ -59,23 +61,36 @@ export const allowedCombinations: Record<SemanticMethod, ProgramLanguage[]> = {
   sos: ["jane", "am"],
 };
 
-export type ProgramStorage = {
-  getActiveExamples: () => IExample[];
+const initialState: ProgramStorageState = {
+  semanticMethod: "ns",
+  programLanguage: "jane",
+  programText: "",
+  variables: {},
+  programId: 0,
+};
+
+export type ProgramStorageState = {
   semanticMethod: SemanticMethod;
-  setSemanticMethod: (a: SemanticMethod) => void;
   programLanguage: ProgramLanguage;
-  setProgramLanguage: (l: ProgramLanguage) => void;
   programText?: string;
-  setProgramText: (v?: string) => void;
   variables: Memory;
-  setVariables: (m: Memory) => void;
   programId: number;
+};
+
+export type ProgramStorage = ProgramStorageState & {
+  getActiveExamples: () => IExample[];
+  setSemanticMethod: (a: SemanticMethod) => void;
+  setProgramLanguage: (l: ProgramLanguage) => void;
+  setProgramText: (v?: string) => void;
+  setVariables: (m: Memory) => void;
   setProgramId: (id: number) => void;
+  reset: () => void;
 };
 
 export const useProgramStorage = create<ProgramStorage>()(
   persist<ProgramStorage>(
     (set, get) => ({
+      ...initialState,
       getActiveExamples() {
         const lang = get().programLanguage;
         switch (lang) {
@@ -89,9 +104,6 @@ export const useProgramStorage = create<ProgramStorage>()(
             return [];
         }
       },
-      programText: "",
-      variables: {},
-      semanticMethod: "ns",
       setSemanticMethod: (method: SemanticMethod) => {
         set((state) => {
           return {
@@ -104,7 +116,6 @@ export const useProgramStorage = create<ProgramStorage>()(
           };
         });
       },
-      programLanguage: "jane",
       setProgramLanguage: (lang: ProgramLanguage) => {
         set((state) => {
           return {
@@ -125,6 +136,9 @@ export const useProgramStorage = create<ProgramStorage>()(
       programId: 0,
       setProgramId(id) {
         set(() => ({ programId: id }));
+      },
+      reset() {
+        set(() => ({ ...initialState }));
       },
     }),
     {

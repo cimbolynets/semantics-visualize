@@ -17,6 +17,7 @@ import { ProcDefinitionContext } from "./JaneParser";
 import { ProcCallContext } from "./JaneParser";
 import { StatsContext } from "./JaneParser";
 import { StatContext } from "./JaneParser";
+import { BoolContext } from "./JaneParser";
 import { ExprContext } from "./JaneParser";
 import { MulContext } from "./JaneParser";
 import { TermContext } from "./JaneParser";
@@ -127,6 +128,13 @@ export interface JaneVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitStat?: (ctx: StatContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `JaneParser.bool`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitBool?: (ctx: BoolContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `JaneParser.expr`.

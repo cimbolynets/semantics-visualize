@@ -22,7 +22,13 @@ export const RenderNS: FC<RenderNSProps> = () => {
   const setOutput = useOutputStorage((state) => state.setOutput);
 
   useEffect(() => {
-    if (!programText) return;
+    if (!programText) {
+      setTree(undefined);
+      setStates([]);
+      setEnvs([]);
+      return;
+    }
+    console.log(programId)
     const ms = new MakeSequenceNS();
     const tree = ms.getSequence(programText, variables ?? {}, false, programLanguage === "jane");
     setStates(ms.getStates());
