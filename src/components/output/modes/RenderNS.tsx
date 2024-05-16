@@ -28,7 +28,6 @@ export const RenderNS: FC<RenderNSProps> = () => {
       setEnvs([]);
       return;
     }
-    console.log(programId)
     const ms = new MakeSequenceNS();
     const tree = ms.getSequence(programText, variables ?? {}, false, programLanguage === "jane");
     setStates(ms.getStates());

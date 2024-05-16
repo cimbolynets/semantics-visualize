@@ -42,7 +42,7 @@ export const Export: FC<ExportProps> = () => {
       </DialogTrigger>
       <DialogContent className="flex flex-col gap-4">
         <h3>Export output</h3>
-        <div className="mb-4">
+        <div className="lg:mb-4">
           {isLarge ? (
             <Tabs value={exportType} onValueChange={(v) => setExportType(v as ExportType)}>
               <TabsList>
@@ -58,7 +58,7 @@ export const Export: FC<ExportProps> = () => {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button data-runprogram-0="right" className="flex gap-2">
+                <Button data-runprogram-0="right" className="flex gap-2 w-full">
                   {exportTypes.find((et) => et.value === exportType)?.name ?? "Select export type"}{" "}
                   <ChevronDown />
                 </Button>

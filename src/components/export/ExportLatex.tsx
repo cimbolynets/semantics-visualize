@@ -41,8 +41,8 @@ export const ExportLatex: FC<ExportLatexProps> = ({ exportType, sequence, states
 
   return (
     <div className="flex flex-col gap-2">
-      <Button variant="secondary" onClick={copyToClipboard}>
-        Copy <i>LaTex</i> <Copy />
+      <Button variant="secondary" onClick={copyToClipboard} className="gap-1">
+        Copy <i>LaTex</i> <Copy className="ml-1" />
       </Button>
     </div>
   );
