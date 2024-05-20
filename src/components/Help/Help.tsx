@@ -96,7 +96,7 @@ export const Help: FC<HelpProps> = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>TeX Notation</TableHead>
-                  <TableHead>Normal Symbol</TableHead>
+                  <TableHead>ASCII Symbol</TableHead>
                   <TableHead>Special Symbol</TableHead>
                 </TableRow>
               </TableHeader>

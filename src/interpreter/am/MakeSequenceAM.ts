@@ -143,9 +143,10 @@ export class MakeSequenceAM implements IMakeSequence<IConfig[]> {
   ): IConfig[] => {
     const executeBranch = value.isTrue ? value.ifBranch : value.elBranch;
     const branch = this.parseTransition(value.text, stack, rest);
-    this.remainingInstructions.push(parseRestProgram(rest));
+    const restProgram = parseRestProgram(rest)
+    restProgram && this.remainingInstructions.push();
     const body = this.traverse(executeBranch.children);
-    this.remainingInstructions.pop();
+    restProgram && this.remainingInstructions.pop();
     return [{ text: branch, reference: position }, ...body];
   };
 
