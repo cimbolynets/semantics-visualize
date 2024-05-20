@@ -123,7 +123,6 @@ export class MakeSequenceAM implements IMakeSequence<IConfig[]> {
     stack: StackEntry[],
     rest: Instruction[]
   ): IConfig => {
-    console.log("Store:", child)
     const result = this.parseTransition(child.text, stack, rest);
     if (child.value.state) this.changeState(child.value.state);
     return { text: result, reference: child.position };
