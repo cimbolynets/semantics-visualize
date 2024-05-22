@@ -9,10 +9,6 @@ const janePatterns = {
   endPadding: /\\ +,/g,
 };
 
-const amPatterns = {
-  word: /[A-Za-z]+/,
-};
-
 const getKeywordsFromLiteralNames = (literalNames: Array<string | undefined>) => {
   return literalNames
     .map((ln) => ln?.substring(1, ln.length - 1))

@@ -1,4 +1,4 @@
-import { a, s, text } from "@/lib/utils/format";
+import { a, s } from "@/lib/utils/format";
 import { Memory, StackEntry } from "@/types";
 import { IMakeSequence } from "../IMakeSequence.types";
 import { IConfig } from "../types";
