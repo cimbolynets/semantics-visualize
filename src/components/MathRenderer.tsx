@@ -20,7 +20,7 @@ export default memo(function MathRenderer({ children, className, ...props }: Mat
     <div
       ref={elementRef}
       {...props}
-      className={cn(className, !breakLines && "whitespace-nowrap", "p-1")}
+      className={cn(!breakLines && "whitespace-nowrap", "p-1", className)}
     ></div>
   );
 });
