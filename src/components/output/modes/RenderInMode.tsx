@@ -205,7 +205,7 @@ function SingleInstruction({ sequence, states }: RenderInModeProps) {
     return <span className="text-xl font-bold">No configurations</span>;
   }
   return (
-    <div className="w-full h-full overflow-y-auto">
+    <div className="grow basis-0 overflow-y-auto">
       <div className="flex flex-col gap-2">
         <div className="flex gap-2">
           <Button onClick={dec} size="sm" variant="secondary">
