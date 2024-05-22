@@ -1,16 +1,17 @@
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import specialSymbols from "@/lib/specialSymbols/specialSymbols";
 import { cn } from "@/lib/utils";
-import { ChevronDown, HelpCircle, Play } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import { FC, useState } from "react";
-import { DefaultHeaderButton } from "../Header/DefaultHeaderButton";
+import { InterpreterSelector } from "../Header/InterpreterSelector";
+import { RunProgram } from "../Header/RunProgram";
+import { TranslateProgramButton } from "../Header/TranslateProgram";
+import MathRenderer from "../MathRenderer";
 import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { HelpItem } from "./HelpItem";
 import { amGrammar, janeBaseGrammar, janeExtendedGrammar } from "./formattedGrammars";
-import MathRenderer from "../MathRenderer";
 
 interface HelpProps {}
 
@@ -58,21 +59,14 @@ export const Help: FC<HelpProps> = () => {
             </div>
             <h3>Control elements</h3>
             <div className="flex flex-col gap-4">
-              <HelpItem description="Select an semantic method or abstract machine.">
-                <Button data-runprogram-0="right" color="primary" className="flex gap-2">
-                  NS <ChevronDown />
-                </Button>
+              <HelpItem description="Select semantic method and language combination.">
+                <InterpreterSelector />
               </HelpItem>
-              <HelpItem description="Enable/Disable extensions for Jane.">
-                <div className="flex items-center gap-2">
-                  <Checkbox id="with-extensions-toggle-example" checked={false} />
-                  <label htmlFor="with-extensions-toggle-example">With extensions</label>
-                </div>
+              <HelpItem description="Translate program written in Jane language to abstract machine instructions.">
+                <TranslateProgramButton />
               </HelpItem>
               <HelpItem description="Run the program.">
-                <DefaultHeaderButton data-runprogram-3>
-                  <Play className="!w-[1.375rem] !h-[1.375rem] stroke-primary fill-primary hover:brightness-50 transition-all" />
-                </DefaultHeaderButton>
+                <RunProgram />
               </HelpItem>
             </div>
           </TabsContent>

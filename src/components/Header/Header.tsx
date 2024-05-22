@@ -1,35 +1,27 @@
 import { useMediaBreakpointUp } from "@/lib/hooks/useMediaBreakpointUp";
+import { useOutputOptionsStorage } from "@/lib/storage/displayOptionsStorage";
 import { useProgramStorage } from "@/lib/storage/programStorage";
 import { tailwindConfig } from "@/lib/tailwindConfig";
-import { MenuIcon, Moon, Play, Sun } from "lucide-react";
+import { MenuIcon, Moon, Sun } from "lucide-react";
 import { useContext } from "react";
 import { Help } from "../Help";
 import ThemeContext from "../ThemeContext";
 import { Export } from "../export/Export";
 import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { DefaultHeaderButton } from "./DefaultHeaderButton";
 import { ExampleSelector } from "./ExampleSelect";
 import { InterpreterSelector } from "./InterpreterSelector";
+import { RunProgram } from "./RunProgram";
 import { TranslateProgram } from "./TranslateProgram";
-import { Checkbox } from "../ui/checkbox";
-import { useOutputOptionsStorage } from "@/lib/storage/displayOptionsStorage";
 
 export function Header() {
   const isLarge = useMediaBreakpointUp(tailwindConfig.theme.screens.lg);
   const theme = useContext(ThemeContext) ?? {};
-  const incrementProgramId = useProgramStorage((state) => {
-    return () => state.setProgramId(state.programId + 1);
-  });
   const reset = useProgramStorage((state) => state.reset);
   const { breakLines, setBreakLines } = useOutputOptionsStorage();
 
-  const runProgram = (
-    <Button data-runprogram-3 onClick={incrementProgramId} className="gap-2">
-      Visualize
-      <Play className="!w-[1.375rem] !h-[1.375rem] stroke-accent fill-accent" />
-    </Button>
-  );
   const lineBreakToggle = (
     <div className="flex items-center gap-2">
       <label htmlFor="line-break-toggle">Break lines</label>
@@ -56,7 +48,7 @@ export function Header() {
               <TranslateProgram />
               <ExampleSelector />
             </div>
-            {runProgram}
+            <RunProgram />
           </div>
           <div className="flex gap-2">
             {lineBreakToggle}
@@ -92,7 +84,7 @@ export function Header() {
             <Button variant="secondary" onClick={reset} className="block lg:hidden">
               Reset
             </Button>
-            {runProgram}
+            <RunProgram />
           </div>
         </>
       )}
