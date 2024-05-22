@@ -2,7 +2,7 @@ import { InterpreterError } from "@/interpreter/InterpreterError";
 import { ProgramStorage, useProgramStorage } from "@/lib/storage/programStorage";
 import { cn } from "@/lib/utils";
 import { pick } from "lodash";
-import { HTMLAttributes, useEffect, useRef } from "react";
+import { HTMLAttributes, memo, useEffect, useRef } from "react";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import { EditorError } from "../EditorError";
 import { RenderAM } from "./modes/RenderAM";
@@ -37,7 +37,7 @@ function ErrorComponent({ error, resetErrorBoundary }: FallbackProps) {
 
 interface OutputProps extends HTMLAttributes<HTMLDivElement> {}
 
-export default function Output(props: OutputProps) {
+export default memo(function Output(props: OutputProps) {
   const { semanticMethod, programLanguage } = useProgramStorage(
     (state) =>
       pick(state, "semanticMethod", "programLanguage") as Pick<
@@ -59,4 +59,4 @@ export default function Output(props: OutputProps) {
       </ErrorBoundary>
     </div>
   );
-}
+});

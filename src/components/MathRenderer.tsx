@@ -1,4 +1,5 @@
 import { useOutputOptionsStorage } from "@/lib/storage/displayOptionsStorage";
+import { useProgramStorage } from "@/lib/storage/programStorage";
 import { cn } from "@/lib/utils";
 import katex from "katex";
 import { HTMLAttributes, memo, useEffect, useRef } from "react";
@@ -10,6 +11,7 @@ interface MathRendererProps extends HTMLAttributes<HTMLDivElement> {
 export default memo(function MathRenderer({ children, className, ...props }: MathRendererProps) {
   const elementRef = useRef<HTMLDivElement | null>(null);
   const breakLines = useOutputOptionsStorage((state) => state.breakLines);
+  const semanticMethod = useProgramStorage(state => state.semanticMethod)
 
   useEffect(() => {
     if (!elementRef.current) return;
@@ -20,7 +22,7 @@ export default memo(function MathRenderer({ children, className, ...props }: Mat
     <div
       ref={elementRef}
       {...props}
-      className={cn(!breakLines && "whitespace-nowrap", "p-1", className)}
+      className={cn((!breakLines || semanticMethod === "ns") && "whitespace-nowrap", "p-1", className)}
     ></div>
   );
 });

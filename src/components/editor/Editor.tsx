@@ -1,12 +1,12 @@
 import { useEditorStorage } from "@/lib/storage/editorStorage";
 import { useProgramStorage } from "@/lib/storage/programStorage";
 import { cn } from "@/lib/utils";
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, memo } from "react";
 import { CodeEditor } from "./CodeEditor";
 import VariablesList from "./VariablesList";
 import { Button } from "../ui/button";
 
-export default function Editor(props: HTMLAttributes<HTMLDivElement>) {
+export default memo(function Editor(props: HTMLAttributes<HTMLDivElement>) {
   const selection = useEditorStorage((state) => state.selection);
   const variables = useProgramStorage((state) => state.variables);
   const [programText, setProgramText] = useProgramStorage((state) => [
@@ -33,4 +33,4 @@ export default function Editor(props: HTMLAttributes<HTMLDivElement>) {
       />
     </div>
   );
-}
+});
