@@ -21,6 +21,7 @@ import {
   StoreValue,
   SubValue,
 } from "./types";
+import { addKeywordsPaddingAM } from "@/lib/utils/padding";
 
 export class MakeSequenceAM implements IMakeSequence<IConfig[]> {
   private states: string[];
@@ -57,7 +58,7 @@ export class MakeSequenceAM implements IMakeSequence<IConfig[]> {
           .join(":")
       : "";
     return String.raw`${a(this.configNumber)} \ =  \ \langle ${
-      configText !== "\\mathscr{e}" ? text(configText + cyclePart) : configText
+      configText !== "\\mathscr{e}" ? configText + cyclePart : configText
     }, ${parseStack(stack)}, ${s(this.nextStateNumber - 1)} \rangle \ = \! \gg  ${a(
       this.configNumber + 1
     )}`;
@@ -143,7 +144,7 @@ export class MakeSequenceAM implements IMakeSequence<IConfig[]> {
   ): IConfig[] => {
     const executeBranch = value.isTrue ? value.ifBranch : value.elBranch;
     const branch = this.parseTransition(value.text, stack, rest);
-    const restProgram = parseRestProgram(rest)
+    const restProgram = parseRestProgram(rest);
     restProgram && this.remainingInstructions.push();
     const body = this.traverse(executeBranch.children);
     restProgram && this.remainingInstructions.pop();
@@ -333,7 +334,10 @@ export class MakeSequenceAM implements IMakeSequence<IConfig[]> {
     const [tree, visitor] = result;
     this.changeState(variables);
     const finalSequence = [
-      ...this.traverse(tree?.children),
+      ...this.traverse(tree?.children).map((config) => ({
+        ...config,
+        text: addKeywordsPaddingAM(config.text),
+      })),
       { text: this.parseTransition("\\mathscr{e}", visitor.getStack(), []).split("= \\! \\gg")[0] },
     ];
     return finalSequence;

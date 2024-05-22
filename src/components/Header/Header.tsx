@@ -12,6 +12,8 @@ import { DefaultHeaderButton } from "./DefaultHeaderButton";
 import { ExampleSelector } from "./ExampleSelect";
 import { InterpreterSelector } from "./InterpreterSelector";
 import { TranslateProgram } from "./TranslateProgram";
+import { Checkbox } from "../ui/checkbox";
+import { useOutputOptionsStorage } from "@/lib/storage/displayOptionsStorage";
 
 export function Header() {
   const isLarge = useMediaBreakpointUp(tailwindConfig.theme.screens.lg);
@@ -20,12 +22,19 @@ export function Header() {
     return () => state.setProgramId(state.programId + 1);
   });
   const reset = useProgramStorage((state) => state.reset);
+  const { breakLines, setBreakLines } = useOutputOptionsStorage();
 
   const runProgram = (
     <Button data-runprogram-3 onClick={incrementProgramId} className="gap-2">
       Visualize
       <Play className="!w-[1.375rem] !h-[1.375rem] stroke-accent fill-accent" />
     </Button>
+  );
+  const lineBreakToggle = (
+    <div className="flex items-center gap-2">
+      <label htmlFor="line-break-toggle">Break lines</label>
+      <Checkbox id="line-break-toggle" checked={breakLines} onCheckedChange={setBreakLines} />
+    </div>
   );
   const themeChange = (
     <DefaultHeaderButton
@@ -50,6 +59,7 @@ export function Header() {
             {runProgram}
           </div>
           <div className="flex gap-2">
+            {lineBreakToggle}
             <Export />
             <Help />
             {themeChange}
@@ -73,16 +83,13 @@ export function Header() {
                 <ExampleSelector />
                 <Export />
                 <Help />
+                {lineBreakToggle}
               </SheetContent>
             </Sheet>
             {themeChange}
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="secondary"
-              onClick={reset}
-              className="block lg:hidden"
-            >
+            <Button variant="secondary" onClick={reset} className="block lg:hidden">
               Reset
             </Button>
             {runProgram}

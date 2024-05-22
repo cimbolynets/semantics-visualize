@@ -37,6 +37,7 @@ interface RenderInModeProps {
 export const RenderInMode: FC<RenderInModeProps> = ({ sequence, states }) => {
   const [tab, setTab] = useState<Tab>("step-by-step");
   const isLarge = useMediaBreakpointUp(tailwindConfig.theme.screens.lg);
+  const isXl = useMediaBreakpointUp(tailwindConfig.theme.screens.xl);
 
   const activeTabName = useMemo(() => {
     return tabs.find((t) => t.value === tab)?.name ?? "Select mode";
@@ -49,7 +50,7 @@ export const RenderInMode: FC<RenderInModeProps> = ({ sequence, states }) => {
       className="flex flex-col gap-4 h-full"
     >
       <div className="output-controls justify-between items-center">
-        <div className="flex gap-4">
+        <div className="grow basis-0 flex gap-4">
           <States states={states} />
           {isLarge ? (
             <TabsList>
@@ -62,7 +63,7 @@ export const RenderInMode: FC<RenderInModeProps> = ({ sequence, states }) => {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="secondary" className="gap-2">
+                <Button variant="secondary" className="gap-2 ml-auto">
                   {activeTabName}
                   <ChevronDown />
                 </Button>
@@ -81,7 +82,7 @@ export const RenderInMode: FC<RenderInModeProps> = ({ sequence, states }) => {
             </DropdownMenu>
           )}
         </div>
-        {isLarge ? (
+        {isXl ? (
           <span className="text-base">
             Sequence length: <span className="font-bold">{sequence.length}</span>
           </span>
