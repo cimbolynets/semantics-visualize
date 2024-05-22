@@ -109,7 +109,7 @@ export default function SetVariables() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size="sm" variant="secondary" className="gap-1">
+        <Button variant="secondary" className="gap-1">
           <VariableIcon /> Set variables
         </Button>
       </SheetTrigger>

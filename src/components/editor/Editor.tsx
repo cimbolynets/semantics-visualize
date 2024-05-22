@@ -19,7 +19,7 @@ export default function Editor(props: HTMLAttributes<HTMLDivElement>) {
     <div {...props} className={cn("flex flex-col gap-2", props.className)}>
       <div className="flex gap-2 items-center wrap">
         <VariablesList variables={variables} />
-        <Button variant="secondary" size="sm" onClick={reset} className="hidden lg:block ml-auto">
+        <Button variant="secondary" onClick={reset} className="hidden lg:block ml-auto">
           Reset
         </Button>
       </div>
